@@ -1,0 +1,155 @@
+package main
+
+import (
+	"time"
+
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/progress"
+	"github.com/charmbracelet/bubbles/timer"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+)
+
+const (
+	maxWidth       = 80
+	progressMargin = 4
+)
+
+type model struct {
+	timer           timer.Model
+	progress        progress.Model
+	duration        time.Duration
+	initialDuration time.Duration
+	passed          time.Duration
+	width           int
+	height          int
+	help            help.Model
+	quitting        bool
+}
+
+const interval = time.Second
+
+func NewModel(duration time.Duration) model {
+	m := model{
+		progress:        progress.New(progress.WithDefaultGradient()),
+		duration:        duration,
+		initialDuration: duration,
+		help:            help.New(),
+	}
+
+	m.timer = timer.NewWithInterval(
+		duration,
+		interval,
+	)
+
+	return m
+}
+
+func (m model) Init() tea.Cmd {
+	return m.timer.Init()
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, Keys.Increase):
+			m.duration += time.Minute
+			return m, m.resetTimer()
+
+		case key.Matches(msg, Keys.Decrease):
+			m.duration -= time.Minute
+			return m, m.resetTimer()
+
+		case key.Matches(msg, Keys.Reset):
+			m.passed = 0
+			m.duration = m.initialDuration
+			return m, m.resetTimer()
+
+		case key.Matches(msg, Keys.Quit):
+			m.quitting = true
+			return m, tea.Quit
+
+		default:
+			return m, nil
+		}
+
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		m.progress.Width = min(m.width-progressMargin, maxWidth)
+		return m, nil
+
+	case timer.TickMsg:
+		var cmds []tea.Cmd
+
+		m.passed += m.timer.Interval
+
+		percent := float64(m.passed.Milliseconds()) / float64(m.duration.Milliseconds())
+		cmds = append(cmds, m.progress.SetPercent(percent))
+
+		m.timer, cmd = m.timer.Update(msg)
+		cmds = append(cmds, cmd)
+
+		return m, tea.Batch(cmds...)
+
+	case timer.StartStopMsg:
+		m.timer, cmd = m.timer.Update(msg)
+		return m, cmd
+
+	case progress.FrameMsg:
+		progressModel, cmd := m.progress.Update(msg)
+		m.progress = progressModel.(progress.Model)
+
+		if m.progress.Percent() == 1.0 && !m.progress.IsAnimating() {
+			runPostCommands()
+			m.quitting = true
+			return m, tea.Quit
+		}
+
+		return m, cmd
+
+	default:
+		return m, nil
+	}
+}
+
+func (m model) View() string {
+	if m.quitting {
+		return ""
+	}
+
+	s := "working — "
+	if m.timer.Timedout() {
+		s = "done!"
+	} else {
+		s += m.timer.View()
+	}
+
+	s += "\n" +
+		m.progress.View() + "\n\n"
+
+	return lipgloss.Place(
+		m.width,
+		m.height,
+		lipgloss.Center,
+		lipgloss.Center,
+		lipgloss.JoinVertical(
+			lipgloss.Center,
+			s,
+			m.help.View(Keys),
+		),
+	)
+}
+
+func (m *model) resetTimer() tea.Cmd {
+	m.timer = timer.NewWithInterval(
+		m.duration-m.passed,
+		interval,
+	)
+
+	return m.timer.Init()
+}
