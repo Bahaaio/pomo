@@ -1,9 +1,9 @@
-package main
+// Package ui provides the terminal user interface for pomodoro sessions.
+package ui
 
 import (
 	"time"
 
-	"github.com/Bahaaio/pomo/config"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -19,6 +19,7 @@ const (
 )
 
 type model struct {
+	name            string
 	timer           timer.Model
 	progress        progress.Model
 	duration        time.Duration
@@ -26,18 +27,21 @@ type model struct {
 	passed          time.Duration
 	width           int
 	height          int
+	altScreen       bool
 	help            help.Model
 	quitting        bool
 }
 
 const interval = time.Second
 
-func NewModel(duration time.Duration) model {
+func NewModel(duration time.Duration, taskName string, altScreen bool) model {
 	return model{
+		name:            taskName,
 		timer:           timer.NewWithInterval(duration, interval),
 		progress:        progress.New(progress.WithDefaultGradient()),
 		duration:        duration,
 		initialDuration: duration,
+		altScreen:       altScreen,
 		help:            help.New(),
 	}
 }
@@ -101,7 +105,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.progress = progressModel.(progress.Model)
 
 		if m.progress.Percent() == 1.0 && !m.progress.IsAnimating() {
-			runPostCommands()
 			m.quitting = true
 			return m, tea.Quit
 		}
@@ -118,7 +121,7 @@ func (m model) View() string {
 		return ""
 	}
 
-	s := "working — "
+	s := m.name + " session — "
 	if m.timer.Timedout() {
 		s = "done!"
 	} else {
@@ -130,7 +133,7 @@ func (m model) View() string {
 
 	help := m.help.View(Keys)
 
-	if config.C.AltScreen {
+	if m.altScreen {
 		return lipgloss.Place(
 			m.width,
 			m.height,

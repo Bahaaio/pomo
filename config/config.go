@@ -9,18 +9,18 @@ import (
 	"github.com/spf13/viper"
 )
 
-type task struct {
+type Task struct {
 	Duration time.Duration
 	Then     []string
 }
 
-type config struct {
-	Work      task
-	Break     task
+type Config struct {
+	Work      Task
+	Break     Task
 	AltScreen bool
 }
 
-var C config
+var C Config
 
 func init() {
 	viper.SetConfigName("pomo")

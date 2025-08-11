@@ -4,6 +4,6 @@ break:
     then:
         - notify-send 'Break Over'
 work:
-    duration: 5m
+    duration: 25m
     then:
         - notify-send 'Work Finished!' 'Time to take a break ☕'
