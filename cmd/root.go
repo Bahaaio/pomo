@@ -35,8 +35,7 @@ func initConfig() {
 	log.Println("initializing config")
 
 	if err := config.LoadConfig(); err != nil {
-		fmt.Fprintln(os.Stderr, "could not load config", err)
-		os.Exit(1)
+		log.Println("using default config")
 	}
 }
 
