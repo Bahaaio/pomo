@@ -3,6 +3,7 @@
 package config
 
 import (
+	"log"
 	"time"
 
 	"github.com/spf13/viper"
@@ -31,31 +32,27 @@ func init() {
 
 	viper.SetDefault("work", map[string]any{
 		"duration": 25 * time.Minute,
-		"then": []string{
-			"notify-send 'Work Finished!' 'Time to take a break ☕'",
-		},
 	})
 
 	viper.SetDefault("break", map[string]any{
 		"duration": 5 * time.Minute,
-		"then": []string{
-			"notify-send 'Break Over'",
-		},
 	})
+}
 
+func LoadConfig() error {
 	err := viper.ReadInConfig()
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			panic("config file not found")
-		} else {
-			panic("could not read config file")
-		}
+		return err
 	}
+	log.Println("read config")
 
 	err = viper.Unmarshal(&C)
 	if err != nil {
-		panic("invalid config file")
+		return err
 	}
+	log.Println("Unmarshaled into config struct")
+
+	return nil
 }
 
 // Save writes the current configuration to file.
