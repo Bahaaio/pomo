@@ -1,16 +1,19 @@
 # pomo — Terminal Pomodoro Timer
 
-pomo is a simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea](https://github.com/charmbracelet/bubbletea)
+![Demo](.github/assets/pomo.gif)
+
+A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
 ## Features
 
-- Work/break timers with configurable durations
-- Progress bar visualization
-- Keyboard shortcuts to adjust time mid-session
-- Optional alt-screen mode
-- Custom commands to run when a timer ends (e.g. desktop notifications)
+- 🍅 Work and break timer sessions
+- 📊 Real-time progress bar visualization
+- ⌨️ Keyboard shortcuts to adjust time mid-session
+- 🖥️ Optional full screen or inline mode
+- 🔔 Custom commands when timers complete (notifications, etc.)
+- 🎨 Clean, minimal terminal UI
 
-## Build
+## Installation
 
 ```bash
 git clone https://github.com/Bahaaio/pomo
@@ -38,25 +41,32 @@ work:
 break:
   duration: 5m
   then:
-    - notify-send "Break Over"
+    - notify-send "Break Over" "Back to work! 💪"
 ```
 
-The `then` field is a list of shell commands run when the timer finishes.v
+The `then` field contains shell commands that run when the timer finishes.
 
 ## Usage
 
 ```bash
+# Start a work session (default)
 ./pomo
+
+# Explicit work session
+./pomo work
+
+# Start a break session
+./pomo break
 ```
 
 ### Key Bindings
 
-| Key    | Action                    |
-| ------ | ------------------------- |
-| `up`   | Increase time by 1 minute |
-| `down` | Decrease time by 1 minute |
-| `left` | Reset to initial duration |
-| `q`    | Quit                      |
+| Key            | Action                    |
+| -------------- | ------------------------- |
+| `↑` / `k`      | Increase time by 1 minute |
+| `↓` / `j`      | Decrease time by 1 minute |
+| `←` / `h`      | Reset to initial duration |
+| `q` / `Ctrl+C` | Quit                      |
 
 ## License
 
