@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/Bahaaio/pomo/config"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -12,8 +13,9 @@ import (
 )
 
 const (
-	maxWidth       = 80
-	progressMargin = 4
+	maxWidth = 80
+	margin   = 4
+	padding  = 2
 )
 
 type model struct {
@@ -31,19 +33,13 @@ type model struct {
 const interval = time.Second
 
 func NewModel(duration time.Duration) model {
-	m := model{
+	return model{
+		timer:           timer.NewWithInterval(duration, interval),
 		progress:        progress.New(progress.WithDefaultGradient()),
 		duration:        duration,
 		initialDuration: duration,
 		help:            help.New(),
 	}
-
-	m.timer = timer.NewWithInterval(
-		duration,
-		interval,
-	)
-
-	return m
 }
 
 func (m model) Init() tea.Cmd {
@@ -80,7 +76,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		m.progress.Width = min(m.width-progressMargin, maxWidth)
+		m.progress.Width = min(m.width-2*padding-margin, maxWidth)
 		return m, nil
 
 	case timer.TickMsg:
@@ -129,18 +125,35 @@ func (m model) View() string {
 		s += m.timer.View()
 	}
 
-	s += "\n" +
-		m.progress.View() + "\n\n"
+	s += "\n\n" +
+		m.progress.View() + "\n"
+
+	help := m.help.View(Keys)
+
+	if config.C.AltScreen {
+		return lipgloss.Place(
+			m.width,
+			m.height,
+			lipgloss.Center,
+			lipgloss.Center,
+			lipgloss.JoinVertical(
+				lipgloss.Center,
+				s,
+				help,
+			),
+		)
+	}
 
 	return lipgloss.Place(
 		m.width,
-		m.height,
+		1,
 		lipgloss.Center,
-		lipgloss.Center,
+		lipgloss.Left,
 		lipgloss.JoinVertical(
 			lipgloss.Center,
+			"\n",
 			s,
-			m.help.View(Keys),
+			help,
 		),
 	)
 }
