@@ -14,7 +14,7 @@ import (
 func runTask(task config.Task, taskName string) {
 	log.Printf("starting %v session: %v", taskName, task.Duration)
 
-	m := ui.NewModel(task.Duration, taskName, config.C.AltScreen)
+	m := ui.NewModel(task.Duration, taskName, config.C.FullScreen)
 	p := tea.NewProgram(m)
 
 	if _, err := p.Run(); err != nil {

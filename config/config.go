@@ -15,9 +15,9 @@ type Task struct {
 }
 
 type Config struct {
-	Work      Task
-	Break     Task
-	AltScreen bool
+	Work       Task
+	Break      Task
+	FullScreen bool
 }
 
 var C Config
@@ -28,7 +28,7 @@ func init() {
 	viper.AddConfigPath("$HOME/.config/pomo/")
 	viper.AddConfigPath(".")
 
-	viper.SetDefault("altScreen", true)
+	viper.SetDefault("fullScreen", true)
 
 	viper.SetDefault("work", map[string]any{
 		"duration": 25 * time.Minute,

@@ -1,9 +1,11 @@
-altscreen: true
-break:
-    duration: 5m
-    then:
-        - notify-send 'Break Over'
+fullscreen: false
+
 work:
-    duration: 25m
-    then:
-        - notify-send 'Work Finished!' 'Time to take a break ☕'
+  duration: 25m
+  then:
+    - notify-send 'Work Finished!' 'Time to take a break ☕'
+
+break:
+  duration: 5m
+  then:
+    - notify-send 'Break Over' 'Back to work! 💪'

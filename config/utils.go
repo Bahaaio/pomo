@@ -8,10 +8,10 @@ import (
 
 func ProgramOptions() []tea.ProgramOption {
 	var opts []tea.ProgramOption
-	if C.AltScreen {
+	if C.FullScreen {
 		opts = append(opts, tea.WithAltScreen())
 	}
-	log.Println("AltScreen:", C.AltScreen)
+	log.Println("AltScreen:", C.FullScreen)
 
 	return opts
 }

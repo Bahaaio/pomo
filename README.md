@@ -28,7 +28,7 @@ pomo looks for its config file in:
 Example `pomo.yaml`:
 
 ```yaml
-altScreen: true
+fullScreen: true
 
 work:
   duration: 25m
