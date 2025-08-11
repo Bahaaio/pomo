@@ -13,6 +13,19 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - 🔔 Custom commands when timers complete (notifications, etc.)
 - 🎨 Clean, minimal terminal UI
 
+## Usage
+
+```bash
+# Start a work session (default)
+pomo
+
+# Explicit work session
+pomo work
+
+# Start a break session
+pomo break
+```
+
 ## Installation
 
 Install with Go
@@ -55,19 +68,6 @@ break:
 ```
 
 The `then` field contains shell commands that run when the timer finishes.
-
-## Usage
-
-```bash
-# Start a work session (default)
-./pomo
-
-# Explicit work session
-./pomo work
-
-# Start a break session
-./pomo break
-```
 
 ### Key Bindings
 
