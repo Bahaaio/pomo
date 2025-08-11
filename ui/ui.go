@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"log"
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -18,7 +19,7 @@ const (
 	padding  = 2
 )
 
-type model struct {
+type Model struct {
 	name            string
 	timer           timer.Model
 	progress        progress.Model
@@ -34,8 +35,8 @@ type model struct {
 
 const interval = time.Second
 
-func NewModel(duration time.Duration, taskName string, altScreen bool) model {
-	return model{
+func NewModel(duration time.Duration, taskName string, altScreen bool) Model {
+	return Model{
 		name:            taskName,
 		timer:           timer.NewWithInterval(duration, interval),
 		progress:        progress.New(progress.WithDefaultGradient()),
@@ -46,11 +47,11 @@ func NewModel(duration time.Duration, taskName string, altScreen bool) model {
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return m.timer.Init()
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -105,6 +106,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.progress = progressModel.(progress.Model)
 
 		if m.progress.Percent() == 1.0 && !m.progress.IsAnimating() {
+			log.Println("timer completed")
 			m.quitting = true
 			return m, tea.Quit
 		}
@@ -116,7 +118,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 }
 
-func (m model) View() string {
+func (m Model) View() string {
 	if m.quitting {
 		return ""
 	}
@@ -161,11 +163,15 @@ func (m model) View() string {
 	)
 }
 
-func (m *model) resetTimer() tea.Cmd {
+func (m *Model) resetTimer() tea.Cmd {
 	m.timer = timer.NewWithInterval(
 		m.duration-m.passed,
 		interval,
 	)
 
 	return m.timer.Init()
+}
+
+func (m Model) TimerCompleted() bool {
+	return m.timer.Timedout()
 }

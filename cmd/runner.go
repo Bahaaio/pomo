@@ -17,19 +17,24 @@ func runTask(task config.Task, taskName string) {
 	m := ui.NewModel(task.Duration, taskName, config.C.FullScreen)
 	p := tea.NewProgram(m)
 
-	if _, err := p.Run(); err != nil {
-		fmt.Println("Error:", err)
+	var finalModel tea.Model
+	var err error
+
+	if finalModel, err = p.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
 
-	err := config.Save()
+	err = config.Save()
 	if err != nil {
-		fmt.Println("failed to save config:", err)
+		fmt.Fprintln(os.Stderr, "failed to save config:", err)
 	}
 	log.Println("saved config")
 
-	log.Println("running post commands")
-	runPostCommands(task.Then)
+	if finalModel.(ui.Model).TimerCompleted() {
+		log.Println("running post commands")
+		runPostCommands(task.Then)
+	}
 
 	log.Printf("completed %v session: %v", taskName, task.Duration)
 }

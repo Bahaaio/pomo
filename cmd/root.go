@@ -44,7 +44,7 @@ func initializeLogging() {
 	if len(os.Getenv("DEBUG")) > 0 {
 		_, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
-			fmt.Println("failed to setup logging:", err)
+			fmt.Fprintln(os.Stderr, "failed to setup logging:", err)
 			os.Exit(1)
 		}
 		log.SetFlags(log.Ltime)
