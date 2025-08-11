@@ -15,11 +15,21 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 
 ## Installation
 
+Install with Go
+
+```bash
+go install github.com/Bahaaio/pomo@latest
+```
+
+Or, build from source
+
 ```bash
 git clone https://github.com/Bahaaio/pomo
 cd pomo
 go build .
 ```
+
+Alternatively, download pre-built binaries from the [releases page](https://github.com/Bahaaio/pomo/releases).
 
 ## Configuration
 
