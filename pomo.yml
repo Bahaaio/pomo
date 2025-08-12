@@ -1,15 +1,26 @@
+# pomo config file
+# https://github.com/Bahaaio/pomo
+
 fullscreen: true
 
 work:
   duration: 25m
   title: work session
+  notification:
+    enabled: true
+    title: work finished 🎉
+    message: time to take a break
+    icon: ./pomo.png
   then:
-    - notify-send 'Work Finished!' 'Time to take a break ☕'
-    - spd-say 'Time to take a break ☕'
+    - spd-say 'Time to take a break'
 
 break:
   duration: 5m
   title: break session
+  notification:
+    enabled: true
+    title: break over 😴
+    message: back to work!
+    icon: ./pomo.png
   then:
-    - notify-send 'Break Over' 'Back to work! 💪'
-    - spd-say 'Back to work! 💪'
+    - spd-say 'Back to work!'

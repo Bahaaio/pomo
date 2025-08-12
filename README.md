@@ -10,8 +10,9 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - 📊 Real-time progress bar visualization
 - ⌨️ Keyboard shortcuts to adjust time mid-session
 - 🖥️ Optional full screen or inline mode
-- 🔔 Custom commands when timers complete (notifications, etc.)
+- 🔔 Cross-platform desktop notifications
 - 🎨 Clean, minimal terminal UI
+- 🛠️ Custom commands when timers complete
 
 ## Usage
 
@@ -59,18 +60,23 @@ fullScreen: true
 work:
   duration: 25m
   title: work session
-  then:
-    - notify-send "Work Finished!" "Time to take a break ☕"
+
+  # cross-platform notifications
+  notification:
+    enabled: true
+    title: work finished 🎉
+    message: time to take a break
+    icon: ./pomo.png
 
 break:
   duration: 5m
+
+  # will run after the session ends
   then:
-    - notify-send "Break Over" "Back to work! 💪"
+    - spd-say 'Back to work!'
 ```
 
-The `then` field contains shell commands that run when the timer finishes.
-
-Check out [pomo.yml](pomo.yml) for a full example.
+Check out [pomo.yml](pomo.yml) for a full example with all options.
 
 ### Key Bindings
 
