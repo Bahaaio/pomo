@@ -12,6 +12,7 @@ import (
 type Task struct {
 	Duration time.Duration
 	Then     []string
+	Title    string
 }
 
 type Config struct {
@@ -32,10 +33,12 @@ func init() {
 
 	viper.SetDefault("work", map[string]any{
 		"duration": 25 * time.Minute,
+		"title":    "work session",
 	})
 
 	viper.SetDefault("break", map[string]any{
 		"duration": 5 * time.Minute,
+		"title":    "break session",
 	})
 }
 

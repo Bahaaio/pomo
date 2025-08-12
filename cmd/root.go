@@ -18,7 +18,7 @@ var rootCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("args:", args)
-		runTask(config.C.Work, "work")
+		runTask(config.C.Work)
 	},
 }
 
@@ -27,7 +27,7 @@ func Execute() error {
 }
 
 func init() {
-	initializeLogging()
+	initLogging()
 	initConfig()
 }
 
@@ -39,7 +39,7 @@ func initConfig() {
 	}
 }
 
-func initializeLogging() {
+func initLogging() {
 	if len(os.Getenv("DEBUG")) > 0 {
 		_, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {

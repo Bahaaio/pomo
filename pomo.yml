@@ -1,11 +1,15 @@
-fullscreen: false
+fullscreen: true
 
 work:
   duration: 25m
+  title: work session
   then:
     - notify-send 'Work Finished!' 'Time to take a break ☕'
+    - spd-say 'Time to take a break ☕'
 
 break:
   duration: 5m
+  title: break session
   then:
     - notify-send 'Break Over' 'Back to work! 💪'
+    - spd-say 'Back to work! 💪'

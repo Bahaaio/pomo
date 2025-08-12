@@ -5,16 +5,17 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func runTask(task config.Task, taskName string) {
-	log.Printf("starting %v session: %v", taskName, task.Duration)
+func runTask(task config.Task) {
+	log.Printf("starting %v session: %v", task.Title, task.Duration)
 
-	m := ui.NewModel(task.Duration, taskName, config.C.FullScreen)
+	m := ui.NewModel(task, config.C.FullScreen)
 	p := tea.NewProgram(m)
 
 	var finalModel tea.Model
@@ -39,5 +40,8 @@ func runPostCommands(cmds []string) {
 		if err := c.Run(); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to run command '%q': %v\n", cmd, err)
 		}
+
+		// wait some time before running the next command
+		time.Sleep(50 * time.Millisecond)
 	}
 }

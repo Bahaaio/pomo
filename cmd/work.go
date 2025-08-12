@@ -9,7 +9,7 @@ var workCmd = &cobra.Command{
 	Use:   "work",
 	Short: "start a pomodoro work session",
 	Run: func(cmd *cobra.Command, args []string) {
-		runTask(config.C.Work, "work")
+		runTask(config.C.Work)
 	},
 }
 

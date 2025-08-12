@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/Bahaaio/pomo/config"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -20,7 +21,7 @@ const (
 )
 
 type Model struct {
-	name            string
+	title           string
 	timer           timer.Model
 	progress        progress.Model
 	duration        time.Duration
@@ -35,13 +36,13 @@ type Model struct {
 
 const interval = time.Second
 
-func NewModel(duration time.Duration, taskName string, altScreen bool) Model {
+func NewModel(task config.Task, altScreen bool) Model {
 	return Model{
-		name:            taskName,
-		timer:           timer.NewWithInterval(duration, interval),
+		title:           task.Title,
+		timer:           timer.NewWithInterval(task.Duration, interval),
 		progress:        progress.New(progress.WithDefaultGradient()),
-		duration:        duration,
-		initialDuration: duration,
+		duration:        task.Duration,
+		initialDuration: task.Duration,
 		altScreen:       altScreen,
 		help:            help.New(),
 	}
@@ -123,9 +124,9 @@ func (m Model) View() string {
 		return ""
 	}
 
-	s := m.name + " session — "
+	s := m.title + " — "
 	if m.timer.Timedout() {
-		s = "done!"
+		s += "done!"
 	} else {
 		s += m.timer.View()
 	}
