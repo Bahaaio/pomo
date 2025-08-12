@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
@@ -53,8 +54,10 @@ func sendNotification(notification config.Notification) {
 func runPostCommands(cmds []string) {
 	log.Println("running post commands")
 
+	runCommand, arg := getRunCommand()
+
 	for _, cmd := range cmds {
-		c := exec.Command("sh", "-c", cmd)
+		c := exec.Command(runCommand, arg, cmd)
 
 		if err := c.Run(); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to run command '%q': %v\n", cmd, err)
@@ -63,4 +66,14 @@ func runPostCommands(cmds []string) {
 		// wait some time before running the next command
 		time.Sleep(50 * time.Millisecond)
 	}
+}
+
+func getRunCommand() (command, arg string) {
+	command, arg = "sh", "-c"
+
+	if runtime.GOOS == "windows" {
+		command, arg = "cmd.exe", "/c"
+	}
+
+	return
 }
