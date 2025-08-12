@@ -58,6 +58,7 @@ fullScreen: true
 
 work:
   duration: 25m
+  title: work session
   then:
     - notify-send "Work Finished!" "Time to take a break ☕"
 
@@ -68,6 +69,8 @@ break:
 ```
 
 The `then` field contains shell commands that run when the timer finishes.
+
+Check out [pomo.yml](pomo.yml) for a full example.
 
 ### Key Bindings
 
