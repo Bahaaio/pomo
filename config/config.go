@@ -9,10 +9,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Notification struct {
+	Enabled bool
+	Title   string
+	Message string
+	Icon    string
+}
+
 type Task struct {
+	Title    string
 	Duration time.Duration
 	Then     []string
-	Title    string
+	Notification
 }
 
 type Config struct {
@@ -34,11 +42,21 @@ func init() {
 	viper.SetDefault("work", map[string]any{
 		"duration": 25 * time.Minute,
 		"title":    "work session",
+		"notification": map[string]any{
+			"enabled": true,
+			"title":   "work finished 🎉",
+			"message": "time to take a break",
+		},
 	})
 
 	viper.SetDefault("break", map[string]any{
 		"duration": 5 * time.Minute,
 		"title":    "break session",
+		"notification": map[string]any{
+			"enabled": true,
+			"title":   "break over 😴",
+			"message": "back to work!",
+		},
 	})
 }
 
