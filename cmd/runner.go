@@ -25,21 +25,14 @@ func runTask(task config.Task, taskName string) {
 		os.Exit(1)
 	}
 
-	err = config.Save()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed to save config:", err)
-	}
-	log.Println("saved config")
-
 	if finalModel.(ui.Model).TimerCompleted() {
-		log.Println("running post commands")
 		runPostCommands(task.Then)
 	}
-
-	log.Printf("completed %v session: %v", taskName, task.Duration)
 }
 
 func runPostCommands(cmds []string) {
+	log.Println("running post commands")
+
 	for _, cmd := range cmds {
 		c := exec.Command("sh", "-c", cmd)
 

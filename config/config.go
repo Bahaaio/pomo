@@ -20,10 +20,7 @@ type Config struct {
 	FullScreen bool
 }
 
-var (
-	C         Config
-	isDefault = false
-)
+var C Config
 
 func init() {
 	viper.SetConfigName("pomo")
@@ -45,28 +42,15 @@ func init() {
 func LoadConfig() error {
 	log.Println("loading config")
 
-	err := viper.ReadInConfig()
-	if err != nil {
-		isDefault = true
-	}
+	viper.ReadInConfig()
 	log.Println("read config")
 
-	err = viper.Unmarshal(&C)
+	err := viper.Unmarshal(&C)
 	if err != nil {
-		isDefault = true
 		return err
 	}
 	log.Println("Unmarshaled config")
 	log.Println("config:", C)
 
 	return nil
-}
-
-// Save writes the current configuration to file.
-func Save() error {
-	if isDefault {
-		return nil
-	}
-
-	return viper.WriteConfig()
 }
