@@ -1,4 +1,4 @@
-name: CI
+name: build
 
 on:
   push:
@@ -26,7 +26,3 @@ jobs:
 
       - name: Build
         run: go build -v ./...
-
-  # skip tests for now
-  # - name: Test
-  #   run: go test -v ./...
