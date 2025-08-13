@@ -64,8 +64,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.resetTimer()
 
 		case key.Matches(msg, Keys.Decrease):
-			m.duration -= time.Minute
-			return m, m.resetTimer()
+			if m.duration > time.Minute {
+				m.duration -= time.Minute
+				return m, m.resetTimer()
+			}
+			return m, nil
 
 		case key.Matches(msg, Keys.Reset):
 			m.passed = 0
