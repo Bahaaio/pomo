@@ -18,8 +18,8 @@ var rootCmd = &cobra.Command{
 	Short: "pomo is a simple cli pomodoro",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("args:", args)
-		runTask(config.C.Work)
+		log.Println("rootCmd args:", args)
+		runTask(&config.C.Work, cmd)
 	},
 }
 
@@ -31,6 +31,13 @@ func init() {
 	initLogging()
 	initConfig()
 	beeep.AppName = "pomo"
+
+	rootCmd.PersistentFlags().DurationP(
+		"time",
+		"t",
+		0, // no default
+		"Override time duration (eg. 10m, 1h30m)",
+	)
 }
 
 func initConfig() {

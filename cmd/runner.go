@@ -12,13 +12,17 @@ import (
 	"github.com/Bahaaio/pomo/ui"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gen2brain/beeep"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
-func runTask(task config.Task) {
+func runTask(task *config.Task, cmd *cobra.Command) {
+	parseFlags(cmd.Flags(), task)
+
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
 	notification := task.Notification
 
-	m := ui.NewModel(task, config.C.FullScreen)
+	m := ui.NewModel(*task, config.C.FullScreen)
 	p := tea.NewProgram(m)
 
 	var finalModel tea.Model
@@ -34,6 +38,17 @@ func runTask(task config.Task) {
 	if finalModel.(ui.Model).TimerCompleted() {
 		sendNotification(notification)
 		runPostCommands(task.Then)
+	}
+}
+
+func parseFlags(flags *pflag.FlagSet, task *config.Task) {
+	duration, err := flags.GetDuration("time")
+
+	if err == nil && duration != 0 {
+		log.Println("time flag:", duration)
+		task.Duration = duration
+	} else {
+		log.Println("failed to pare 'time':", err)
 	}
 }
 

@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -128,7 +129,21 @@ func (m Model) View() string {
 	if m.timer.Timedout() {
 		s += "done!"
 	} else {
-		s += m.timer.View()
+		left := m.timer.Timeout
+
+		if int(left.Hours()) > 0 {
+			s += fmt.Sprintf(
+				"%02d:",
+				int(left.Hours())%24,
+			)
+		}
+		s += fmt.Sprintf(
+			"%02d:%02d",
+			int(left.Minutes())%60,
+			int(left.Seconds())%60,
+		)
+
+		// s += m.timer.View()
 	}
 
 	s += "\n\n" +
