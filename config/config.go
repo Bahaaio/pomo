@@ -4,6 +4,8 @@ package config
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/viper"
@@ -34,8 +36,11 @@ var C Config
 func init() {
 	viper.SetConfigName("pomo")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("$HOME/.config/pomo/")
+
 	viper.AddConfigPath(".")
+	if configDir, err := os.UserConfigDir(); err == nil {
+		viper.AddConfigPath(filepath.Join(configDir, "pomo"))
+	}
 
 	viper.SetDefault("fullScreen", true)
 
