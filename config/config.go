@@ -3,6 +3,7 @@
 package config
 
 import (
+	_ "embed"
 	"log"
 	"os"
 	"path/filepath"
@@ -31,7 +32,11 @@ type Config struct {
 	FullScreen bool
 }
 
-var C Config
+var (
+	//go:embed pomo.png
+	Icon []byte
+	C    Config
+)
 
 func init() {
 	viper.SetConfigName("pomo")

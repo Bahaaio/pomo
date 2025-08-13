@@ -39,6 +39,8 @@ func runTask(task *config.Task, cmd *cobra.Command) {
 		sendNotification(notification)
 		runPostCommands(task.Then)
 	}
+
+	fmt.Println(task.Title, "finished")
 }
 
 func parseFlags(flags *pflag.FlagSet, task *config.Task) {
@@ -60,7 +62,16 @@ func sendNotification(notification config.Notification) {
 
 	log.Println("sending notification")
 
-	err := beeep.Notify(notification.Title, notification.Message, notification.Icon)
+	// use the embeded icon
+	var icon any = config.Icon
+
+	// if the user has specified an icon
+	// use that instead
+	if len(notification.Icon) > 0 {
+		icon = notification.Icon
+	}
+
+	err := beeep.Notify(notification.Title, notification.Message, icon)
 	if err != nil {
 		log.Println("failed to send notification:", err)
 	}
