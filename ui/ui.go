@@ -75,7 +75,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.paused = !m.paused
 
 			if !m.paused {
-				return m, m.resetTimer()
+				return m, m.timer.Start()
 			}
 			return m, nil
 
@@ -107,7 +107,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.passed += m.timer.Interval
 
-		percent := float64(m.passed.Milliseconds()) / float64(m.duration.Milliseconds())
+		percent := m.getPercent()
 		cmds = append(cmds, m.progress.SetPercent(percent))
 
 		m.timer, cmd = m.timer.Update(msg)
@@ -146,13 +146,16 @@ func (m Model) View() string {
 		s += "done!"
 	} else {
 		left := m.timer.Timeout
+		hours := int(left.Hours())
+		minutes := int(left.Minutes()) % 60
+		seconds := int(left.Seconds()) % 60
 
 		// HH:MM:SS format
 		// only show hours if they are non-zero
-		if int(left.Hours()) > 0 {
-			s += fmt.Sprintf("%02d:", int(left.Hours()))
+		if hours > 0 {
+			s += fmt.Sprintf("%02d:", hours)
 		}
-		s += fmt.Sprintf("%02d:%02d", int(left.Minutes())%60, int(left.Seconds())%60)
+		s += fmt.Sprintf("%02d:%02d", minutes, seconds)
 
 		// Show pause indicator
 		if m.paused {
@@ -199,7 +202,17 @@ func (m *Model) resetTimer() tea.Cmd {
 		interval,
 	)
 
-	return m.timer.Init()
+	return tea.Batch(
+		m.progress.SetPercent(m.getPercent()),
+		m.timer.Start(),
+	)
+}
+
+func (m Model) getPercent() float64 {
+	passed := float64(m.passed.Milliseconds())
+	duration := float64(m.duration.Milliseconds())
+
+	return passed / duration
 }
 
 func (m Model) TimerCompleted() bool {

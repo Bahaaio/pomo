@@ -38,19 +38,23 @@ func runTask(task *config.Task, cmd *cobra.Command) {
 	if finalModel.(ui.Model).TimerCompleted() {
 		sendNotification(notification)
 		runPostCommands(task.Then)
-	}
 
-	fmt.Println(task.Title, "finished")
+		fmt.Println(task.Title, "finished")
+	}
 }
 
 func parseFlags(flags *pflag.FlagSet, task *config.Task) {
 	duration, err := flags.GetDuration("time")
+	if err != nil {
+		log.Println("failed to parse 'time':", err)
+		return
+	}
 
-	if err == nil && duration != 0 {
+	if duration != 0 {
 		log.Println("time flag:", duration)
 		task.Duration = duration
 	} else {
-		log.Println("failed to pare 'time':", err)
+		log.Println("no time flag specified, using default")
 	}
 }
 
