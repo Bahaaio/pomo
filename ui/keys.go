@@ -39,11 +39,11 @@ var Keys = KeyMap{
 	),
 	Reset: key.NewBinding(
 		key.WithKeys("h", "left"),
-		key.WithHelp("", "reset"),
+		key.WithHelp("←", "reset"),
 	),
 	Pause: key.NewBinding(
 		key.WithKeys(" "),
-		key.WithHelp("󱁐", "pause/resume"),
+		key.WithHelp("space", "pause/resume"),
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c", "q"),

@@ -18,6 +18,7 @@ Set Framerate 60
 
 # start work session
 Type "./pomo work -t 5s"
+Sleep 1s
 Enter
 Sleep 3s
 
