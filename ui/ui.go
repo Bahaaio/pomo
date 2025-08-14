@@ -147,19 +147,17 @@ func (m Model) View() string {
 	} else {
 		left := m.timer.Timeout
 
+		// HH:MM:SS format
+		// only show hours if they are non-zero
 		if int(left.Hours()) > 0 {
-			s += fmt.Sprintf(
-				"%02d:",
-				int(left.Hours())%24,
-			)
+			s += fmt.Sprintf("%02d:", int(left.Hours()))
 		}
-		s += fmt.Sprintf(
-			"%02d:%02d",
-			int(left.Minutes())%60,
-			int(left.Seconds())%60,
-		)
+		s += fmt.Sprintf("%02d:%02d", int(left.Minutes())%60, int(left.Seconds())%60)
 
-		// s += m.timer.View()
+		// Show pause indicator
+		if m.paused {
+			s += " (paused)"
+		}
 	}
 
 	s += "\n\n" +
