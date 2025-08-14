@@ -11,6 +11,7 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - 🍅 Work and break timer sessions
 - 📊 Real-time progress bar visualization
 - ⌨️ Keyboard shortcuts to adjust time mid-session
+- ⏸️ Pause and resume timer functionality
 - 🖥️ Optional full screen or inline mode
 - 🔔 Cross-platform desktop notifications
 - 🎨 Clean, minimal terminal UI
@@ -110,6 +111,7 @@ Check out [pomo.yml](pomo.yml) for a full example with all options.
 | -------------- | ------------------------- |
 | `↑` / `k`      | Increase time by 1 minute |
 | `↓` / `j`      | Decrease time by 1 minute |
+| `Space`        | Pause/Resume timer        |
 | `←` / `h`      | Reset to initial duration |
 | `q` / `Ctrl+C` | Quit                      |
 

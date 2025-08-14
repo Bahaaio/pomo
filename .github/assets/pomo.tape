@@ -17,12 +17,18 @@ Set TypingSpeed 100ms
 Set Framerate 60
 
 # start work session
-Type "./pomo work"
+Type "./pomo work -t 5s"
 Enter
 Sleep 3s
 
 # Adjust time up
 Up 2
+Sleep 2s
+
+# Pause
+Space
+Sleep 2s
+Space
 Sleep 2s
 
 # Adjust time down
