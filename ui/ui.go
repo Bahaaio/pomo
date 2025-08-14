@@ -123,7 +123,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		progressModel, cmd := m.progress.Update(msg)
 		m.progress = progressModel.(progress.Model)
 
-		if m.progress.Percent() == 1.0 && !m.progress.IsAnimating() {
+		if m.progress.Percent() >= 1.0 && !m.progress.IsAnimating() {
 			log.Println("timer completed")
 			m.quitting = true
 			return m, tea.Quit
@@ -216,5 +216,5 @@ func (m Model) getPercent() float64 {
 }
 
 func (m Model) TimerCompleted() bool {
-	return m.timer.Timedout()
+	return m.progress.Percent() >= 1.0
 }

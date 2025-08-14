@@ -40,6 +40,8 @@ func runTask(task *config.Task, cmd *cobra.Command) {
 		runPostCommands(task.Then)
 
 		fmt.Println(task.Title, "finished")
+	} else {
+		log.Println("timer did not complete")
 	}
 }
 
