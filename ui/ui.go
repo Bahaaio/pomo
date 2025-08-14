@@ -31,6 +31,7 @@ type Model struct {
 	width           int
 	height          int
 	altScreen       bool
+	paused          bool
 	help            help.Model
 	quitting        bool
 }
@@ -70,6 +71,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
+		case key.Matches(msg, Keys.Pause):
+			m.paused = !m.paused
+
+			if !m.paused {
+				return m, m.resetTimer()
+			}
+			return m, nil
+
 		case key.Matches(msg, Keys.Reset):
 			m.passed = 0
 			m.duration = m.initialDuration
@@ -90,6 +99,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case timer.TickMsg:
+		if m.paused {
+			return m, nil
+		}
+
 		var cmds []tea.Cmd
 
 		m.passed += m.timer.Interval
