@@ -13,11 +13,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gen2brain/beeep"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 func runTask(task *config.Task, cmd *cobra.Command) {
-	parseFlags(cmd.Flags(), task)
+	if !parseArguments(cmd.Flags().Args(), task) {
+		cmd.Usage()
+		os.Exit(1)
+	}
 
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
 	notification := task.Notification
@@ -45,19 +47,19 @@ func runTask(task *config.Task, cmd *cobra.Command) {
 	}
 }
 
-func parseFlags(flags *pflag.FlagSet, task *config.Task) {
-	duration, err := flags.GetDuration("time")
-	if err != nil {
-		log.Println("failed to parse 'time':", err)
-		return
+// parses the arguments and sets the duration
+// returns false if the duration could not be parsed
+func parseArguments(args []string, task *config.Task) bool {
+	if len(args) > 0 {
+		var err error
+		task.Duration, err = time.ParseDuration(args[0])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "\ninvalid duration: '%v'\n\n", args[0])
+			return false
+		}
 	}
 
-	if duration != 0 {
-		log.Println("time flag:", duration)
-		task.Duration = duration
-	} else {
-		log.Println("no time flag specified, using default")
-	}
+	return true
 }
 
 func sendNotification(notification config.Notification) {

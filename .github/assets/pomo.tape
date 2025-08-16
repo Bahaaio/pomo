@@ -17,8 +17,8 @@ Set TypingSpeed 100ms
 Set Framerate 60
 
 # start work session
-Type "./pomo work -t 5s"
-Sleep 1s
+Type "./pomo 5s"
+Sleep 0.5s
 Enter
 Sleep 3s
 

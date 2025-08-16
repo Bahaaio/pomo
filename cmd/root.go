@@ -14,9 +14,16 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "pomo",
-	Short: "pomo is a simple cli pomodoro",
-	Args:  cobra.MaximumNArgs(1),
+	Use:   "pomo [duration]",
+	Short: "start a pomodoro work session",
+	Long: `pomo is a simple terminal-based Pomodoro timer
+Start a work session with the default duration from your config file,
+or specify a custom duration. The timer shows a progress bar and sends
+desktop notifications when complete.`,
+	Example: `  pomo           # Start work session (default: 25m)
+  pomo 1h15m     # Start 1 hour 15 minute session`,
+
+	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("rootCmd args:", args)
 		runTask(&config.C.Work, cmd)
@@ -31,13 +38,6 @@ func init() {
 	initLogging()
 	initConfig()
 	beeep.AppName = "pomo"
-
-	rootCmd.PersistentFlags().DurationP(
-		"time",
-		"t",
-		0, // no default
-		"Override time duration (eg. 10m, 1h30m)",
-	)
 }
 
 func initConfig() {

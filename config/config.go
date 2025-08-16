@@ -20,10 +20,10 @@ type Notification struct {
 }
 
 type Task struct {
-	Title    string
-	Duration time.Duration
-	Then     []string
-	Notification
+	Title        string
+	Duration     time.Duration
+	Then         []string
+	Notification Notification
 }
 
 type Config struct {
