@@ -10,7 +10,7 @@ work:
     enabled: true
     title: work finished 🎉
     message: time to take a break
-    # icon: ./pomo.png
+    icon: ~/path/to/icon.png
   then:
     - spd-say 'Time to take a break'
 
@@ -21,6 +21,6 @@ break:
     enabled: true
     title: break over 😴
     message: back to work!
-    # icon: ./pomo.png
+    icon: ~/path/to/icon.svg
   then:
     - spd-say 'Back to work!'

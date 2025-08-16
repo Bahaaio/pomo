@@ -13,10 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version = "0.3.0"
+
 var rootCmd = &cobra.Command{
-	Use:   "pomo [duration]",
-	Short: "start a pomodoro work session",
+	Use:     "pomo [duration]",
+	Short:   "start a pomodoro work session (default: 25m)",
+	Version: version,
 	Long: `pomo is a simple terminal-based Pomodoro timer
+
 Start a work session with the default duration from your config file,
 or specify a custom duration. The timer shows a progress bar and sends
 desktop notifications when complete.`,

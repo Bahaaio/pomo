@@ -19,28 +19,18 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 
 ## Usage
 
-Start a work session:
+Work sessions:
 
 ```bash
-pomo
+pomo              # Default work session (25m)
+pomo 30m          # Custom duration
 ```
 
-Start a work session with custom duration:
+Break sessions:
 
 ```bash
-pomo 1h30m
-```
-
-Start a break session:
-
-```bash
-pomo break
-```
-
-Start a break session with custom duration:
-
-```bash
-pomo break 10m
+pomo break        # Default break (5m)
+pomo break 10m    # Custom duration
 ```
 
 ## Installation

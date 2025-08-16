@@ -19,6 +19,7 @@ const (
 	maxWidth = 80
 	margin   = 4
 	padding  = 2
+	interval = time.Second
 )
 
 type Model struct {
@@ -35,8 +36,6 @@ type Model struct {
 	help            help.Model
 	quitting        bool
 }
-
-const interval = time.Second
 
 func NewModel(task config.Task, altScreen bool) Model {
 	return Model{
