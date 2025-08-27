@@ -22,7 +22,7 @@ type Notification struct {
 type Task struct {
 	Title        string
 	Duration     time.Duration
-	Then         []string
+	Then         [][]string
 	Notification Notification
 }
 

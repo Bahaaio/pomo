@@ -10,9 +10,9 @@ work:
     enabled: true
     title: work finished 🎉
     message: time to take a break
-    icon: ~/path/to/icon.png
+    # icon: ~/path/to/icon.png
   then:
-    - spd-say 'Time to take a break'
+    - [spd-say, "Time to take a break"]
 
 break:
   duration: 5m
@@ -21,6 +21,6 @@ break:
     enabled: true
     title: break over 😴
     message: back to work!
-    icon: ~/path/to/icon.svg
+    # icon: ~/path/to/icon.svg
   then:
-    - spd-say 'Back to work!'
+    - [spd-say, "Back to work!"]
