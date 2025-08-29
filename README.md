@@ -98,7 +98,6 @@ Check out [pomo.yml](pomo.yml) for a full example with all options.
 | Key            | Action                    |
 | -------------- | ------------------------- |
 | `↑` / `k`      | Increase time by 1 minute |
-| `↓` / `j`      | Decrease time by 1 minute |
 | `Space`        | Pause/Resume timer        |
 | `←` / `h`      | Reset to initial duration |
 | `q` / `Ctrl+C` | Quit                      |
