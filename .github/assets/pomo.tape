@@ -1,6 +1,6 @@
 Output pomo.gif
 
-#Require pomo
+Require pomo
 
 Set Padding 20
 Set Margin 20
@@ -16,33 +16,43 @@ Set TypingSpeed 100ms
 
 Set Framerate 60
 
-# start work session
-Type "./pomo 5s"
-Sleep 0.5s
+# start short session
+Type "pomo 5s"
+Sleep 0.7s
 Enter
 Sleep 3s
-
-# Adjust time up
-Up 2
-Sleep 2s
 
 # Pause
 Space
 Sleep 2s
+
 Space
-Sleep 2s
+Sleep 4s
 
-# Adjust time down
-Down 1
-Sleep 2s
+# start work session
+Type pomo
+Sleep 0.7s
+Enter
+Sleep 3s
 
-# Reset time
-Left
-Sleep 5s
+# Adjust time up
+Up
+Sleep 0.2s
+Up
+Sleep 0.2s
+Up
+Sleep 0.2s
+Up
+Sleep 0.2s
+Up
+Sleep 0.2s
+Sleep 3s
+
+Ctrl+c
 
 # start break
 Sleep 1s
-Type "./pomo break"
+Type "pomo break"
 Enter
 Sleep 5s
 Ctrl+c
