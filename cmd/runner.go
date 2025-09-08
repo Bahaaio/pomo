@@ -10,6 +10,7 @@ import (
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/gen2brain/beeep"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +41,11 @@ func runTask(task *config.Task, cmd *cobra.Command) {
 		sendNotification(notification)
 		runPostCommands(task.Then)
 
-		fmt.Println(task.Title, "finished")
+		message := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#198754")). // green
+			Render(task.Title, "finished")
+
+		fmt.Println(message)
 	} else {
 		log.Println("timer did not complete")
 	}
