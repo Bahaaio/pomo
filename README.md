@@ -2,7 +2,8 @@
 
 ![Demo](.github/assets/pomo.gif)
 
-![Latest Release](https://img.shields.io/github/release/Bahaaio/pomo.svg) ![Build Status](https://github.com/Bahaaio/pomo/actions/workflows/build.yml/badge.svg)
+[![Latest Release](https://img.shields.io/github/release/Bahaaio/pomo.svg)](https://github.com/Bahaaio/pomo/releases/latest)
+![Build Status](https://github.com/Bahaaio/pomo/actions/workflows/build.yml/badge.svg)
 
 A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
@@ -81,14 +82,14 @@ work:
     enabled: true
     title: work finished 🎉
     message: time to take a break
-    icon: ~/my/icon
+    icon: ~/my/icon.png
 
 break:
   duration: 5m
 
   # will run after the session ends
   then:
-    - spd-say 'Back to work!'
+    - [spd-say, "Back to work!"]
 ```
 
 Check out [pomo.yml](pomo.yml) for a full example with all options.
