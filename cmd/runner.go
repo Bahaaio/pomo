@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"sync"
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
@@ -22,52 +23,58 @@ var messageStyle = lipgloss.NewStyle().
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
 
+	if !runTimer(task, cmd) {
+		return // return if the timer is cancelled
+	}
+
+	wg := runPostActions(task)
+
+	if !config.C.AskToContinue || !promptToContinue(taskType) {
+		wg.Wait() // wait for notification and post commands
+		fmt.Println(messageStyle.Render(task.Title, "finished"))
+		return
+	}
+
+	wg.Wait()
+	runTask(taskType.Opposite(), cmd) // run the next task
+}
+
+func runTimer(task *config.Task, cmd *cobra.Command) bool {
 	if !parseArguments(cmd.Flags().Args(), task) {
 		_ = cmd.Usage()
 		die(nil)
 	}
 
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
-	notification := task.Notification
 
 	m := ui.NewModel(*task)
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
-	var finalModel tea.Model
-	var err error
-
-	if finalModel, err = p.Run(); err != nil {
+	finalModel, err := p.Run()
+	if err != nil {
 		die(err)
 	}
 
 	if !finalModel.(ui.Model).TimerCompleted() {
 		log.Println("timer did not complete")
-		return
+		return false
 	}
 
-	// when timer is completed,
-	// send the notification and run post commands
-	sendNotification(notification)
-	runPostCommands(task.Then)
+	return true
+}
 
-	if config.C.AskToContinue {
-		prompt := fmt.Sprintf("start %s?", taskType.Opposite().GetTask().Title)
+func promptToContinue(taskType config.TaskType) bool {
+	prompt := fmt.Sprintf("start %s?", taskType.Opposite().GetTask().Title)
 
-		m := confirm.New(prompt)
-		p := tea.NewProgram(m, tea.WithAltScreen())
+	m := confirm.New(prompt)
+	p := tea.NewProgram(m, tea.WithAltScreen())
 
-		confirmModel, err := p.Run()
-		if err != nil {
-			die(err)
-		}
-
-		if confirmModel.(confirm.Model).Confirmed && confirmModel.(confirm.Model).Submitted {
-			log.Println("starting next session")
-			runTask(taskType.Opposite(), cmd)
-		} else {
-			fmt.Println(messageStyle.Render(task.Title, "finished"))
-		}
+	confirmModel, err := p.Run()
+	if err != nil {
+		die(err)
 	}
+
+	return confirmModel.(confirm.Model).Confirmed && confirmModel.(confirm.Model).Submitted
 }
 
 // parses the arguments and sets the duration
@@ -83,6 +90,25 @@ func parseArguments(args []string, task *config.Task) bool {
 	}
 
 	return true
+}
+
+// sends task notification and runs post commands using goroutines
+// returns a wait group to wait for their completion
+func runPostActions(task *config.Task) *sync.WaitGroup {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		sendNotification(task.Notification)
+	}()
+
+	go func() {
+		defer wg.Done()
+		runPostCommands(task.Then)
+	}()
+
+	return &wg
 }
 
 func sendNotification(notification config.Notification) {
