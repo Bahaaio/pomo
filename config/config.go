@@ -29,7 +29,6 @@ type Task struct {
 type Config struct {
 	Work          Task
 	Break         Task
-	FullScreen    bool
 	AskToContinue bool
 }
 
@@ -69,7 +68,6 @@ func init() {
 		viper.AddConfigPath(filepath.Join(configDir, "pomo"))
 	}
 
-	viper.SetDefault("fullScreen", true)
 	viper.SetDefault("askToContinue", true)
 
 	viper.SetDefault("work", map[string]any{

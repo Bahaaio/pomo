@@ -29,22 +29,19 @@ type Model struct {
 	duration        time.Duration
 	initialDuration time.Duration
 	passed          time.Duration
-	width           int
-	height          int
-	altScreen       bool
+	width, height   int
 	paused          bool
 	help            help.Model
 	quitting        bool
 }
 
-func NewModel(task config.Task, altScreen bool) Model {
+func NewModel(task config.Task) Model {
 	return Model{
 		title:           task.Title,
 		timer:           timer.NewWithInterval(task.Duration, interval),
 		progress:        progress.New(progress.WithDefaultGradient()),
 		duration:        task.Duration,
 		initialDuration: task.Duration,
-		altScreen:       altScreen,
 		help:            help.New(),
 	}
 }
@@ -160,28 +157,11 @@ func (m Model) View() string {
 
 	help := m.help.View(Keys)
 
-	if m.altScreen {
-		return lipgloss.Place(
-			m.width,
-			m.height,
-			lipgloss.Center,
-			lipgloss.Center,
-			lipgloss.JoinVertical(
-				lipgloss.Center,
-				s,
-				help,
-			),
-		)
-	}
-
 	return lipgloss.Place(
-		m.width,
-		1,
-		lipgloss.Center,
-		lipgloss.Left,
+		m.width, m.height,
+		lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
 			lipgloss.Center,
-			"\n",
 			s,
 			help,
 		),

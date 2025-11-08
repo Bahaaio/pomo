@@ -30,8 +30,8 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
 	notification := task.Notification
 
-	m := ui.NewModel(*task, config.C.FullScreen)
-	p := tea.NewProgram(m, config.ProgramOptions()...)
+	m := ui.NewModel(*task)
+	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	var finalModel tea.Model
 	var err error
@@ -54,7 +54,7 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 		prompt := fmt.Sprintf("start %s?", taskType.Opposite().GetTask().Title)
 
 		m := confirm.New(prompt)
-		p := tea.NewProgram(m, config.ProgramOptions()...)
+		p := tea.NewProgram(m, tea.WithAltScreen())
 
 		confirmModel, err := p.Run()
 		if err != nil {

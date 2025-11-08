@@ -14,7 +14,7 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - 📊 Real-time progress bar visualization
 - ⌨️ Keyboard shortcuts to adjust time mid-session
 - ⏸️ Pause and resume timer functionality
-- 🖥️ Optional full screen or inline mode
+- 🖥️ Full screen interface for distraction-free focus
 - 🔔 Cross-platform desktop notifications
 - 🎨 Clean, minimal terminal UI
 - 🛠️ Custom commands when timers complete
@@ -72,7 +72,6 @@ pomo looks for its config file in the following order:
 Example `pomo.yaml`:
 
 ```yaml
-fullScreen: true
 askToContinue: true # Ask to start next task after completion
 
 work:
