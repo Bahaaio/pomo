@@ -5,6 +5,7 @@ project_name: pomo
 before:
   hooks:
     - go mod tidy
+    - go vet ./...
 
 builds:
   - env:
@@ -16,7 +17,8 @@ builds:
     goarch:
       - amd64
       - arm64
-      - "386"
+    ldflags:
+      - -s -w
 
 archives:
   - formats: [tar.gz]
@@ -24,7 +26,6 @@ archives:
       {{ .ProjectName }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
@@ -44,13 +45,16 @@ changelog:
       - "^refactor:"
       - "^style:"
   groups:
-    - title: Features
+    - title: 🚀 Features
       regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
       order: 0
-    - title: Bug fixes
+    - title: 🐛 Bug fixes
       regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
       order: 1
-    - title: Others
+    - title: 📖 Documentation
+      regexp: '^.*?docs?(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: 🧹 Others
       order: 999
 
 release:
