@@ -17,7 +17,7 @@ import (
 
 func runTask(task *config.Task, cmd *cobra.Command) {
 	if !parseArguments(cmd.Flags().Args(), task) {
-		cmd.Usage()
+		_ = cmd.Usage()
 		os.Exit(1)
 	}
 
@@ -25,7 +25,7 @@ func runTask(task *config.Task, cmd *cobra.Command) {
 	notification := task.Notification
 
 	m := ui.NewModel(*task, config.C.FullScreen)
-	p := tea.NewProgram(m)
+	p := tea.NewProgram(m, config.ProgramOptions()...)
 
 	var finalModel tea.Model
 	var err error
