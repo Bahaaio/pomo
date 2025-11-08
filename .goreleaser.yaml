@@ -45,12 +45,15 @@ changelog:
       - "^refactor:"
       - "^style:"
   groups:
+    - title: 💥 Breaking Changes
+      regexp: '^.*?(\w+(\([[:word:]]+\))?!:).+$'
+      order: 0
     - title: 🚀 Features
       regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
-      order: 0
+      order: 1
     - title: 🐛 Bug fixes
       regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
-      order: 1
+      order: 2
     - title: 📖 Documentation
       regexp: '^.*?docs?(\([[:word:]]+\))??!?:.+$'
       order: 3
