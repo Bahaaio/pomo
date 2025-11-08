@@ -23,7 +23,12 @@ var messageStyle = lipgloss.NewStyle().
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
 
-	if !runTimer(task, cmd) {
+	if !parseArguments(cmd.Flags().Args(), task) {
+		_ = cmd.Usage()
+		die(nil)
+	}
+
+	if !runTimer(task) {
 		return // return if the timer is cancelled
 	}
 
@@ -36,15 +41,10 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	}
 
 	wg.Wait()
-	runTask(taskType.Opposite(), cmd) // run the next task
+	runTask(taskType.Opposite(), &cobra.Command{}) // run the next task
 }
 
-func runTimer(task *config.Task, cmd *cobra.Command) bool {
-	if !parseArguments(cmd.Flags().Args(), task) {
-		_ = cmd.Usage()
-		die(nil)
-	}
-
+func runTimer(task *config.Task) bool {
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
 
 	m := ui.NewModel(*task)
