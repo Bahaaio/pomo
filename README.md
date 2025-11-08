@@ -10,14 +10,32 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 ## Features
 
 - 🍅 Work and break timer sessions
-- 🔗 Seamless task transitions with user confirmation
+- 🔗 Task chaining with user confirmation prompts
 - 📊 Real-time progress bar visualization
 - ⌨️ Keyboard shortcuts to adjust time mid-session
 - ⏸️ Pause and resume timer functionality
-- 🖥️ Full screen interface for distraction-free focus
 - 🔔 Cross-platform desktop notifications
 - 🎨 Clean, minimal terminal UI
 - 🛠️ Custom commands when timers complete
+
+### Desktop Notifications
+
+pomo sends native desktop notifications when sessions complete
+
+<details>
+<summary>🔔 View notification examples</summary>
+
+**Linux (GNOME)**
+
+![Linux Notification](.github/assets/notification_linux.png)
+
+**Windows**
+
+![Windows Notification](.github/assets/notification_windows.jpg)
+
+_Note: Actual notification appearance varies by operating system and desktop environment_
+
+</details>
 
 ## Usage
 
