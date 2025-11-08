@@ -2,6 +2,7 @@
 # https://github.com/Bahaaio/pomo
 
 fullscreen: true
+askToContinue: true
 
 work:
   duration: 25m

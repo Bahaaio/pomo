@@ -27,9 +27,10 @@ type Task struct {
 }
 
 type Config struct {
-	Work       Task
-	Break      Task
-	FullScreen bool
+	Work          Task
+	Break         Task
+	FullScreen    bool
+	AskToContinue bool
 }
 
 var (
@@ -37,6 +38,27 @@ var (
 	Icon []byte
 	C    Config
 )
+
+type TaskType int
+
+const (
+	WorkTask TaskType = iota
+	BreakTask
+)
+
+func (t TaskType) GetTask() *Task {
+	if t == BreakTask {
+		return &C.Break
+	}
+	return &C.Work
+}
+
+func (t TaskType) Opposite() TaskType {
+	if t == WorkTask {
+		return BreakTask
+	}
+	return WorkTask
+}
 
 func init() {
 	viper.SetConfigName("pomo")
@@ -48,6 +70,7 @@ func init() {
 	}
 
 	viper.SetDefault("fullScreen", true)
+	viper.SetDefault("askToContinue", true)
 
 	viper.SetDefault("work", map[string]any{
 		"duration": 25 * time.Minute,
@@ -73,7 +96,7 @@ func init() {
 func LoadConfig() error {
 	log.Println("loading config")
 
-	viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 	log.Println("read config")
 
 	err := viper.Unmarshal(&C)

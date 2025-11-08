@@ -16,7 +16,7 @@ var breakCmd = &cobra.Command{
 	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("breakCmd args:", args)
-		runTask(&config.C.Break, cmd)
+		runTask(config.BreakTask, cmd)
 	},
 }
 

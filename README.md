@@ -10,6 +10,7 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 ## Features
 
 - 🍅 Work and break timer sessions
+- 🔗 Seamless task transitions with user confirmation
 - 📊 Real-time progress bar visualization
 - ⌨️ Keyboard shortcuts to adjust time mid-session
 - ⏸️ Pause and resume timer functionality
@@ -33,6 +34,15 @@ Break sessions:
 pomo break        # Default break (5m)
 pomo break 10m    # Custom duration
 ```
+
+## Task Chaining
+
+When a timer completes, pomo can automatically prompt you to start the next session:
+
+- After work session → "Start break session?"
+- After break session → "Start work session?"
+
+This creates a seamless Pomodoro workflow where you can chain multiple work/break cycles together. Configure this behavior with `askToContinue` in your config file.
 
 ## Installation
 
@@ -72,6 +82,7 @@ Example `pomo.yaml`:
 
 ```yaml
 fullScreen: true
+askToContinue: true # Ask to start next task after completion
 
 work:
   duration: 25m
@@ -96,12 +107,24 @@ Check out [pomo.yml](pomo.yml) for a full example with all options.
 
 ### Key Bindings
 
+#### Timer Controls
+
 | Key            | Action                    |
 | -------------- | ------------------------- |
 | `↑` / `k`      | Increase time by 1 minute |
 | `Space`        | Pause/Resume timer        |
 | `←` / `h`      | Reset to initial duration |
 | `q` / `Ctrl+C` | Quit                      |
+
+#### Confirmation Dialog
+
+| Key            | Action           |
+| -------------- | ---------------- |
+| `y` / `Y`      | Confirm (Yes)    |
+| `n` / `N`      | Cancel (No)      |
+| `Tab`          | Toggle selection |
+| `Enter`        | Submit choice    |
+| `q` / `Ctrl+C` | Quit             |
 
 ## License
 

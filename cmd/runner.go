@@ -9,16 +9,22 @@ import (
 
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui"
+	"github.com/Bahaaio/pomo/ui/confirm"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/gen2brain/beeep"
 	"github.com/spf13/cobra"
 )
 
-func runTask(task *config.Task, cmd *cobra.Command) {
+var messageStyle = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#198754")) // green
+
+func runTask(taskType config.TaskType, cmd *cobra.Command) {
+	task := taskType.GetTask()
+
 	if !parseArguments(cmd.Flags().Args(), task) {
 		_ = cmd.Usage()
-		os.Exit(1)
+		die(nil)
 	}
 
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
@@ -31,23 +37,36 @@ func runTask(task *config.Task, cmd *cobra.Command) {
 	var err error
 
 	if finalModel, err = p.Run(); err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
+		die(err)
+	}
+
+	if !finalModel.(ui.Model).TimerCompleted() {
+		log.Println("timer did not complete")
+		return
 	}
 
 	// when timer is completed,
 	// send the notification and run post commands
-	if finalModel.(ui.Model).TimerCompleted() {
-		sendNotification(notification)
-		runPostCommands(task.Then)
+	sendNotification(notification)
+	runPostCommands(task.Then)
 
-		message := lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#198754")). // green
-			Render(task.Title, "finished")
+	if config.C.AskToContinue {
+		prompt := fmt.Sprintf("start %s?", taskType.Opposite().GetTask().Title)
 
-		fmt.Println(message)
-	} else {
-		log.Println("timer did not complete")
+		m := confirm.New(prompt)
+		p := tea.NewProgram(m, config.ProgramOptions()...)
+
+		confirmModel, err := p.Run()
+		if err != nil {
+			die(err)
+		}
+
+		if confirmModel.(confirm.Model).Confirmed && confirmModel.(confirm.Model).Submitted {
+			log.Println("starting next session")
+			runTask(taskType.Opposite(), cmd)
+		} else {
+			fmt.Println(messageStyle.Render(task.Title, "finished"))
+		}
 	}
 }
 
@@ -102,4 +121,11 @@ func runPostCommands(cmds [][]string) {
 		// wait some time before running the next command
 		time.Sleep(50 * time.Millisecond)
 	}
+}
+
+func die(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+	}
+	os.Exit(1)
 }
