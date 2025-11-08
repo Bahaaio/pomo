@@ -35,15 +35,6 @@ pomo break        # Default break (5m)
 pomo break 10m    # Custom duration
 ```
 
-## Task Chaining
-
-When a timer completes, pomo can automatically prompt you to start the next session:
-
-- After work session → "Start break session?"
-- After break session → "Start work session?"
-
-This creates a seamless Pomodoro workflow where you can chain multiple work/break cycles together. Configure this behavior with `askToContinue` in your config file.
-
 ## Installation
 
 Install with Go
