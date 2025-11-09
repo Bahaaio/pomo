@@ -148,10 +148,3 @@ func runPostCommands(cmds [][]string) {
 		time.Sleep(50 * time.Millisecond)
 	}
 }
-
-func die(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-	}
-	os.Exit(1)
-}

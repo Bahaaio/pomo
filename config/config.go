@@ -73,6 +73,7 @@ func setup() {
 		log.Println("could not get user config dir:", err)
 	}
 
+	log.Println("setting default config values")
 	for k, v := range defaultConfig {
 		viper.SetDefault(k, v)
 	}
@@ -82,24 +83,25 @@ func LoadConfig() error {
 	setup()
 	log.Println("loading config")
 
-	err := viper.ReadInConfig()
-	if err != nil {
-		return err
+	// fall back to defaults if no config file is found
+	if err := viper.ReadInConfig(); err != nil {
+		log.Println("no config file found, using defaults:", err)
+	} else {
+		log.Println("read config:", viper.ConfigFileUsed())
 	}
-	log.Println("read config:", viper.ConfigFileUsed())
 
-	err = viper.Unmarshal(&C)
+	err := viper.Unmarshal(&C)
 	if err != nil {
 		return err
 	}
 	log.Println("Unmarshaled config:", C)
 
 	if C.Work.Notification.Icon, err = expandPath(C.Work.Notification.Icon); err != nil {
-		log.Println("failed to expand Notification icon path:", err)
+		log.Println("failed to expand Work Notification icon path:", err)
 	}
 
 	if C.Break.Notification.Icon, err = expandPath(C.Break.Notification.Icon); err != nil {
-		log.Println("failed to expand Notification icon path:", err)
+		log.Println("failed to expand Break Notification icon path:", err)
 	}
 
 	return nil

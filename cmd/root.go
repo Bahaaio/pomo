@@ -48,7 +48,7 @@ func initConfig() {
 	log.Println("initializing config")
 
 	if err := config.LoadConfig(); err != nil {
-		log.Println("using default config:", err)
+		die(fmt.Errorf("could not load config: %w", err))
 	}
 }
 
@@ -64,4 +64,11 @@ func initLogging() {
 	} else {
 		log.SetOutput(io.Discard)
 	}
+}
+
+func die(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+	}
+	os.Exit(1)
 }
