@@ -38,28 +38,6 @@ var (
 	//go:embed pomo.png
 	Icon []byte
 	C    Config
-
-	defaultConfig = map[string]any{
-		"askToContinue": true,
-		"work": Task{
-			Duration: 25 * time.Minute,
-			Title:    "work session",
-			Notification: Notification{
-				Enabled: true,
-				Title:   "work finished 🎉",
-				Message: "time to take a break",
-			},
-		},
-		"break": Task{
-			Duration: 5 * time.Minute,
-			Title:    "break session",
-			Notification: Notification{
-				Enabled: true,
-				Title:   "break over 😴",
-				Message: "back to work!",
-			},
-		},
-	}
 )
 
 func setup() {
@@ -74,9 +52,27 @@ func setup() {
 	}
 
 	log.Println("setting default config values")
-	for k, v := range defaultConfig {
-		viper.SetDefault(k, v)
-	}
+	viper.SetDefault("askToContinue", true)
+
+	viper.SetDefault("work", map[string]any{
+		"duration": 25 * time.Minute,
+		"title":    "work session",
+		"notification": map[string]any{
+			"enabled": true,
+			"title":   "work finished 🎉",
+			"message": "time to take a break",
+		},
+	})
+
+	viper.SetDefault("break", map[string]any{
+		"duration": 5 * time.Minute,
+		"title":    "break session",
+		"notification": map[string]any{
+			"enabled": true,
+			"title":   "break over 😴",
+			"message": "back to work!",
+		},
+	})
 }
 
 func LoadConfig() error {

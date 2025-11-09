@@ -20,3 +20,7 @@ func (t TaskType) Opposite() TaskType {
 	}
 	return WorkTask
 }
+
+func (t TaskType) String() string {
+	return t.GetTask().Title
+}

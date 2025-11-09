@@ -64,7 +64,7 @@ func runTimer(task *config.Task) bool {
 }
 
 func promptToContinue(taskType config.TaskType) bool {
-	prompt := fmt.Sprintf("start %s?", taskType.Opposite().GetTask().Title)
+	prompt := fmt.Sprintf("start %s?", taskType.Opposite())
 
 	m := confirm.New(prompt)
 	p := tea.NewProgram(m, tea.WithAltScreen())
