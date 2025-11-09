@@ -36,73 +36,61 @@ var (
 	//go:embed pomo.png
 	Icon []byte
 	C    Config
+
+	defaultConfig = map[string]any{
+		"askToContinue": true,
+		"work": Task{
+			Duration: 25 * time.Minute,
+			Title:    "work session",
+			Notification: Notification{
+				Enabled: true,
+				Title:   "work finished 🎉",
+				Message: "time to take a break",
+			},
+		},
+		"break": Task{
+			Duration: 5 * time.Minute,
+			Title:    "break session",
+			Notification: Notification{
+				Enabled: true,
+				Title:   "break over 😴",
+				Message: "back to work!",
+			},
+		},
+	}
 )
 
-type TaskType int
-
-const (
-	WorkTask TaskType = iota
-	BreakTask
-)
-
-func (t TaskType) GetTask() *Task {
-	if t == BreakTask {
-		return &C.Break
-	}
-	return &C.Work
-}
-
-func (t TaskType) Opposite() TaskType {
-	if t == WorkTask {
-		return BreakTask
-	}
-	return WorkTask
-}
-
-func init() {
+func setup() {
 	viper.SetConfigName("pomo")
 	viper.SetConfigType("yaml")
 
 	viper.AddConfigPath(".")
 	if configDir, err := os.UserConfigDir(); err == nil {
 		viper.AddConfigPath(filepath.Join(configDir, "pomo"))
+	} else {
+		log.Println("could not get user config dir:", err)
 	}
 
-	viper.SetDefault("askToContinue", true)
-
-	viper.SetDefault("work", map[string]any{
-		"duration": 25 * time.Minute,
-		"title":    "work session",
-		"notification": map[string]any{
-			"enabled": true,
-			"title":   "work finished 🎉",
-			"message": "time to take a break",
-		},
-	})
-
-	viper.SetDefault("break", map[string]any{
-		"duration": 5 * time.Minute,
-		"title":    "break session",
-		"notification": map[string]any{
-			"enabled": true,
-			"title":   "break over 😴",
-			"message": "back to work!",
-		},
-	})
+	for k, v := range defaultConfig {
+		viper.SetDefault(k, v)
+	}
 }
 
 func LoadConfig() error {
+	setup()
 	log.Println("loading config")
 
-	_ = viper.ReadInConfig()
-	log.Println("read config")
-
-	err := viper.Unmarshal(&C)
+	err := viper.ReadInConfig()
 	if err != nil {
 		return err
 	}
-	log.Println("Unmarshaled config")
-	log.Println("config:", C)
+	log.Println("read config:", viper.ConfigFileUsed())
 
+	err = viper.Unmarshal(&C)
+	if err != nil {
+		return err
+	}
+
+	log.Println("Unmarshaled config:", C)
 	return nil
 }

@@ -48,7 +48,7 @@ func initConfig() {
 	log.Println("initializing config")
 
 	if err := config.LoadConfig(); err != nil {
-		log.Println("using default config")
+		log.Println("using default config:", err)
 	}
 }
 
