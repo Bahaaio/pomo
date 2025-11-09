@@ -54,11 +54,17 @@ changelog:
     - title: 🐛 Bug fixes
       regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
       order: 2
-    - title: 📖 Documentation
-      regexp: '^.*?docs?(\([[:word:]]+\))??!?:.+$'
-      order: 3
     - title: 🧹 Others
       order: 999
+
+nfpms:
+  - maintainer: Bahaa Mohamed <bahaa-dev@proton.me>
+    description: A simple Pomodoro timer TUI application written in Go.
+    homepage: https://github.com/Bahaaio/pomo
+    license: MIT
+    formats:
+      - deb
+      - rpm
 
 release:
   github:
