@@ -21,6 +21,6 @@ break:
     enabled: true
     title: break over 😴
     message: back to work!
-    # icon: ~/path/to/icon.svg
+    # icon: C:\Users\path\to\your\icon.png
   then:
     - [spd-say, "Back to work!"]

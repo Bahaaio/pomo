@@ -4,9 +4,11 @@ package config
 
 import (
 	_ "embed"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -90,7 +92,32 @@ func LoadConfig() error {
 	if err != nil {
 		return err
 	}
-
 	log.Println("Unmarshaled config:", C)
+
+	if C.Work.Notification.Icon, err = expandPath(C.Work.Notification.Icon); err != nil {
+		log.Println("failed to expand Notification icon path:", err)
+	}
+
+	if C.Break.Notification.Icon, err = expandPath(C.Break.Notification.Icon); err != nil {
+		log.Println("failed to expand Notification icon path:", err)
+	}
+
 	return nil
+}
+
+// expands tilde to the user's home directory
+func expandPath(path string) (string, error) {
+	if strings.HasPrefix(path, "~/") {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("failed to get home directory: %v", err)
+		}
+
+		expandedPath := filepath.Join(homeDir, path[2:])
+		log.Printf("expanding path: %s to %s\n", path, expandedPath)
+
+		return expandedPath, nil
+	}
+
+	return path, nil
 }
