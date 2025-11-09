@@ -1,6 +1,6 @@
 # pomo — Terminal Pomodoro Timer
 
-![Demo](.github/assets/pomo.gif)
+![Demo](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/pomo.gif)
 
 [![Latest Release](https://img.shields.io/github/release/Bahaaio/pomo.svg)](https://github.com/Bahaaio/pomo/releases/latest)
 ![Build Status](https://github.com/Bahaaio/pomo/actions/workflows/build.yml/badge.svg)
@@ -27,11 +27,11 @@ pomo sends native desktop notifications when sessions complete
 
 **Linux (GNOME)**
 
-![Linux Notification](.github/assets/notification_linux.png)
+![Linux Notification](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/notification_linux.png)
 
 **Windows**
 
-![Windows Notification](.github/assets/notification_windows.jpg)
+![Windows Notification](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/notification_windows.jpg)
 
 _Note: Actual notification appearance varies by operating system and desktop environment_
 
