@@ -2,6 +2,7 @@
 package confirm
 
 import (
+	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,27 +15,33 @@ const (
 )
 
 var (
+	buttonPadding = []int{0, 3}
+	buttonMargin  = []int{0, 2}
+	borderPadding = []int{2, 6}
+)
+
+var (
 	promptStyle = lipgloss.NewStyle().
 			Align(lipgloss.Center).
 			Bold(true)
 
-	border = lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("#5A56E0")).
-		Padding(2, 7).
-		BorderTop(true)
+	borderStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(colors.BorderFg).
+			Padding(borderPadding...).
+			BorderTop(true)
 
-	buttonStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFF7DB")).
-			Background(lipgloss.Color("#888B7E")).
-			Padding(0, 3).
-			Margin(0, 2)
+	InactiveButtonStyle = lipgloss.NewStyle().
+				Foreground(colors.InactiveButtonFg).
+				Background(colors.InactiveButtonBg).
+				Padding(buttonPadding...).
+				Margin(buttonMargin...)
 
-	activeButtonStyle = buttonStyle.
-				Foreground(lipgloss.Color("#FFF7DB")).
-				Background(lipgloss.Color("#F25D94")).
-				Padding(0, 3).
-				Margin(0, 2)
+	activeButtonStyle = InactiveButtonStyle.
+				Foreground(colors.ActiveButtonFg).
+				Background(colors.ActiveButtonBg).
+				Padding(buttonPadding...).
+				Margin(buttonMargin...)
 )
 
 type Model struct {
@@ -100,15 +107,15 @@ func (m Model) View() string {
 
 	if m.Confirmed {
 		confirmButton = activeButtonStyle.Render(confirmText)
-		cancelButton = buttonStyle.Render(cancelText)
+		cancelButton = InactiveButtonStyle.Render(cancelText)
 	} else {
-		confirmButton = buttonStyle.Render(confirmText)
+		confirmButton = InactiveButtonStyle.Render(confirmText)
 		cancelButton = activeButtonStyle.Render(cancelText)
 	}
 
 	buttons := lipgloss.JoinHorizontal(lipgloss.Right, confirmButton, cancelButton)
 	dialog := lipgloss.JoinVertical(lipgloss.Center, prompt, "\n", buttons)
-	ui := border.Render(dialog)
+	ui := borderStyle.Render(dialog)
 	help := m.help.View(Keys)
 
 	return lipgloss.Place(

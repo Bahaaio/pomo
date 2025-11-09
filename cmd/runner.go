@@ -10,6 +10,7 @@ import (
 
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui"
+	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/Bahaaio/pomo/ui/confirm"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -18,7 +19,7 @@ import (
 )
 
 var messageStyle = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#198754")) // green
+	Foreground(colors.SuccessMessageFg)
 
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
