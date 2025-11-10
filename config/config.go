@@ -32,6 +32,7 @@ type Config struct {
 	Work          Task
 	Break         Task
 	AskToContinue bool
+	ASCIITimer    bool
 }
 
 var (
@@ -52,7 +53,9 @@ func setup() {
 	}
 
 	log.Println("setting default config values")
+
 	viper.SetDefault("askToContinue", true)
+	viper.SetDefault("asciiTimer", true)
 
 	viper.SetDefault("work", map[string]any{
 		"duration": 25 * time.Minute,

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
+	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -16,10 +17,13 @@ import (
 )
 
 const (
-	maxWidth = 80
-	margin   = 4
-	padding  = 2
-	interval = time.Second
+	maxWidth           = 80
+	margin             = 4
+	padding            = 2
+	interval           = time.Second
+	separator          = " — "
+	pausedIndicator    = "(paused)"
+	completedIndicator = "done!"
 )
 
 type ExitStatus byte
@@ -165,42 +169,66 @@ func (m Model) View() string {
 		return ""
 	}
 
-	s := m.title + " — "
-	if m.timer.Timedout() {
-		s += "done!"
-	} else {
-		left := m.timer.Timeout
-		hours := int(left.Hours())
-		minutes := int(left.Minutes()) % 60
-		seconds := int(left.Seconds()) % 60
-
-		// HH:MM:SS format
-		// only show hours if they are non-zero
-		if hours > 0 {
-			s += fmt.Sprintf("%02d:", hours)
-		}
-		s += fmt.Sprintf("%02d:%02d", minutes, seconds)
-
-		// Show pause indicator
-		if m.paused {
-			s += " (paused)"
-		}
-	}
-
-	s += "\n\n" +
-		m.progress.View() + "\n"
+	content := m.buildMainContent()
+	content += m.buildStatusIndicators()
+	content += "\n\n" + m.progress.View() + "\n"
 
 	help := m.help.View(Keys)
 
 	return lipgloss.Place(
 		m.width, m.height,
 		lipgloss.Center, lipgloss.Center,
-		lipgloss.JoinVertical(
-			lipgloss.Center,
-			s,
-			help,
-		),
+		lipgloss.JoinVertical(lipgloss.Center, content, help),
 	)
+}
+
+func (m Model) buildMainContent() string {
+	timeLeft := m.buildTimeLeft()
+
+	if config.C.ASCIITimer {
+		return timeLeft + "\n\n" + m.title
+	}
+
+	content := m.title
+	if !m.timer.Timedout() {
+		content += separator + timeLeft
+	}
+
+	return content
+}
+
+func (m Model) buildStatusIndicators() string {
+	if m.timer.Timedout() {
+		return separator + completedIndicator
+	}
+
+	if m.paused {
+		return " " + pausedIndicator
+	}
+
+	return ""
+}
+
+// returns time left as a string in HH:MM:SS format
+func (m Model) buildTimeLeft() string {
+	left := m.timer.Timeout
+	hours := int(left.Hours())
+	minutes := int(left.Minutes()) % 60
+	seconds := int(left.Seconds()) % 60
+
+	time := ""
+
+	// only show hours if they are non-zero
+	if hours > 0 {
+		time += fmt.Sprintf("%02d:", hours)
+	}
+	time += fmt.Sprintf("%02d:%02d", minutes, seconds)
+
+	if config.C.ASCIITimer {
+		return ascii.ToASCIIArt(time)
+	}
+
+	return time
 }
 
 func (m Model) ExitStatus() ExitStatus {

@@ -2,6 +2,7 @@
 # https://github.com/Bahaaio/pomo
 
 askToContinue: true
+asciiTimer: true
 
 work:
   duration: 25m

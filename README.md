@@ -91,7 +91,8 @@ pomo looks for its config file in the following order:
 Example `pomo.yaml`:
 
 ```yaml
-askToContinue: true # Ask to start next task after completion
+askToContinue: true # ask to start next task after completion
+asciiTimer: true # use ASCII art for timer display
 
 work:
   duration: 25m

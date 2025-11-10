@@ -35,7 +35,7 @@ Sleep 2s
 # show confirmation dialog interaction
 Sleep 2s
 
-# select "no" option
+# hover "no" option
 Right
 Sleep 1s
 
