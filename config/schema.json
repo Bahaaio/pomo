@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/Bahaaio/pomo/main/schema/pomo-config.schema.json",
+  "title": "Pomo Configuration",
+  "description": "Configuration schema for pomo - Terminal Pomodoro Timer",
+  "type": "object",
+  "properties": {
+    "askToContinue": {
+      "type": "boolean",
+      "description": "Prompt to continue after completion (false = exit when done)",
+      "default": true
+    },
+    "asciiTimer": {
+      "type": "boolean",
+      "description": "Use ASCII art for timer display",
+      "default": false
+    },
+    "work": {
+      "$ref": "#/definitions/task",
+      "description": "Work session configuration"
+    },
+    "break": {
+      "$ref": "#/definitions/task",
+      "description": "Break session configuration"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "task": {
+      "type": "object",
+      "properties": {
+        "duration": {
+          "type": "string",
+          "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)$",
+          "description": "Duration in Go time format (e.g., 25m, 5s, 1h30m)",
+          "examples": ["25m", "5m", "1h", "30s"]
+        },
+        "title": {
+          "type": "string",
+          "description": "Task display title",
+          "examples": ["work session", "break session", "focus time"]
+        },
+        "notification": {
+          "$ref": "#/definitions/notification",
+          "description": "Desktop notification settings"
+        },
+        "then": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Command and arguments"
+          },
+          "description": "Commands to run after session completion",
+          "examples": [
+            [["spd-say", "Break time!"]],
+            [["notify-send", "Pomo", "Session complete"]]
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "notification": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable desktop notifications",
+          "default": true
+        },
+        "title": {
+          "type": "string",
+          "description": "Notification title text",
+          "examples": ["work finished 🎉", "break over 😴"]
+        },
+        "message": {
+          "type": "string",
+          "description": "Notification message text",
+          "examples": ["time to take a break", "back to work!"]
+        },
+        "icon": {
+          "type": "string",
+          "description": "Path to notification icon file",
+          "examples": ["~/my/icon.png", "C:\\Users\\me\\icon.ico"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
+
