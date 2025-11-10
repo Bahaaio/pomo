@@ -14,7 +14,7 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - 📊 Real-time progress bar visualization
 - ⌨️ Keyboard shortcuts to adjust time mid-session
 - ⏸️ Pause and resume sessions
-- ⏭️ Skip sessions when needed
+- ⏭️ Skip to next session
 - 🔔 Cross-platform desktop notifications
 - 🎨 Clean, minimal terminal UI
 - 🛠️ Custom commands when timers complete
@@ -91,8 +91,12 @@ pomo looks for its config file in the following order:
 Example `pomo.yaml`:
 
 ```yaml
-askToContinue: true # ask to start next task after completion
-asciiTimer: true # use ASCII art for timer display
+# prompt to continue after session completion
+# false = exit when done
+askToContinue: true
+
+# use ASCII art for timer display
+asciiTimer: true
 
 work:
   duration: 25m
@@ -124,8 +128,10 @@ Check out [pomo.yml](pomo.yml) for a full example with all options.
 | `↑` / `k`      | Increase time by 1 minute |
 | `Space`        | Pause/Resume timer        |
 | `←` / `h`      | Reset to initial duration |
-| `s`            | Skip current session      |
+| `s`            | Skip to next session      |
 | `q` / `Ctrl+C` | Quit                      |
+
+> Skip button skips directly to the next session, bypassing any prompts
 
 #### Confirmation Dialog
 
