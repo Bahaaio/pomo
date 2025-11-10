@@ -57,11 +57,12 @@ type Model struct {
 	width, height   int
 	paused          bool
 	exitStatus      ExitStatus
+	useASCIITimer   bool
 	help            help.Model
 	quitting        bool
 }
 
-func NewModel(task config.Task) Model {
+func NewModel(task config.Task, useASCIITimer bool) Model {
 	return Model{
 		title:           task.Title,
 		timer:           timer.NewWithInterval(task.Duration, interval),
@@ -69,6 +70,7 @@ func NewModel(task config.Task) Model {
 		duration:        task.Duration,
 		initialDuration: task.Duration,
 		exitStatus:      Quit,
+		useASCIITimer:   useASCIITimer,
 		help:            help.New(),
 	}
 }
@@ -185,7 +187,7 @@ func (m Model) View() string {
 func (m Model) buildMainContent() string {
 	timeLeft := m.buildTimeLeft()
 
-	if config.C.ASCIITimer {
+	if m.useASCIITimer {
 		return timeLeft + "\n\n" + m.title
 	}
 
@@ -224,7 +226,7 @@ func (m Model) buildTimeLeft() string {
 	}
 	time += fmt.Sprintf("%02d:%02d", minutes, seconds)
 
-	if config.C.ASCIITimer {
+	if m.useASCIITimer {
 		return ascii.ToASCIIArt(time)
 	}
 
