@@ -31,6 +31,10 @@ archives:
     format_overrides:
       - goos: windows
         formats: [zip]
+    files:
+      - README.md
+      - LICENSE
+      - pomo.yml
 
 changelog:
   sort: asc
