@@ -95,8 +95,13 @@ Example `pomo.yaml`:
 # false = exit when done
 askToContinue: true
 
-# use ASCII art for timer display
-asciiTimer: true
+asciiArt:
+  # use ASCII art for timer display
+  enabled: true
+
+  # available fonts: (mono12, rebel, ansi, ansiShadow)
+  # default: mono12
+  font: ansiShadow
 
 work:
   duration: 25m

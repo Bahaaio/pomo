@@ -57,12 +57,12 @@ type Model struct {
 	width, height   int
 	paused          bool
 	exitStatus      ExitStatus
-	useASCIITimer   bool
+	asciiArt        config.ASCIIArt
 	help            help.Model
 	quitting        bool
 }
 
-func NewModel(task config.Task, useASCIITimer bool) Model {
+func NewModel(task config.Task, asciiArt config.ASCIIArt) Model {
 	return Model{
 		title:           task.Title,
 		timer:           timer.NewWithInterval(task.Duration, interval),
@@ -70,7 +70,7 @@ func NewModel(task config.Task, useASCIITimer bool) Model {
 		duration:        task.Duration,
 		initialDuration: task.Duration,
 		exitStatus:      Quit,
-		useASCIITimer:   useASCIITimer,
+		asciiArt:        asciiArt,
 		help:            help.New(),
 	}
 }
@@ -183,7 +183,7 @@ func (m Model) View() string {
 func (m Model) buildMainContent() string {
 	timeLeft := m.buildTimeLeft()
 
-	if m.useASCIITimer {
+	if m.asciiArt.Enabled {
 		return timeLeft + "\n\n" + m.title
 	}
 
@@ -222,8 +222,11 @@ func (m Model) buildTimeLeft() string {
 	}
 	time += fmt.Sprintf("%02d:%02d", minutes, seconds)
 
-	if m.useASCIITimer {
-		return ascii.ToASCIIArt(time)
+	if m.asciiArt.Enabled {
+		return ascii.ToASCIIArt(
+			time,
+			ascii.GetFont(m.asciiArt.Font),
+		)
 	}
 
 	return time

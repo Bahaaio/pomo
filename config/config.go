@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/spf13/viper"
 )
 
@@ -28,11 +29,16 @@ type Task struct {
 	Notification Notification
 }
 
+type ASCIIArt struct {
+	Enabled bool
+	Font    string
+}
+
 type Config struct {
 	Work          Task
 	Break         Task
 	AskToContinue bool
-	ASCIITimer    bool
+	ASCIIArt      ASCIIArt
 }
 
 var (
@@ -55,7 +61,11 @@ func setup() {
 	log.Println("setting default config values")
 
 	viper.SetDefault("askToContinue", true)
-	viper.SetDefault("asciiTimer", true)
+
+	viper.SetDefault("asciiArt", map[string]any{
+		"enabled": true,
+		"font":    ascii.DefaultFont,
+	})
 
 	viper.SetDefault("work", map[string]any{
 		"duration": 25 * time.Minute,

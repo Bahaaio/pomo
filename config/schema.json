@@ -10,10 +10,23 @@
       "description": "Prompt to continue after completion (false = exit when done)",
       "default": true
     },
-    "asciiTimer": {
-      "type": "boolean",
-      "description": "Use ASCII art for timer display",
-      "default": false
+    "asciiArt": {
+      "type": "object",
+      "description": "ASCII art configuration for timer display",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ASCII art fonts for timer display",
+          "default": true
+        },
+        "font": {
+          "type": "string",
+          "description": "ASCII art font to use for timer display",
+          "enum": ["mono12", "rebel", "ansi", "ansiShadow"],
+          "default": "mono12"
+        }
+      },
+      "additionalProperties": false
     },
     "work": {
       "$ref": "#/definitions/task",
@@ -91,4 +104,3 @@
     }
   }
 }
-

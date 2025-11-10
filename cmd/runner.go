@@ -18,8 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var messageStyle = lipgloss.NewStyle().
-	Foreground(colors.SuccessMessageFg)
+var messageStyle = lipgloss.NewStyle().Foreground(colors.SuccessMessageFg)
 
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
@@ -56,7 +55,7 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 func runTimer(task *config.Task) ui.ExitStatus {
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
 
-	m := ui.NewModel(*task, config.C.ASCIITimer)
+	m := ui.NewModel(*task, config.C.ASCIIArt)
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	finalModel, err := p.Run()

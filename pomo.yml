@@ -3,7 +3,10 @@
 # https://github.com/Bahaaio/pomo
 
 askToContinue: true
-asciiTimer: true
+
+asciiArt:
+  enabled: true
+  font: mono12
 
 work:
   duration: 25m
