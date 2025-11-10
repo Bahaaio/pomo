@@ -16,7 +16,7 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - ⏸️ Pause and resume sessions
 - ⏭️ Skip to next session
 - 🔔 Cross-platform desktop notifications
-- 🎨 Clean, minimal terminal UI
+- 🎨 Clean, minimal terminal UI with ASCII art timer fonts
 - 🛠️ Custom commands when timers complete
 
 ### Desktop Notifications
@@ -37,6 +37,15 @@ pomo sends native desktop notifications when sessions complete
 _Note: Actual notification appearance varies by operating system and desktop environment_
 
 </details>
+
+## Timer Fonts
+
+<!-- prettier-ignore -->
+|              **mono12**              |                  **rebel**                   |
+| :----------------------------------: | :------------------------------------------: |
+| ![mono12](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/mono12.png) |      ![rebel](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/rebel.png)      |
+|               **ansi**               |                **ansiShadow**                |
+|   ![ansi](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/ansi.png)   | ![ansiShadow](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/ansiShadow.png) |
 
 ## Usage
 
