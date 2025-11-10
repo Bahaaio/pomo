@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/Bahaaio/pomo/config"
 	"github.com/charmbracelet/bubbles/key"
 )
 
@@ -8,16 +9,22 @@ type KeyMap struct {
 	Increase key.Binding
 	Reset    key.Binding
 	Pause    key.Binding
+	Skip     key.Binding
 	Quit     key.Binding
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{
+	keys := []key.Binding{
 		k.Increase,
 		k.Pause,
 		k.Reset,
-		k.Quit,
 	}
+
+	if config.C.AskToContinue {
+		keys = append(keys, k.Skip)
+	}
+
+	return append(keys, k.Quit)
 }
 
 func (k KeyMap) FullHelp() [][]key.Binding {
@@ -36,6 +43,10 @@ var Keys = KeyMap{
 	Pause: key.NewBinding(
 		key.WithKeys(" "),
 		key.WithHelp("space", "pause/resume"),
+	),
+	Skip: key.NewBinding(
+		key.WithKeys("s"),
+		key.WithHelp("s", "skip"),
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c", "q"),

@@ -29,11 +29,18 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 		die(nil)
 	}
 
-	if !runTimer(task) {
-		return // return if the timer is cancelled
+	exitStatus := runTimer(task)
+	log.Println("session exit status:", exitStatus)
+
+	if exitStatus == ui.Quit {
+		return
 	}
 
-	wg := runPostActions(task)
+	wg := &sync.WaitGroup{}
+	if exitStatus == ui.Completed {
+		// run post actions only if the task was completed
+		wg = runPostActions(task)
+	}
 
 	if !config.C.AskToContinue || !promptToContinue(taskType) {
 		wg.Wait() // wait for notification and post commands
@@ -45,7 +52,7 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	runTask(taskType.Opposite(), &cobra.Command{}) // run the next task
 }
 
-func runTimer(task *config.Task) bool {
+func runTimer(task *config.Task) ui.ExitStatus {
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
 
 	m := ui.NewModel(*task)
@@ -56,12 +63,7 @@ func runTimer(task *config.Task) bool {
 		die(err)
 	}
 
-	if !finalModel.(ui.Model).TimerCompleted() {
-		log.Println("timer did not complete")
-		return false
-	}
-
-	return true
+	return finalModel.(ui.Model).ExitStatus()
 }
 
 func promptToContinue(taskType config.TaskType) bool {

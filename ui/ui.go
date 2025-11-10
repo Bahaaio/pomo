@@ -22,6 +22,27 @@ const (
 	interval = time.Second
 )
 
+type ExitStatus byte
+
+const (
+	Completed ExitStatus = iota
+	Skipped
+	Quit
+)
+
+func (e ExitStatus) String() string {
+	switch e {
+	case Completed:
+		return "Completed"
+	case Skipped:
+		return "Skipped"
+	case Quit:
+		return "Quit"
+	default:
+		return "Unknown"
+	}
+}
+
 type Model struct {
 	title           string
 	timer           timer.Model
@@ -31,6 +52,7 @@ type Model struct {
 	passed          time.Duration
 	width, height   int
 	paused          bool
+	exitStatus      ExitStatus
 	help            help.Model
 	quitting        bool
 }
@@ -42,6 +64,7 @@ func NewModel(task config.Task) Model {
 		progress:        progress.New(progress.WithDefaultGradient()),
 		duration:        task.Duration,
 		initialDuration: task.Duration,
+		exitStatus:      Quit,
 		help:            help.New(),
 	}
 }
@@ -73,7 +96,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.duration = m.initialDuration
 			return m, m.resetTimer()
 
+		case key.Matches(msg, Keys.Skip):
+			if !config.C.AskToContinue {
+				return m, nil
+			}
+
+			m.exitStatus = Skipped
+			m.quitting = true
+			return m, tea.Quit
+
 		case key.Matches(msg, Keys.Quit):
+			m.exitStatus = Quit
 			m.quitting = true
 			return m, tea.Quit
 
@@ -114,6 +147,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if m.progress.Percent() >= 1.0 && !m.progress.IsAnimating() {
 			log.Println("timer completed")
+
+			m.exitStatus = Completed
 			m.quitting = true
 			return m, tea.Quit
 		}
@@ -168,6 +203,10 @@ func (m Model) View() string {
 	)
 }
 
+func (m Model) ExitStatus() ExitStatus {
+	return m.exitStatus
+}
+
 func (m *Model) resetTimer() tea.Cmd {
 	m.timer = timer.NewWithInterval(
 		m.duration-m.passed,
@@ -185,8 +224,4 @@ func (m Model) getPercent() float64 {
 	duration := float64(m.duration.Milliseconds())
 
 	return passed / duration
-}
-
-func (m Model) TimerCompleted() bool {
-	return m.progress.Percent() >= 1.0
 }

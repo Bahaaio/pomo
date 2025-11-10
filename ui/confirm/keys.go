@@ -31,11 +31,11 @@ var Keys = KeyMap{
 		key.WithHelp("", "toggle"),
 	),
 	Confirm: key.NewBinding(
-		key.WithKeys("y", "Y"),
+		key.WithKeys("y"),
 		key.WithHelp("y", "confirm"),
 	),
 	Cancel: key.NewBinding(
-		key.WithKeys("n", "N"),
+		key.WithKeys("n"),
 		key.WithHelp("n", "cancel"),
 	),
 	Submit: key.NewBinding(
