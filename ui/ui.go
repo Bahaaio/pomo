@@ -103,10 +103,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.resetTimer()
 
 		case key.Matches(msg, Keys.Skip):
-			if !config.C.AskToContinue {
-				return m, nil
-			}
-
 			m.exitStatus = Skipped
 			m.quitting = true
 			return m, tea.Quit

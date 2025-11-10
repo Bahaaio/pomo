@@ -32,20 +32,21 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	exitStatus := runTimer(task)
 	log.Println("session exit status:", exitStatus)
 
-	if exitStatus == ui.Quit {
-		return
-	}
-
 	wg := &sync.WaitGroup{}
-	if exitStatus == ui.Completed {
-		// run post actions only if the task was completed
-		wg = runPostActions(task)
-	}
 
-	if !config.C.AskToContinue || !promptToContinue(taskType) {
-		wg.Wait() // wait for notification and post commands
-		fmt.Println(messageStyle.Render(task.Title, "finished"))
+	switch exitStatus {
+	case ui.Quit:
 		return
+	case ui.Skipped:
+		// skip to next task directly
+	case ui.Completed:
+		wg = runPostActions(task)
+
+		if !config.C.AskToContinue || !promptToContinue(taskType) {
+			wg.Wait() // wait for notification and post commands
+			fmt.Println(messageStyle.Render(task.Title, "finished"))
+			return
+		}
 	}
 
 	wg.Wait()

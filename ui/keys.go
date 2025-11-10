@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"github.com/Bahaaio/pomo/config"
 	"github.com/charmbracelet/bubbles/key"
 )
 
@@ -14,17 +13,13 @@ type KeyMap struct {
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {
-	keys := []key.Binding{
+	return []key.Binding{
 		k.Increase,
 		k.Pause,
 		k.Reset,
+		k.Skip,
+		k.Quit,
 	}
-
-	if config.C.AskToContinue {
-		keys = append(keys, k.Skip)
-	}
-
-	return append(keys, k.Quit)
 }
 
 func (k KeyMap) FullHelp() [][]key.Binding {
