@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Bahaaio/pomo/ui/ascii"
+	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/spf13/viper"
 )
 
@@ -32,6 +33,7 @@ type Task struct {
 type ASCIIArt struct {
 	Enabled bool
 	Font    string
+	Color   string
 }
 
 type Config struct {
@@ -65,6 +67,7 @@ func setup() {
 	viper.SetDefault("asciiArt", map[string]any{
 		"enabled": true,
 		"font":    ascii.DefaultFont,
+		"color":   colors.TimerFg,
 	})
 
 	viper.SetDefault("work", map[string]any{

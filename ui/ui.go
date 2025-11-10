@@ -8,6 +8,7 @@ import (
 
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui/ascii"
+	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -56,22 +57,36 @@ type Model struct {
 	passed          time.Duration
 	width, height   int
 	paused          bool
-	exitStatus      ExitStatus
-	asciiArt        config.ASCIIArt
+	useTimerArt     bool
+	timerFont       ascii.Font
+	ASCIITimerStyle lipgloss.Style
 	help            help.Model
 	quitting        bool
+	exitStatus      ExitStatus
 }
 
 func NewModel(task config.Task, asciiArt config.ASCIIArt) Model {
+	var timerFont ascii.Font
+	timerStyle := lipgloss.NewStyle()
+
+	if asciiArt.Enabled {
+		timerFont = ascii.GetFont(asciiArt.Font)
+
+		timerColor := colors.GetColor(asciiArt.Color)
+		timerStyle = timerStyle.Foreground(timerColor)
+	}
+
 	return Model{
 		title:           task.Title,
 		timer:           timer.NewWithInterval(task.Duration, interval),
 		progress:        progress.New(progress.WithDefaultGradient()),
 		duration:        task.Duration,
 		initialDuration: task.Duration,
-		exitStatus:      Quit,
-		asciiArt:        asciiArt,
+		useTimerArt:     asciiArt.Enabled,
+		timerFont:       timerFont,
+		ASCIITimerStyle: timerStyle,
 		help:            help.New(),
+		exitStatus:      Quit,
 	}
 }
 
@@ -183,7 +198,7 @@ func (m Model) View() string {
 func (m Model) buildMainContent() string {
 	timeLeft := m.buildTimeLeft()
 
-	if m.asciiArt.Enabled {
+	if m.useTimerArt {
 		return timeLeft + "\n\n" + m.title
 	}
 
@@ -222,11 +237,9 @@ func (m Model) buildTimeLeft() string {
 	}
 	time += fmt.Sprintf("%02d:%02d", minutes, seconds)
 
-	if m.asciiArt.Enabled {
-		return ascii.ToASCIIArt(
-			time,
-			ascii.GetFont(m.asciiArt.Font),
-		)
+	if m.useTimerArt {
+		time = ascii.ToASCIIArt(time, m.timerFont)
+		return m.ASCIITimerStyle.Render(time)
 	}
 
 	return time

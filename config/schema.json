@@ -24,6 +24,13 @@
           "description": "ASCII art font to use for timer display",
           "enum": ["mono12", "rebel", "ansi", "ansiShadow"],
           "default": "mono12"
+        },
+        "color": {
+          "type": "string",
+          "description": "Color of the ASCII art timer (hex color or 'none')",
+          "pattern": "^(#[0-9a-fA-F]{6}|none)$",
+          "default": "#5A56E0",
+          "examples": ["#5A56E0", "#FF0000", "#00FF00", "none"]
         }
       },
       "additionalProperties": false

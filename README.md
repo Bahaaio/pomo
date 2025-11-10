@@ -103,6 +103,10 @@ asciiArt:
   # default: mono12
   font: ansiShadow
 
+  # color of the ASCII art timer
+  # hex color or "none"
+  color: "#5A56E0"
+
 work:
   duration: 25m
   title: work session
