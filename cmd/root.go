@@ -53,17 +53,19 @@ func initConfig() {
 }
 
 func initLogging() {
-	if len(os.Getenv("DEBUG")) > 0 {
-		_, err := tea.LogToFile("debug.log", "debug")
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "failed to setup logging:", err)
-			os.Exit(1)
-		}
-		log.SetFlags(log.Ltime)
-		log.Println("debug mode")
-	} else {
+	debugEnv := os.Getenv("DEBUG")
+	if debugEnv == "" || debugEnv == "0" {
 		log.SetOutput(io.Discard)
+		return
 	}
+
+	_, err := tea.LogToFile("debug.log", "")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "failed to setup logging:", err)
+		os.Exit(1)
+	}
+
+	log.SetFlags(log.Ltime)
 }
 
 func die(err error) {
