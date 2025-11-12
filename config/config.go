@@ -49,7 +49,7 @@ var (
 	C    Config
 )
 
-func setup() {
+func Setup() {
 	viper.SetConfigName("pomo")
 	viper.SetConfigType("yaml")
 
@@ -92,7 +92,6 @@ func setup() {
 }
 
 func LoadConfig() error {
-	setup()
 	log.Println("loading config")
 
 	// fall back to defaults if no config file is found
@@ -127,10 +126,7 @@ func expandPath(path string) (string, error) {
 			return "", fmt.Errorf("failed to get home directory: %v", err)
 		}
 
-		expandedPath := filepath.Join(homeDir, path[2:])
-		log.Printf("expanding path: %s to %s\n", path, expandedPath)
-
-		return expandedPath, nil
+		return filepath.Join(homeDir, path[2:]), nil
 	}
 
 	return path, nil

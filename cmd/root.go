@@ -47,6 +47,7 @@ func init() {
 func initConfig() {
 	log.Println("initializing config")
 
+	config.Setup()
 	if err := config.LoadConfig(); err != nil {
 		die(fmt.Errorf("could not load config: %w", err))
 	}
