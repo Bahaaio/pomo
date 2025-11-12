@@ -47,6 +47,33 @@ var (
 	//go:embed pomo.png
 	Icon []byte
 	C    Config
+
+	DefaultConfig = map[string]any{
+		"askToContinue": true,
+		"asciiArt": map[string]any{
+			"enabled": true,
+			"font":    ascii.DefaultFont,
+			"color":   colors.TimerFg,
+		},
+		"work": map[string]any{
+			"duration": 25 * time.Minute,
+			"title":    "work session",
+			"notification": map[string]any{
+				"enabled": true,
+				"title":   "work finished 🎉",
+				"message": "time to take a break!",
+			},
+		},
+		"break": map[string]any{
+			"duration": 5 * time.Minute,
+			"title":    "break session",
+			"notification": map[string]any{
+				"enabled": true,
+				"title":   "break over 😴",
+				"message": "back to work!",
+			},
+		},
+	}
 )
 
 func Setup() {
@@ -61,34 +88,7 @@ func Setup() {
 	}
 
 	log.Println("setting default config values")
-
-	viper.SetDefault("askToContinue", true)
-
-	viper.SetDefault("asciiArt", map[string]any{
-		"enabled": true,
-		"font":    ascii.DefaultFont,
-		"color":   colors.TimerFg,
-	})
-
-	viper.SetDefault("work", map[string]any{
-		"duration": 25 * time.Minute,
-		"title":    "work session",
-		"notification": map[string]any{
-			"enabled": true,
-			"title":   "work finished 🎉",
-			"message": "time to take a break",
-		},
-	})
-
-	viper.SetDefault("break", map[string]any{
-		"duration": 5 * time.Minute,
-		"title":    "break session",
-		"notification": map[string]any{
-			"enabled": true,
-			"title":   "break over 😴",
-			"message": "back to work!",
-		},
-	})
+	setDefaults()
 }
 
 func LoadConfig() error {
@@ -116,6 +116,12 @@ func LoadConfig() error {
 	}
 
 	return nil
+}
+
+func setDefaults() {
+	for key, value := range DefaultConfig {
+		viper.SetDefault(key, value)
+	}
 }
 
 // expands tilde to the user's home directory
