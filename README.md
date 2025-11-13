@@ -137,6 +137,18 @@ break:
 
 Check out [pomo.yml](pomo.yml) for a full example with all options.
 
+### Sound Notifications
+
+You can play sounds when sessions complete by running commands in the `then` section.
+
+```yaml
+work:
+  then:
+    - [paplay, ~/sounds/work-done.mp3] # Linux
+    # - [afplay, ~/sounds/work-done.mp3] # macOS
+    # - [powershell, start, work-done.mp3] # Windows
+```
+
 ### Key Bindings
 
 #### Timer Controls
