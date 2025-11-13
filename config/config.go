@@ -16,6 +16,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	AppName    = "pomo"
+	ConfigFile = "pomo.yml"
+)
+
 type Notification struct {
 	Enabled bool
 	Title   string
@@ -77,12 +82,12 @@ var (
 )
 
 func Setup() {
-	viper.SetConfigName("pomo")
+	viper.SetConfigName(AppName)
 	viper.SetConfigType("yaml")
 
 	viper.AddConfigPath(".")
 	if configDir, err := os.UserConfigDir(); err == nil {
-		viper.AddConfigPath(filepath.Join(configDir, "pomo"))
+		viper.AddConfigPath(filepath.Join(configDir, AppName))
 	} else {
 		log.Println("could not get user config dir:", err)
 	}

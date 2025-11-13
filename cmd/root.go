@@ -41,7 +41,7 @@ func Execute() error {
 func init() {
 	initLogging()
 	initConfig()
-	beeep.AppName = "pomo"
+	beeep.AppName = config.AppName
 }
 
 func initConfig() {
