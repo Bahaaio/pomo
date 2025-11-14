@@ -91,7 +91,7 @@ pomo looks for its config file in the following order:
 1. **Current directory**: `pomo.yaml` (highest priority)
 2. **System config directory**:
    - **Linux**: `~/.config/pomo/pomo.yaml`
-   - **macOS**: `~/Library/Application Support/pomo/pomo.yaml`
+   - **macOS**: `~/.config/pomo/pomo.yaml`
    - **Windows**: `%APPDATA%\pomo\pomo.yaml`
 3. **Built-in defaults** if no config file is found
 

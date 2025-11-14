@@ -4,10 +4,12 @@ package config
 
 import (
 	_ "embed"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -86,8 +88,9 @@ func Setup() {
 	viper.SetConfigType("yaml")
 
 	viper.AddConfigPath(".")
-	if configDir, err := os.UserConfigDir(); err == nil {
-		viper.AddConfigPath(filepath.Join(configDir, AppName))
+
+	if configDir, err := getConfigDir(); err == nil {
+		viper.AddConfigPath(configDir)
 	} else {
 		log.Println("could not get user config dir:", err)
 	}
@@ -141,4 +144,28 @@ func expandPath(path string) (string, error) {
 	}
 
 	return path, nil
+}
+
+// returns the config directory for the app
+func getConfigDir() (string, error) {
+	var dir string
+
+	// on linux and macOS, use ~/.config
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		dir = os.Getenv("HOME")
+		if dir == "" {
+			return "", errors.New("$HOME is not defined")
+		}
+
+		dir = filepath.Join(dir, ".config")
+	} else {
+		// on other OSes, use the standard user config directory
+		var err error
+		dir, err = os.UserConfigDir()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return filepath.Join(dir, AppName), nil
 }
