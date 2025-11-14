@@ -135,7 +135,7 @@ break:
     - [spd-say, "Back to work!"]
 ```
 
-Check out [pomo.yml](pomo.yml) for a full example with all options.
+Check out [pomo.yaml](pomo.yaml) for a full example with all options.
 
 ### Sound Notifications
 

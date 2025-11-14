@@ -20,7 +20,7 @@ import (
 
 const (
 	AppName    = "pomo"
-	ConfigFile = "pomo.yml"
+	ConfigFile = "pomo.yaml"
 )
 
 type Notification struct {
@@ -84,13 +84,9 @@ var (
 )
 
 func Setup() {
-	viper.SetConfigName(AppName)
-	viper.SetConfigType("yaml")
-
-	viper.AddConfigPath(".")
-
-	if configDir, err := getConfigDir(); err == nil {
-		viper.AddConfigPath(configDir)
+	if configFile, err := getConfigFile(); err == nil {
+		log.Println("using config file:", configFile)
+		viper.SetConfigFile(configFile)
 	} else {
 		log.Println("could not get user config dir:", err)
 	}
@@ -144,6 +140,28 @@ func expandPath(path string) (string, error) {
 	}
 
 	return path, nil
+}
+
+// returns the path to the config file if it exists
+func getConfigFile() (string, error) {
+	var err error
+
+	// check current directory
+	if _, err = os.Stat(ConfigFile); err == nil {
+		return ConfigFile, nil
+	}
+
+	// check config directory
+	var configDir string
+	if configDir, err = getConfigDir(); err == nil {
+		configPath := filepath.Join(configDir, ConfigFile)
+
+		if _, err := os.Stat(configPath); err == nil {
+			return configPath, nil
+		}
+	}
+
+	return "", fmt.Errorf("config file not found: %s", err)
 }
 
 // returns the config directory for the app
