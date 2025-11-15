@@ -133,7 +133,7 @@ func expandPath(path string) (string, error) {
 	if strings.HasPrefix(path, "~/") {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			return "", fmt.Errorf("failed to get home directory: %v", err)
+			return "", fmt.Errorf("failed to get home directory: %w", err)
 		}
 
 		return filepath.Join(homeDir, path[2:]), nil
@@ -161,7 +161,7 @@ func getConfigFile() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("config file not found: %s", err)
+	return "", fmt.Errorf("config file not found: %w", err)
 }
 
 // returns the config directory for the app
