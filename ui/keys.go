@@ -26,7 +26,7 @@ func (k KeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{}
 }
 
-var Keys = KeyMap{
+var keyMap = KeyMap{
 	Increase: key.NewBinding(
 		key.WithKeys("k", "up"),
 		key.WithHelp("↑", "+1 minute"),

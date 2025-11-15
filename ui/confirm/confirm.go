@@ -73,16 +73,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Confirmed = true
 			m.Submitted = true
 			return m, tea.Quit
+
 		case key.Matches(msg, Keys.Cancel):
 			m.Confirmed = false
 			m.Submitted = true
 			return m, tea.Quit
+
 		case key.Matches(msg, Keys.Toggle):
 			m.Confirmed = !m.Confirmed
 			return m, nil
+
 		case key.Matches(msg, Keys.Submit):
 			m.Submitted = true
 			return m, tea.Quit
+
 		case key.Matches(msg, Keys.Quit):
 			m.quitting = true
 			return m, tea.Quit
@@ -93,6 +97,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		return m, nil
 	}
+
 	return m, nil
 }
 
