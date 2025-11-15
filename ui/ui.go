@@ -250,15 +250,11 @@ func (m Model) ExitStatus() ExitStatus {
 }
 
 func (m *Model) resetTimer() tea.Cmd {
-	m.timer = timer.NewWithInterval(
-		m.duration-m.passed,
-		interval,
-	)
+	// reset timer with new duration minus passed time
+	m.timer.Timeout = m.duration - m.passed
 
-	return tea.Batch(
-		m.progress.SetPercent(m.getPercent()),
-		m.timer.Start(),
-	)
+	// update progress bar
+	return m.progress.SetPercent(m.getPercent())
 }
 
 func (m Model) getPercent() float64 {
