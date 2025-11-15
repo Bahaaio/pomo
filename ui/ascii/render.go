@@ -5,11 +5,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func ToASCIIArt(number string, font Font) string {
+func RenderNumber(number string, font Font) string {
 	digits := make([]string, 0, len(number))
 
 	for _, digit := range number {
-		digits = append(digits, digitToASCIIArt(digit, font))
+		digits = append(digits, renderDigit(digit, font))
 	}
 
 	asciiDigits := lipgloss.JoinHorizontal(lipgloss.Top, digits...)
@@ -24,7 +24,7 @@ func GetFont(fontName string) Font {
 	return fonts[DefaultFont]
 }
 
-func digitToASCIIArt(digit rune, font Font) string {
+func renderDigit(digit rune, font Font) string {
 	if digit == ':' {
 		return font[len(font)-1]
 	}
