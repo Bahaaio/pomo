@@ -33,7 +33,7 @@ type Model struct {
 	// ASCII art
 	useTimerArt     bool
 	timerFont       ascii.Font
-	ASCIITimerStyle lipgloss.Style
+	asciiTimerStyle lipgloss.Style
 }
 
 func NewModel(task config.Task, asciiArt config.ASCIIArt) Model {
@@ -55,7 +55,7 @@ func NewModel(task config.Task, asciiArt config.ASCIIArt) Model {
 		initialDuration: task.Duration,
 		useTimerArt:     asciiArt.Enabled,
 		timerFont:       timerFont,
-		ASCIITimerStyle: timerStyle,
+		asciiTimerStyle: timerStyle,
 		help:            help.New(),
 		exitStatus:      Quit,
 	}

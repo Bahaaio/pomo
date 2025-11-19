@@ -63,7 +63,7 @@ func (m *Model) buildTimeLeft() string {
 
 	if m.useTimerArt {
 		time = ascii.RenderNumber(time, m.timerFont)
-		return m.ASCIITimerStyle.Render(time)
+		return m.asciiTimerStyle.Render(time)
 	}
 
 	return time

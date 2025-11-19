@@ -14,7 +14,7 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	switch {
 	case key.Matches(msg, keyMap.Increase):
 		m.duration += time.Minute
-		return m.resetTimer()
+		return m.updateProgressBar()
 
 	case key.Matches(msg, keyMap.Pause):
 		m.paused = !m.paused
@@ -27,7 +27,7 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, keyMap.Reset):
 		m.passed = 0
 		m.duration = m.initialDuration
-		return m.resetTimer()
+		return m.updateProgressBar()
 
 	case key.Matches(msg, keyMap.Skip):
 		m.exitStatus = Skipped
@@ -93,7 +93,7 @@ func (m *Model) handleProgressBarFrame(msg progress.FrameMsg) tea.Cmd {
 	return cmd
 }
 
-func (m *Model) resetTimer() tea.Cmd {
+func (m *Model) updateProgressBar() tea.Cmd {
 	// reset timer with new duration minus passed time
 	m.timer.Timeout = m.duration - m.passed
 
