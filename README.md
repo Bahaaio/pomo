@@ -54,6 +54,7 @@ Work sessions:
 ```bash
 pomo              # Default work session (25m)
 pomo 30m          # Custom duration
+pomo 45m 15m      # 45m work with 15m break
 ```
 
 Break sessions:

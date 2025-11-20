@@ -90,6 +90,14 @@ func parseArguments(args []string, task *config.Task) bool {
 			fmt.Fprintf(os.Stderr, "\ninvalid duration: '%v'\n\n", args[0])
 			return false
 		}
+
+		if len(args) > 1 {
+			config.C.Break.Duration, err = time.ParseDuration(args[1])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "\ninvalid break duration: '%v'\n\n", args[1])
+				return false
+			}
+		}
 	}
 
 	return true
