@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,7 +19,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var messageStyle = lipgloss.NewStyle().Foreground(colors.SuccessMessageFg)
+var (
+	messageStyle = lipgloss.NewStyle().Foreground(colors.SuccessMessageFg)
+
+	totalWorkDuration time.Duration
+	totalWorkSessions int
+
+	totalBreakDuration time.Duration
+	totalBreakSessions int
+)
 
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
@@ -28,22 +37,33 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 		die(nil)
 	}
 
-	exitStatus := runTimer(task)
+	exitStatus, ElapsedTime := runTimer(task)
 	log.Println("session exit status:", exitStatus)
 
 	wg := &sync.WaitGroup{}
 
 	switch exitStatus {
 	case ui.Quit:
+		if totalWorkDuration > 0 || totalBreakDuration > 0 {
+			printSummary()
+		}
 		return
 	case ui.Skipped:
 		// skip to next task directly
 	case ui.Completed:
 		wg = runPostActions(task)
 
+		if taskType == config.WorkTask {
+			totalWorkDuration += ElapsedTime
+			totalWorkSessions++
+		} else {
+			totalBreakDuration += ElapsedTime
+			totalBreakSessions++
+		}
+
 		if !config.C.AskToContinue || !promptToContinue(taskType) {
 			wg.Wait() // wait for notification and post commands
-			fmt.Println(messageStyle.Render(task.Title, "finished"))
+			printSummary()
 			return
 		}
 	}
@@ -52,7 +72,9 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	runTask(taskType.Opposite(), &cobra.Command{}) // run the next task
 }
 
-func runTimer(task *config.Task) ui.ExitStatus {
+// runs the timer UI for the given task
+// returns the exit status and elapsed time
+func runTimer(task *config.Task) (ui.ExitStatus, time.Duration) {
 	log.Printf("starting %v session: %v", task.Title, task.Duration)
 
 	m := ui.NewModel(*task, config.C.ASCIIArt)
@@ -63,9 +85,11 @@ func runTimer(task *config.Task) ui.ExitStatus {
 		die(err)
 	}
 
-	return finalModel.(ui.Model).ExitStatus()
+	return finalModel.(ui.Model).ExitStatus(), finalModel.(ui.Model).Elapsed()
 }
 
+// prompts the user to continue to the next task
+// returns true if the user confirmed
 func promptToContinue(taskType config.TaskType) bool {
 	prompt := fmt.Sprintf("start %s?", taskType.Opposite())
 
@@ -158,4 +182,46 @@ func runPostCommands(cmds [][]string) {
 		// wait some time before running the next command
 		time.Sleep(50 * time.Millisecond)
 	}
+}
+
+func printSummary() {
+	sessionIndicator := "sessions"
+	if totalWorkSessions == 1 {
+		sessionIndicator = "session"
+	}
+
+	fmt.Println(messageStyle.Render("Session Summary:"))
+
+	if totalWorkDuration > 0 {
+		fmt.Printf(" Work : %v (%d %s)\n", totalWorkDuration, totalWorkSessions, sessionIndicator)
+	}
+
+	if totalBreakDuration > 0 {
+		fmt.Printf(" Break: %v (%d %s)\n", totalBreakDuration, totalBreakSessions, sessionIndicator)
+	}
+
+	if totalBreakDuration > 0 && totalWorkDuration > 0 {
+		fmt.Println(" Total:", totalWorkDuration+totalBreakDuration)
+	}
+
+	// progress bar
+	totalDuration := totalWorkDuration + totalBreakDuration
+	workRatio := float64(totalWorkDuration.Milliseconds()) / float64(totalDuration.Milliseconds())
+
+	if totalWorkDuration > 0 {
+		printProgressBar(workRatio)
+	}
+}
+
+func printProgressBar(workRatio float64) {
+	const barWidth = 30
+
+	filledWidth := int(workRatio * barWidth)
+	emptyWidth := barWidth - filledWidth
+
+	bar := lipgloss.NewStyle().Foreground(colors.TimerFg).
+		Render(strings.Repeat("█", filledWidth)) +
+		strings.Repeat("░", emptyWidth)
+
+	fmt.Printf("\n [%s] %.0f%% work\n", bar, workRatio*100)
 }

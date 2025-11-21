@@ -85,3 +85,7 @@ func (e ExitStatus) String() string {
 func (m Model) ExitStatus() ExitStatus {
 	return m.exitStatus
 }
+
+func (m Model) Elapsed() time.Duration {
+	return m.passed
+}
