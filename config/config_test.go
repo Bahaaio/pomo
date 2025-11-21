@@ -106,6 +106,7 @@ work:
   title: Deep work session
   notification:
     enabled: true
+	urgent: true
     title: Work Complete! 🎉
     message: Time for a well-deserved break
     icon: C:\User\image.svg
@@ -117,6 +118,7 @@ break:
   title: Relaxation break
   notification:
     enabled: false
+	urgent: true
     title: Break Over! 😴
     message: Back to productive work
     icon: /abs/path/break-icon.png
@@ -143,6 +145,7 @@ break:
 
 	// work notification
 	assert.True(t, C.Work.Notification.Enabled, "Work notification should be enabled")
+	assert.True(t, C.Work.Notification.Urgent, "Work notification should be urgent")
 	assert.Equal(t, "Work Complete! 🎉", C.Work.Notification.Title, "Work notification title should match")
 	assert.Equal(t, "Time for a well-deserved break", C.Work.Notification.Message, "Work notification message should match")
 	assert.Equal(t, `C:\User\image.svg`, C.Work.Notification.Icon, "Work notification icon should be expanded")
@@ -155,6 +158,7 @@ break:
 
 	// break notification
 	assert.False(t, C.Break.Notification.Enabled, "Break notification should be disabled")
+	assert.True(t, C.Break.Notification.Urgent, "Break notification should be urgent")
 	assert.Equal(t, "Break Over! 😴", C.Break.Notification.Title, "Break notification title should match")
 	assert.Equal(t, "Back to productive work", C.Break.Notification.Message, "Break notification message should match")
 	assert.Equal(t, "/abs/path/break-icon.png", C.Break.Notification.Icon, "Break notification icon should match")
