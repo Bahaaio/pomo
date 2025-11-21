@@ -14,6 +14,7 @@ work:
   title: work session
   notification:
     enabled: true
+    urgent: false
     title: work finished 🎉
     message: time to take a break
     # icon: ~/path/to/icon.png
@@ -25,6 +26,7 @@ break:
   title: break session
   notification:
     enabled: true
+    urgent: false
     title: break over 😴
     message: back to work!
     # icon: C:\Users\path\to\your\icon.png

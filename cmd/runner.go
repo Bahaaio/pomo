@@ -163,7 +163,13 @@ func sendNotification(notification config.Notification) {
 		icon = notification.Icon
 	}
 
-	err := beeep.Notify(notification.Title, notification.Message, icon)
+	var err error
+	if notification.Urgent {
+		err = beeep.Alert(notification.Title, notification.Message, icon)
+	} else {
+		err = beeep.Notify(notification.Title, notification.Message, icon)
+	}
+
 	if err != nil {
 		log.Println("failed to send notification:", err)
 	}
@@ -204,7 +210,6 @@ func printSummary() {
 		fmt.Println(" Total:", totalWorkDuration+totalBreakDuration)
 	}
 
-	// progress bar
 	totalDuration := totalWorkDuration + totalBreakDuration
 	workRatio := float64(totalWorkDuration.Milliseconds()) / float64(totalDuration.Milliseconds())
 

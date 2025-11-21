@@ -91,6 +91,11 @@
           "description": "Enable desktop notifications",
           "default": true
         },
+        "urgent": {
+          "type": "boolean",
+          "description": "Mark notification as urgent",
+          "default": false
+        },
         "title": {
           "type": "string",
           "description": "Notification title text",

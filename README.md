@@ -123,6 +123,7 @@ work:
   # cross-platform notifications
   notification:
     enabled: true
+    urgent: true # persistent notification with alert sound (platform-dependent)
     title: work finished 🎉
     message: time to take a break
     icon: ~/my/icon.png

@@ -25,6 +25,7 @@ const (
 
 type Notification struct {
 	Enabled bool
+	Urgent  bool
 	Title   string
 	Message string
 	Icon    string
@@ -67,6 +68,7 @@ var (
 			"title":    "work session",
 			"notification": map[string]any{
 				"enabled": true,
+				"urgent":  false,
 				"title":   "work finished 🎉",
 				"message": "time to take a break!",
 			},
@@ -76,6 +78,7 @@ var (
 			"title":    "break session",
 			"notification": map[string]any{
 				"enabled": true,
+				"urgent":  false,
 				"title":   "break over 😴",
 				"message": "back to work!",
 			},
