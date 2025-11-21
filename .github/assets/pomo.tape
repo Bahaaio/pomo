@@ -48,12 +48,8 @@ Type "y"
 Sleep 5s
 Ctrl+c
 
-# clear terminal
-Hide
-Type "clear"
-Enter
-Show
-Sleep 1s
+# show summary
+Sleep 3s
 
 # start work session
 Type pomo
