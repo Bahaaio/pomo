@@ -40,6 +40,14 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	exitStatus, ElapsedTime := runTimer(task)
 	log.Println("session exit status:", exitStatus)
 
+	if taskType == config.WorkTask {
+		totalWorkDuration += ElapsedTime
+		totalWorkSessions++
+	} else {
+		totalBreakDuration += ElapsedTime
+		totalBreakSessions++
+	}
+
 	wg := &sync.WaitGroup{}
 
 	switch exitStatus {
@@ -52,14 +60,6 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 		// skip to next task directly
 	case ui.Completed:
 		wg = runPostActions(task)
-
-		if taskType == config.WorkTask {
-			totalWorkDuration += ElapsedTime
-			totalWorkSessions++
-		} else {
-			totalBreakDuration += ElapsedTime
-			totalBreakSessions++
-		}
 
 		if !config.C.AskToContinue || !promptToContinue(taskType) {
 			wg.Wait() // wait for notification and post commands
