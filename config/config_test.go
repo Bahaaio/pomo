@@ -106,7 +106,7 @@ work:
   title: Deep work session
   notification:
     enabled: true
-	urgent: true
+    urgent: true
     title: Work Complete! 🎉
     message: Time for a well-deserved break
     icon: C:\User\image.svg
@@ -118,7 +118,7 @@ break:
   title: Relaxation break
   notification:
     enabled: false
-	urgent: true
+    urgent: true
     title: Break Over! 😴
     message: Back to productive work
     icon: /abs/path/break-icon.png
