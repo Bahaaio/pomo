@@ -32,7 +32,7 @@ var (
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
 
-	if !parseArguments(cmd.Flags().Args(), task) {
+	if !parseArguments(cmd.Flags().Args(), task, &config.C.Break) {
 		_ = cmd.Usage()
 		die(nil)
 	}
@@ -106,7 +106,7 @@ func promptToContinue(taskType config.TaskType) bool {
 
 // parses the arguments and sets the duration
 // returns false if the duration could not be parsed
-func parseArguments(args []string, task *config.Task) bool {
+func parseArguments(args []string, task *config.Task, breakTask *config.Task) bool {
 	if len(args) > 0 {
 		var err error
 		task.Duration, err = time.ParseDuration(args[0])
@@ -116,7 +116,7 @@ func parseArguments(args []string, task *config.Task) bool {
 		}
 
 		if len(args) > 1 {
-			config.C.Break.Duration, err = time.ParseDuration(args[1])
+			breakTask.Duration, err = time.ParseDuration(args[1])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "\ninvalid break duration: '%v'\n\n", args[1])
 				return false
