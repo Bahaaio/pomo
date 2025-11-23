@@ -4,29 +4,19 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/Bahaaio/pomo/actions"
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui"
-	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/Bahaaio/pomo/ui/confirm"
+	"github.com/Bahaaio/pomo/ui/summary"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 )
 
-var (
-	messageStyle = lipgloss.NewStyle().Foreground(colors.SuccessMessageFg)
-
-	totalWorkDuration time.Duration
-	totalWorkSessions int
-
-	totalBreakDuration time.Duration
-	totalBreakSessions int
-)
+var sessionSummary = summary.SessionSummary{}
 
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
@@ -36,24 +26,15 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 		die(nil)
 	}
 
-	exitStatus, ElapsedTime := runTimer(task)
+	exitStatus, elapsedTime := runTimer(task)
 	log.Println("session exit status:", exitStatus)
 
-	if taskType == config.WorkTask {
-		totalWorkDuration += ElapsedTime
-		totalWorkSessions++
-	} else {
-		totalBreakDuration += ElapsedTime
-		totalBreakSessions++
-	}
-
+	sessionSummary.AddSession(taskType, elapsedTime)
 	wg := &sync.WaitGroup{}
 
 	switch exitStatus {
 	case ui.Quit:
-		if totalWorkDuration > 0 || totalBreakDuration > 0 {
-			printSummary()
-		}
+		sessionSummary.Print()
 		return
 	case ui.Skipped:
 		// skip to next task directly
@@ -62,7 +43,7 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 
 		if !config.C.AskToContinue || !promptToContinue(taskType) {
 			wg.Wait() // wait for notification and post commands
-			printSummary()
+			sessionSummary.Print()
 			return
 		}
 	}
@@ -124,45 +105,4 @@ func parseArguments(args []string, task *config.Task, breakTask *config.Task) bo
 	}
 
 	return true
-}
-
-func printSummary() {
-	sessionIndicator := "sessions"
-	if totalWorkSessions == 1 {
-		sessionIndicator = "session"
-	}
-
-	fmt.Println(messageStyle.Render("Session Summary:"))
-
-	if totalWorkDuration > 0 {
-		fmt.Printf(" Work : %v (%d %s)\n", totalWorkDuration, totalWorkSessions, sessionIndicator)
-	}
-
-	if totalBreakDuration > 0 {
-		fmt.Printf(" Break: %v (%d %s)\n", totalBreakDuration, totalBreakSessions, sessionIndicator)
-	}
-
-	if totalBreakDuration > 0 && totalWorkDuration > 0 {
-		fmt.Println(" Total:", totalWorkDuration+totalBreakDuration)
-	}
-
-	totalDuration := totalWorkDuration + totalBreakDuration
-	workRatio := float64(totalWorkDuration.Milliseconds()) / float64(totalDuration.Milliseconds())
-
-	if totalWorkDuration > 0 {
-		printProgressBar(workRatio)
-	}
-}
-
-func printProgressBar(workRatio float64) {
-	const barWidth = 30
-
-	filledWidth := int(workRatio * barWidth)
-	emptyWidth := barWidth - filledWidth
-
-	bar := lipgloss.NewStyle().Foreground(colors.TimerFg).
-		Render(strings.Repeat("█", filledWidth)) +
-		strings.Repeat("░", emptyWidth)
-
-	fmt.Printf("\n [%s] %.0f%% work\n", bar, workRatio*100)
 }
