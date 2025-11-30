@@ -19,10 +19,10 @@ func (m *Model) buildMainContent() string {
 	timeLeft := m.buildTimeLeft()
 
 	if m.useTimerArt {
-		return timeLeft + "\n\n" + m.title
+		return timeLeft + "\n\n" + m.currentTask.Title
 	}
 
-	content := m.title
+	content := m.currentTask.Title
 	if !m.timer.Timedout() {
 		content += separator + timeLeft
 	}
@@ -35,7 +35,7 @@ func (m *Model) buildStatusIndicators() string {
 		return separator + completedIndicator
 	}
 
-	if m.paused {
+	if m.sessionState == Paused {
 		return " " + pausedIndicator
 	}
 

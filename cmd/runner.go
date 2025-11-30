@@ -4,19 +4,13 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 	"time"
 
-	"github.com/Bahaaio/pomo/actions"
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui"
-	"github.com/Bahaaio/pomo/ui/confirm"
-	"github.com/Bahaaio/pomo/ui/summary"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 )
-
-var sessionSummary = summary.SessionSummary{}
 
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
@@ -26,38 +20,9 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 		die(nil)
 	}
 
-	exitStatus, elapsedTime := runTimer(task)
-	log.Println("session exit status:", exitStatus)
+	log.Printf("starting %v session: %v", taskType.GetTask().Title, taskType.GetTask().Duration)
 
-	sessionSummary.AddSession(taskType, elapsedTime)
-	wg := &sync.WaitGroup{}
-
-	switch exitStatus {
-	case ui.Quit:
-		sessionSummary.Print()
-		return
-	case ui.Skipped:
-		// skip to next task directly
-	case ui.Completed:
-		wg = actions.RunPostActions(task)
-
-		if !config.C.AskToContinue || !promptToContinue(taskType) {
-			wg.Wait() // wait for notification and post commands
-			sessionSummary.Print()
-			return
-		}
-	}
-
-	wg.Wait()
-	runTask(taskType.Opposite(), &cobra.Command{}) // run the next task
-}
-
-// runs the timer UI for the given task
-// returns the exit status and elapsed time
-func runTimer(task *config.Task) (ui.ExitStatus, time.Duration) {
-	log.Printf("starting %v session: %v", task.Title, task.Duration)
-
-	m := ui.NewModel(*task, config.C.ASCIIArt)
+	m := ui.NewModel(taskType, config.C.ASCIIArt, config.C.AskToContinue)
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	finalModel, err := p.Run()
@@ -65,23 +30,8 @@ func runTimer(task *config.Task) (ui.ExitStatus, time.Duration) {
 		die(err)
 	}
 
-	return finalModel.(ui.Model).ExitStatus(), finalModel.(ui.Model).Elapsed()
-}
-
-// prompts the user to continue to the next task
-// returns true if the user confirmed
-func promptToContinue(taskType config.TaskType) bool {
-	prompt := fmt.Sprintf("start %s?", taskType.Opposite())
-
-	m := confirm.New(prompt)
-	p := tea.NewProgram(m, tea.WithAltScreen())
-
-	confirmModel, err := p.Run()
-	if err != nil {
-		die(err)
-	}
-
-	return confirmModel.(confirm.Model).Confirmed && confirmModel.(confirm.Model).Submitted
+	// print session summary
+	finalModel.(ui.Model).GetSessionSummary().Print()
 }
 
 // parses the arguments and sets the duration

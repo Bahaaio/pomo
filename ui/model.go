@@ -6,6 +6,8 @@ import (
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/Bahaaio/pomo/ui/colors"
+	"github.com/Bahaaio/pomo/ui/confirm"
+	"github.com/Bahaaio/pomo/ui/summary"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/timer"
@@ -14,21 +16,22 @@ import (
 
 type Model struct {
 	// components
-	progressBar progress.Model
-	help        help.Model
+	progressBar   progress.Model
+	confirmDialog confirm.Model
+	help          help.Model
 
 	// timer
-	timer           timer.Model
-	duration        time.Duration
-	initialDuration time.Duration
-	passed          time.Duration
+	timer    timer.Model
+	duration time.Duration
+	elapsed  time.Duration
 
 	// state
-	title         string
-	width, height int // window dimensions
-	paused        bool
-	quitting      bool
-	exitStatus    ExitStatus
+	width, height       int // window dimensions
+	shouldAskToContinue bool
+	sessionState        SessionState
+	currentTaskType     config.TaskType
+	currentTask         config.Task
+	sessionSummary      summary.SessionSummary
 
 	// ASCII art
 	useTimerArt     bool
@@ -36,7 +39,9 @@ type Model struct {
 	asciiTimerStyle lipgloss.Style
 }
 
-func NewModel(task config.Task, asciiArt config.ASCIIArt) Model {
+func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue bool) Model {
+	task := taskType.GetTask()
+
 	var timerFont ascii.Font
 	timerStyle := lipgloss.NewStyle()
 
@@ -48,44 +53,34 @@ func NewModel(task config.Task, asciiArt config.ASCIIArt) Model {
 	}
 
 	return Model{
-		title:           task.Title,
-		timer:           timer.New(task.Duration),
-		progressBar:     progress.New(progress.WithDefaultGradient()),
-		duration:        task.Duration,
-		initialDuration: task.Duration,
+		progressBar:   progress.New(progress.WithDefaultGradient()),
+		confirmDialog: confirm.New(),
+		help:          help.New(),
+
+		timer:    timer.New(task.Duration),
+		duration: task.Duration,
+
+		shouldAskToContinue: askToContinue,
+		sessionState:        Running,
+		currentTaskType:     taskType,
+		currentTask:         *task,
+		sessionSummary:      summary.SessionSummary{},
+
 		useTimerArt:     asciiArt.Enabled,
 		timerFont:       timerFont,
 		asciiTimerStyle: timerStyle,
-		help:            help.New(),
-		exitStatus:      Quit,
 	}
 }
 
-type ExitStatus byte
+type SessionState byte
 
 const (
-	Completed ExitStatus = iota
-	Skipped
-	Quit
+	Running SessionState = iota
+	Paused
+	ShowingConfirm
+	Quitting
 )
 
-func (e ExitStatus) String() string {
-	switch e {
-	case Completed:
-		return "Completed"
-	case Skipped:
-		return "Skipped"
-	case Quit:
-		return "Quit"
-	default:
-		return "Unknown"
-	}
-}
-
-func (m Model) ExitStatus() ExitStatus {
-	return m.exitStatus
-}
-
-func (m Model) Elapsed() time.Duration {
-	return m.passed
+func (m Model) GetSessionSummary() summary.SessionSummary {
+	return m.sessionSummary
 }

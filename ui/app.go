@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"github.com/Bahaaio/pomo/ui/confirm"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,6 +27,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case timer.StartStopMsg:
 		return m, m.handleTimerStartStop(msg)
 
+	case confirm.ChoiceMsg:
+		return m, m.handleConfirmChoice(msg)
+
 	case progress.FrameMsg:
 		return m, m.handleProgressBarFrame(msg)
 
@@ -35,8 +39,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	if m.quitting {
+	if m.sessionState == Quitting {
 		return ""
+	}
+
+	// show confirmation dialog
+	if m.sessionState == ShowingConfirm {
+		return m.confirmDialog.View("start " + m.currentTask.Title + "?")
 	}
 
 	content := m.buildMainContent()

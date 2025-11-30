@@ -44,73 +44,41 @@ var (
 				Margin(buttonMargin...)
 )
 
+type ConfirmChoice int
+
+const (
+	Confirm ConfirmChoice = iota
+	Cancel
+)
+
+type ChoiceMsg struct {
+	Choice ConfirmChoice
+}
+
 type Model struct {
-	Prompt        string
-	Confirmed     bool
-	Submitted     bool
+	confirmed     bool
 	width, height int
 	help          help.Model
 	quitting      bool
 }
 
-func New(prompt string) Model {
+func New() Model {
 	return Model{
-		Prompt:    prompt,
-		Confirmed: true,
+		confirmed: true,
 		help:      help.New(),
 	}
 }
 
-func (m Model) Init() tea.Cmd {
-	return nil
-}
-
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, Keys.Confirm):
-			m.Confirmed = true
-			m.Submitted = true
-			return m, tea.Quit
-
-		case key.Matches(msg, Keys.Cancel):
-			m.Confirmed = false
-			m.Submitted = true
-			return m, tea.Quit
-
-		case key.Matches(msg, Keys.Toggle):
-			m.Confirmed = !m.Confirmed
-			return m, nil
-
-		case key.Matches(msg, Keys.Submit):
-			m.Submitted = true
-			return m, tea.Quit
-
-		case key.Matches(msg, Keys.Quit):
-			m.quitting = true
-			return m, tea.Quit
-		}
-
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-		return m, nil
-	}
-
-	return m, nil
-}
-
-func (m Model) View() string {
+func (m Model) View(prompt string) string {
 	if m.quitting {
 		return ""
 	}
 
-	prompt := promptStyle.Render(m.Prompt)
+	prompt = promptStyle.Render(prompt)
 
 	var confirmButton, cancelButton string
 
-	if m.Confirmed {
+	if m.confirmed {
 		confirmButton = activeButtonStyle.Render(confirmText)
 		cancelButton = InactiveButtonStyle.Render(cancelText)
 	} else {
@@ -133,4 +101,43 @@ func (m Model) View() string {
 			help,
 		),
 	)
+}
+
+func (m *Model) HandleKeys(msg tea.KeyMsg) tea.Cmd {
+	switch {
+	case key.Matches(msg, Keys.Confirm):
+		return m.Choice(Confirm)
+
+	case key.Matches(msg, Keys.Cancel):
+		return m.Choice(Cancel)
+
+	case key.Matches(msg, Keys.Toggle):
+		m.confirmed = !m.confirmed
+		return nil
+
+	case key.Matches(msg, Keys.Submit):
+		if m.confirmed {
+			return m.Choice(Confirm)
+		}
+		return m.Choice(Cancel)
+
+	case key.Matches(msg, Keys.Quit):
+		m.quitting = true
+		return m.Choice(Cancel)
+
+	default:
+		return nil
+	}
+}
+
+func (m *Model) HandleWindowResize(msg tea.WindowSizeMsg) tea.Cmd {
+	m.width = msg.Width
+	m.height = msg.Height
+	return nil
+}
+
+func (m Model) Choice(choice ConfirmChoice) tea.Cmd {
+	return func() tea.Msg {
+		return ChoiceMsg{Choice: choice}
+	}
 }
