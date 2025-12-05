@@ -38,19 +38,24 @@ func (t SessionSummary) Print() {
 		return
 	}
 
-	sessionIndicator := "sessions"
+	workIndicator := "sessions"
 	if t.totalWorkSessions == 1 {
-		sessionIndicator = "session"
+		workIndicator = "session"
+	}
+
+	breakIndicator := "sessions"
+	if t.totalBreakSessions == 1 {
+		breakIndicator = "session"
 	}
 
 	fmt.Println(messageStyle.Render("Session Summary:"))
 
 	if t.totalWorkDuration > 0 {
-		fmt.Printf(" Work : %v (%d %s)\n", t.totalWorkDuration, t.totalWorkSessions, sessionIndicator)
+		fmt.Printf(" Work : %v (%d %s)\n", t.totalWorkDuration, t.totalWorkSessions, workIndicator)
 	}
 
 	if t.totalBreakDuration > 0 {
-		fmt.Printf(" Break: %v (%d %s)\n", t.totalBreakDuration, t.totalBreakSessions, sessionIndicator)
+		fmt.Printf(" Break: %v (%d %s)\n", t.totalBreakDuration, t.totalBreakSessions, breakIndicator)
 	}
 
 	if t.totalBreakDuration > 0 && t.totalWorkDuration > 0 {
