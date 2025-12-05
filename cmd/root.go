@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "0.8.0"
+var version = "0.8.1"
 
 var rootCmd = &cobra.Command{
 	Use:     "pomo [work duration] [break duration]",
