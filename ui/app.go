@@ -45,7 +45,8 @@ func (m Model) View() string {
 
 	// show confirmation dialog
 	if m.sessionState == ShowingConfirm {
-		return m.confirmDialog.View("start " + m.currentTask.Title + "?")
+		title := m.currentTaskType.Opposite().GetTask().Title
+		return m.confirmDialog.View("start " + title + "?")
 	}
 
 	content := m.buildMainContent()
