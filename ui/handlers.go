@@ -41,9 +41,11 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 		return m.updateProgressBar()
 
 	case key.Matches(msg, keyMap.Skip):
+		m.recordSession()
 		return m.nextSession()
 
 	case key.Matches(msg, keyMap.Quit):
+		m.recordSession()
 		return m.Quit()
 
 	default:
@@ -127,7 +129,7 @@ func (m Model) getPercent() float64 {
 func (m *Model) handleCompletion() tea.Cmd {
 	log.Println("timer completed")
 
-	m.sessionSummary.AddSession(m.currentTaskType, m.elapsed)
+	m.recordSession()
 	actions.RunPostActions(&m.currentTask).Wait()
 
 	if m.shouldAskToContinue {
@@ -152,6 +154,11 @@ func (m *Model) nextSession() tea.Cmd {
 		m.progressBar.SetPercent(0.0),
 		m.timer.Start(),
 	)
+}
+
+// records the current session into the session summary
+func (m *Model) recordSession() {
+	m.sessionSummary.AddSession(m.currentTaskType, m.elapsed)
 }
 
 func (m *Model) Quit() tea.Cmd {
