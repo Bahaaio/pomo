@@ -32,6 +32,7 @@ type Model struct {
 	currentTaskType     config.TaskType
 	currentTask         config.Task
 	sessionSummary      summary.SessionSummary
+	isShortSession      bool
 
 	// ASCII art
 	useTimerArt     bool

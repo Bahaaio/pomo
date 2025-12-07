@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Bahaaio/pomo/actions"
+	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/ui/confirm"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -57,6 +58,8 @@ func (m *Model) handleConfirmChoice(msg confirm.ChoiceMsg) tea.Cmd {
 	switch msg.Choice {
 	case confirm.Confirm:
 		return m.nextSession()
+	case confirm.ShortSession:
+		return m.shortSession()
 	case confirm.Cancel:
 		return m.Quit()
 	}
@@ -132,18 +135,36 @@ func (m *Model) handleCompletion() tea.Cmd {
 	m.recordSession()
 	actions.RunPostActions(&m.currentTask).Wait()
 
+	// show confirmation dialog if configured to do so
 	if m.shouldAskToContinue {
 		m.sessionState = ShowingConfirm
 		return nil
 	}
 
+	// else, quit
 	return m.Quit()
 }
 
-// updates model with next task and starts the timer
+// starts session with the opposite task type (work <-> break)
 func (m *Model) nextSession() tea.Cmd {
-	m.currentTaskType = m.currentTaskType.Opposite()
-	m.currentTask = *m.currentTaskType.GetTask()
+	nextTaskType := m.currentTaskType.Opposite()
+	return m.startSession(nextTaskType, *nextTaskType.GetTask(), false)
+}
+
+// starts a short session of the current task type
+func (m *Model) shortSession() tea.Cmd {
+	shortTask := m.currentTask
+	shortTask.Duration = 2 * time.Minute // TODO: make configurable
+	shortTask.Title = "short " + m.currentTaskType.GetTask().Title
+
+	return m.startSession(m.currentTaskType, shortTask, true)
+}
+
+// initializes and starts a new session with the given task
+func (m *Model) startSession(taskType config.TaskType, task config.Task, isShortSession bool) tea.Cmd {
+	m.isShortSession = isShortSession
+	m.currentTaskType = taskType
+	m.currentTask = task
 
 	m.elapsed = 0
 	m.duration = m.currentTask.Duration
@@ -158,6 +179,12 @@ func (m *Model) nextSession() tea.Cmd {
 
 // records the current session into the session summary
 func (m *Model) recordSession() {
+	// short sessions extend the current session without incrementing the count
+	if m.isShortSession {
+		m.sessionSummary.AddDuration(m.currentTaskType, m.elapsed)
+		return
+	}
+
 	m.sessionSummary.AddSession(m.currentTaskType, m.elapsed)
 }
 

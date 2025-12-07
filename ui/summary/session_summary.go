@@ -25,10 +25,19 @@ type SessionSummary struct {
 func (t *SessionSummary) AddSession(taskType config.TaskType, elapsed time.Duration) {
 	if taskType == config.WorkTask {
 		t.totalWorkSessions++
-		t.totalWorkDuration += elapsed
 	} else {
 		t.totalBreakSessions++
-		t.totalBreakDuration += elapsed
+	}
+
+	t.AddDuration(taskType, elapsed)
+}
+
+// AddDuration adds a duration to the summary based on the task type.
+func (t *SessionSummary) AddDuration(taskType config.TaskType, duration time.Duration) {
+	if taskType == config.WorkTask {
+		t.totalWorkDuration += duration
+	} else {
+		t.totalBreakDuration += duration
 	}
 }
 

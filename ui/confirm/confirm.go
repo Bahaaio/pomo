@@ -49,6 +49,7 @@ type ConfirmChoice int
 const (
 	Confirm ConfirmChoice = iota
 	Cancel
+	ShortSession
 )
 
 type ChoiceMsg struct {
@@ -120,6 +121,9 @@ func (m *Model) HandleKeys(msg tea.KeyMsg) tea.Cmd {
 			return m.Choice(Confirm)
 		}
 		return m.Choice(Cancel)
+
+	case key.Matches(msg, Keys.ShortSession):
+		return m.Choice(ShortSession)
 
 	case key.Matches(msg, Keys.Quit):
 		m.quitting = true

@@ -5,19 +5,20 @@ import (
 )
 
 type KeyMap struct {
-	Toggle  key.Binding
-	Confirm key.Binding
-	Cancel  key.Binding
-	Submit  key.Binding
-	Quit    key.Binding
+	Toggle       key.Binding
+	Confirm      key.Binding
+	Cancel       key.Binding
+	Submit       key.Binding
+	ShortSession key.Binding
+	Quit         key.Binding
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{
 		k.Toggle,
 		k.Submit,
-		k.Confirm,
-		k.Cancel,
+		k.ShortSession,
+		k.Quit,
 	}
 }
 
@@ -41,6 +42,10 @@ var Keys = KeyMap{
 	Submit: key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "submit"),
+	),
+	ShortSession: key.NewBinding(
+		key.WithKeys("s"),
+		key.WithHelp("s", "short session"),
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c", "q"),
