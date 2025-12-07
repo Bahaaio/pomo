@@ -166,13 +166,16 @@ work:
 
 #### Confirmation Dialog
 
-| Key            | Action           |
-| -------------- | ---------------- |
-| `y`            | Confirm (Yes)    |
-| `n`            | Cancel (No)      |
-| `Tab`          | Toggle selection |
-| `Enter`        | Submit choice    |
-| `q` / `Ctrl+C` | Quit             |
+| Key            | Action                          |
+| -------------- | ------------------------------- |
+| `y`            | Confirm (Yes)                   |
+| `n`            | Cancel (No)                     |
+| `s`            | Start short session (2 minutes) |
+| `Tab`          | Toggle selection                |
+| `Enter`        | Submit choice                   |
+| `q` / `Ctrl+C` | Quit                            |
+
+> Short sessions extend the current session by 2 minutes, useful when you need a bit more time
 
 ## License
 
