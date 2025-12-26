@@ -1,3 +1,5 @@
+.idea
 debug.log
 pomo
 dist/
+*.db
