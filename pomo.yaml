@@ -18,8 +18,8 @@ work:
     title: work finished 🎉
     message: time to take a break
     # icon: ~/path/to/icon.png
-  then:
-    - [spd-say, "Time to take a break"]
+  # then:
+  #   - [spd-say, "Time to take a break"]
 
 break:
   duration: 5m
@@ -30,5 +30,5 @@ break:
     title: break over 😴
     message: back to work!
     # icon: C:\Users\path\to\your\icon.png
-  then:
-    - [spd-say, "Back to work!"]
+  # then:
+  #   - [spd-say, "Back to work!"]
