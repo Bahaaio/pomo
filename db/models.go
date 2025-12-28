@@ -17,3 +17,21 @@ type Session struct {
 	Duration  time.Duration `db:"duration"`
 	StartedAt time.Time     `db:"started_at"`
 }
+
+type AllTimeStats struct {
+	TotalSessions      int           `db:"total_sessions"`
+	TotalWorkDuration  time.Duration `db:"total_work_duration"`
+	TotalBreakDuration time.Duration `db:"total_break_duration"`
+}
+
+type DailyStat struct {
+	Date         string        `db:"day"`
+	WorkDuration time.Duration `db:"work_duration"`
+}
+
+type SessionType string
+
+const (
+	WorkSession  SessionType = "work"
+	BreakSession SessionType = "break"
+)
