@@ -16,6 +16,7 @@ const (
 	BorderFg         = lipgloss.Color("#5A56E0")
 	SuccessMessageFg = lipgloss.Color("#198754")
 	TimerFg          = lipgloss.Color("#5A56E0")
+	WorkSessionFG    = TimerFg
 )
 
 var validColorRegex *regexp.Regexp = nil

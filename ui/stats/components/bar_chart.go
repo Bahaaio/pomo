@@ -7,8 +7,11 @@ import (
 	"time"
 
 	"github.com/Bahaaio/pomo/db"
+	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/charmbracelet/lipgloss"
 )
+
+var barStyle = lipgloss.NewStyle().Foreground(colors.WorkSessionFG)
 
 const (
 	barChar     = "█"
@@ -18,7 +21,7 @@ const (
 	lineChar    = "─"
 	paddingChar = " "
 
-	barTickness  = 3
+	barThickness = 3
 	spacing      = 2
 	numberOfDays = 7
 )
@@ -48,7 +51,7 @@ func (b *BarChart) calculateLayout(maxDuration, scale time.Duration) chartLayout
 	yAxisLabelWidth := longestLabel
 	yAxisWidth := yAxisLabelWidth + 1 + 1 // length of label + space + tick char
 
-	barAreaWidth := spacing + (barTickness+spacing)*numberOfDays
+	barAreaWidth := spacing + (barThickness+spacing)*numberOfDays
 
 	return chartLayout{
 		barHeight:       b.barHeight,
@@ -62,7 +65,7 @@ func (b *BarChart) calculateLayout(maxDuration, scale time.Duration) chartLayout
 func NewBarChart(height int) BarChart {
 	return BarChart{
 		chartLayout: chartLayout{
-			barHeight: height - 1 - 1, // leave space for x axis and labels
+			barHeight: height - 1 - 1, // leave space for x-axis and labels
 		},
 	}
 }
@@ -132,7 +135,7 @@ func (b *BarChart) buildYAxis(maxDuration, scale time.Duration) string {
 		axis := strings.Repeat(paddingChar, b.yAxisLabelWidth) + paddingChar + axisChar
 		builder.WriteString(axis)
 
-		// don't print last new line
+		// don't print the last new line
 		if duration-scale >= epsilon {
 			builder.WriteString("\n")
 		}
@@ -169,31 +172,31 @@ func getDayLabel(day string) string {
 	}
 
 	// get first three letters of weekday
-	return t.Weekday().String()[:barTickness]
+	return t.Weekday().String()[:barThickness]
 }
 
 func renderBar(height int) string {
 	if height == 0 {
 		// return an empty bar for alignment
-		return strings.Repeat(paddingChar, barTickness)
+		return strings.Repeat(paddingChar, barThickness)
 	}
 
-	bar := strings.Repeat(barChar, barTickness)
+	bar := strings.Repeat(barChar, barThickness)
 
 	// don't render last new line char
-	return strings.Repeat(bar+"\n", height-1) + bar
+	return barStyle.Render(strings.Repeat(bar+"\n", height-1) + bar)
 }
 
 func getMaxDuration(stats []db.DailyStat) time.Duration {
-	var max time.Duration
+	var maxDuration time.Duration
 
 	for _, stat := range stats {
-		if stat.WorkDuration > max {
-			max = stat.WorkDuration
+		if stat.WorkDuration > maxDuration {
+			maxDuration = stat.WorkDuration
 		}
 	}
 
-	return max
+	return maxDuration
 }
 
 func calculateScale(maxDuration time.Duration, targetTicks int) time.Duration {
@@ -201,7 +204,7 @@ func calculateScale(maxDuration time.Duration, targetTicks int) time.Duration {
 		float64(maxDuration.Milliseconds())/float64(targetTicks),
 	) * time.Millisecond
 
-	// minimum scale of 100ms to avoid too many ticks
+	// minimum scale of 100 ms to avoid too many ticks
 	scale = max(scale, time.Millisecond*100)
 
 	return scale

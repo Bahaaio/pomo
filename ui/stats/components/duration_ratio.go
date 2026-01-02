@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -57,7 +58,7 @@ func (d *DurationRatio) buildBar(workPercentage int) string {
 	filledWidth := int(float64(d.width) * (float64(workPercentage) / 100.0))
 	emptyWidth := d.width - filledWidth
 
-	bar := lipgloss.NewStyle().
+	bar := lipgloss.NewStyle().Foreground(colors.WorkSessionFG).
 		Render(strings.Repeat("█", filledWidth)) +
 		strings.Repeat("░", emptyWidth)
 
