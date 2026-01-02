@@ -2,7 +2,6 @@
 package stats
 
 import (
-	"fmt"
 
 	"github.com/Bahaaio/pomo/db"
 	"github.com/Bahaaio/pomo/ui/stats/components"
@@ -12,11 +11,15 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const barChartHeight = 12
+const (
+	barChartHeight     = 12
+	durationRatioWidth = 30
+)
 
 type Model struct {
 	// components
-	barChart components.BarChart
+	durationRatio components.DurationRatio
+	barChart      components.BarChart
 
 	// stats
 	allTimeStats db.AllTimeStats
@@ -31,8 +34,9 @@ type Model struct {
 
 func New() Model {
 	return Model{
-		barChart: components.NewBarChart(barChartHeight),
-		help:     help.New(),
+		durationRatio: components.NewDurationRatio(durationRatioWidth),
+		barChart:      components.NewBarChart(barChartHeight),
+		help:          help.New(),
 	}
 }
 
@@ -85,13 +89,10 @@ func (m Model) View() string {
 
 	title := "Pomodoro statistics\n\n"
 
-	content := "All-Time stats:\n"
-	content += fmt.Sprintln("  Total Sessions:", m.allTimeStats.TotalSessions)
-	content += fmt.Sprintln("  Work Time:", m.allTimeStats.TotalWorkDuration)
-	content += fmt.Sprintln("  Break Time:", m.allTimeStats.TotalBreakDuration)
-
-	// left align
-	content = lipgloss.JoinVertical(lipgloss.Left, content, "")
+	durationRatio := m.durationRatio.View(
+		m.allTimeStats.TotalWorkDuration,
+		m.allTimeStats.TotalBreakDuration,
+	)
 
 	chart := m.barChart.View(m.weeklyStats)
 
@@ -101,7 +102,8 @@ func (m Model) View() string {
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			title,
-			content,
+			durationRatio,
+			"\n\n",
 			chart,
 			"",
 			m.help.View(Keys),
