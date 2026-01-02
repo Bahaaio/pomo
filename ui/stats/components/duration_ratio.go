@@ -10,6 +10,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var (
+	workBarStyle  = lipgloss.NewStyle().Foreground(colors.WorkSessionFg)
+	breakBarStyle = lipgloss.NewStyle().Foreground(colors.BreakSessionFg)
+)
+
 type DurationRatio struct {
 	width int
 }
@@ -58,11 +63,10 @@ func (d *DurationRatio) buildBar(workPercentage int) string {
 	filledWidth := int(float64(d.width) * (float64(workPercentage) / 100.0))
 	emptyWidth := d.width - filledWidth
 
-	bar := lipgloss.NewStyle().Foreground(colors.WorkSessionFG).
-		Render(strings.Repeat("█", filledWidth)) +
-		strings.Repeat("░", emptyWidth)
+	workPart := workBarStyle.Render(strings.Repeat("█", filledWidth))
+	breakPart := breakBarStyle.Render(strings.Repeat("░", emptyWidth))
 
-	return bar
+	return workPart + breakPart
 }
 
 func (d *DurationRatio) buildBottom(workPercentage, breakPercentage int) string {
