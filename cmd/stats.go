@@ -12,7 +12,7 @@ var statsCmd = &cobra.Command{
 	Short: "Display Pomodoro statistics and productivity metrics",
 	Run: func(cmd *cobra.Command, args []string) {
 		m := stats.New()
-		p := tea.NewProgram(m)
+		p := tea.NewProgram(m, tea.WithAltScreen())
 
 		_, err := p.Run()
 		if err != nil {
