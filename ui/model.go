@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"log"
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
+	"github.com/Bahaaio/pomo/db"
 	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/Bahaaio/pomo/ui/confirm"
@@ -38,6 +40,9 @@ type Model struct {
 	useTimerArt     bool
 	timerFont       ascii.Font
 	asciiTimerStyle lipgloss.Style
+
+	// databse
+	repo *db.SessionRepo
 }
 
 func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue bool) Model {
@@ -52,6 +57,14 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		timerColor := colors.GetColor(asciiArt.Color)
 		timerStyle = timerStyle.Foreground(timerColor)
 	}
+
+	database, err := db.Init()
+	if err != nil {
+		// TODO: gracefull handling
+		log.Fatalf("failed to initialize database: %v", err)
+	}
+
+	repo := db.NewSessionRepo(database)
 
 	return Model{
 		progressBar:   progress.New(progress.WithDefaultGradient()),
@@ -70,6 +83,8 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		useTimerArt:     asciiArt.Enabled,
 		timerFont:       timerFont,
 		asciiTimerStyle: timerStyle,
+
+		repo: repo,
 	}
 }
 
