@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var barStyle = lipgloss.NewStyle().Foreground(colors.WorkSessionFG)
+var barStyle = lipgloss.NewStyle().Foreground(colors.WorkSessionFg)
 
 const (
 	barChar     = "█"

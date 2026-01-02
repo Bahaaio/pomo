@@ -8,15 +8,34 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// Palette
 const (
-	InactiveButtonFg = lipgloss.Color("#FFF7DB")
-	InactiveButtonBg = lipgloss.Color("#888B7E")
-	ActiveButtonFg   = InactiveButtonFg
-	ActiveButtonBg   = lipgloss.Color("#F25D94")
-	BorderFg         = lipgloss.Color("#5A56E0")
-	SuccessMessageFg = lipgloss.Color("#198754")
-	TimerFg          = lipgloss.Color("#5A56E0")
-	WorkSessionFG    = TimerFg
+	Purple  = lipgloss.Color("#5A56E0")
+	Pink    = lipgloss.Color("#F25D94")
+	Cream   = lipgloss.Color("#FFF7DB")
+	Gray    = lipgloss.Color("#888B7E")
+	Green   = lipgloss.Color("#198754")
+	Blue    = lipgloss.Color("#4A9EFF")
+	NoColor = lipgloss.Color("default")
+)
+
+const (
+	// Timer & primary UI
+	TimerFg  = Purple
+	BorderFg = Purple
+
+	// Session types
+	WorkSessionFg  = Purple
+	BreakSessionFg = NoColor
+
+	// Buttons
+	InactiveButtonFg = Cream
+	InactiveButtonBg = Gray
+	ActiveButtonFg   = Cream
+	ActiveButtonBg   = Pink
+
+	// Messages
+	SuccessMessageFg = Green
 )
 
 var validColorRegex *regexp.Regexp = nil
