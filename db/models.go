@@ -1,6 +1,10 @@
 package db
 
-import "time"
+import (
+	"time"
+
+	"github.com/Bahaaio/pomo/config"
+)
 
 var schema = `
 CREATE TABLE IF NOT EXISTS sessions(
@@ -35,3 +39,10 @@ const (
 	WorkSession  SessionType = "work"
 	BreakSession SessionType = "break"
 )
+
+func GetSessionType(taskType config.TaskType) SessionType {
+	if taskType == config.WorkTask {
+		return WorkSession
+	}
+	return BreakSession
+}
