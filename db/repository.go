@@ -21,7 +21,7 @@ func (r *SessionRepo) CreateSession(startedAt time.Time, duration time.Duration,
 	startedAtStr := startedAt.Format(time.RFC3339)
 
 	if _, err := r.db.Exec(
-		"insert into sessions (started_at, duration, type) values (?,?,?);",
+		"insert into sessions (started_at, duration, type) values (?, ?, ?);",
 		startedAtStr,
 		duration,
 		sessionType,

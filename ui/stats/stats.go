@@ -5,13 +5,19 @@ import (
 	"fmt"
 
 	"github.com/Bahaaio/pomo/db"
+	"github.com/Bahaaio/pomo/ui/stats/components"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
+const barChartHeight = 12
+
 type Model struct {
+	// components
+	barChart components.BarChart
+
 	// stats
 	allTimeStats db.AllTimeStats
 	weeklyStats  []db.DailyStat
@@ -25,7 +31,8 @@ type Model struct {
 
 func New() Model {
 	return Model{
-		help: help.New(),
+		barChart: components.NewBarChart(barChartHeight),
+		help:     help.New(),
 	}
 }
 
@@ -76,26 +83,29 @@ func (m Model) View() string {
 		return ""
 	}
 
-	content := "pomo stats\n\n"
-	content += "All-Time stats:\n"
+	title := "Pomodoro statistics\n\n"
+
+	content := "All-Time stats:\n"
 	content += fmt.Sprintln("  Total Sessions:", m.allTimeStats.TotalSessions)
 	content += fmt.Sprintln("  Work Time:", m.allTimeStats.TotalWorkDuration)
 	content += fmt.Sprintln("  Break Time:", m.allTimeStats.TotalBreakDuration)
 
-	content += fmt.Sprintln("\n\nLast 7 days:")
-	for _, stat := range m.weeklyStats {
-		content += fmt.Sprintf("  %s: %v\n", stat.Date, stat.WorkDuration)
-	}
+	// left align
+	content = lipgloss.JoinVertical(lipgloss.Left, content, "")
+
+	chart := m.barChart.View(m.weeklyStats)
 
 	return lipgloss.Place(
 		m.width, m.height,
 		lipgloss.Center, lipgloss.Center,
 		lipgloss.JoinVertical(
-			lipgloss.Left,
+			lipgloss.Center,
+			title,
 			content,
+			chart,
 			"",
-		)+
-			"\n"+m.help.View(Keys),
+			m.help.View(Keys),
+		),
 	)
 }
 
