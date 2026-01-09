@@ -40,6 +40,14 @@ type BarChart struct {
 	chartLayout
 }
 
+func NewBarChart(height int) BarChart {
+	return BarChart{
+		chartLayout: chartLayout{
+			barHeight: height - 1 - 1, // leave space for x-axis and labels
+		},
+	}
+}
+
 func (b *BarChart) calculateLayout(maxDuration, scale time.Duration) chartLayout {
 	longestLabel := 0
 
@@ -59,14 +67,6 @@ func (b *BarChart) calculateLayout(maxDuration, scale time.Duration) chartLayout
 		yAxisWidth:      yAxisWidth,
 		barAreaWidth:    barAreaWidth,
 		totalWidth:      yAxisWidth + barAreaWidth,
-	}
-}
-
-func NewBarChart(height int) BarChart {
-	return BarChart{
-		chartLayout: chartLayout{
-			barHeight: height - 1 - 1, // leave space for x-axis and labels
-		},
 	}
 }
 
@@ -168,7 +168,7 @@ func (b *BarChart) buildLabels(stats []db.DailyStat) string {
 func getDayLabel(day string) string {
 	t, err := time.Parse(db.DateFormat, day)
 	if err != nil {
-		return "???"
+		return strings.Repeat(paddingChar, barThickness)
 	}
 
 	// get first three letters of weekday
