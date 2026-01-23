@@ -66,13 +66,19 @@ pomo break 10m    # Custom duration
 
 ## Installation
 
-Install with Go
+### Homebrew (macOS)
+
+```bash
+brew install --cask bahaaio/pomo/pomo
+```
+
+### Go
 
 ```bash
 go install github.com/Bahaaio/pomo@latest
 ```
 
-Or, build from source
+### Build from Source
 
 ```bash
 git clone https://github.com/Bahaaio/pomo
@@ -80,7 +86,9 @@ cd pomo
 go build .
 ```
 
-Alternatively, download pre-built binaries from the [releases page](https://github.com/Bahaaio/pomo/releases).
+### Pre-built Binaries
+
+Download pre-built binaries from the [releases page](https://github.com/Bahaaio/pomo/releases).
 
 ## Configuration
 

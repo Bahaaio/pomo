@@ -21,22 +21,6 @@ builds:
     ldflags:
       - -s -w
 
-archives:
-  - formats: [tar.gz]
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-    format_overrides:
-      - goos: windows
-        formats: [zip]
-    files:
-      - README.md
-      - LICENSE
-      - pomo.yaml
-
 changelog:
   sort: asc
   use: github
@@ -61,6 +45,39 @@ changelog:
       order: 2
     - title: 🧹 Others
       order: 999
+
+archives:
+  - formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - README.md
+      - LICENSE
+      - pomo.yaml
+
+homebrew_casks:
+  - name: pomo
+    repository:
+      owner: Bahaaio
+      name: homebrew-pomo
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/Bahaaio/pomo
+    description: A simple Pomodoro timer TUI application written in Go.
+    license: MIT
+
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/pomo"]
+          end
 
 nfpms:
   - maintainer: Bahaa Mohamed <bahaa-dev@proton.me>
