@@ -58,9 +58,9 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		timerStyle = timerStyle.Foreground(timerColor)
 	}
 
-	database, err := db.Init()
+	database, err := db.Connect()
 	if err != nil {
-		// TODO: gracefull handling
+		// TODO: graceful handling
 		log.Fatalf("failed to initialize database: %v", err)
 	}
 

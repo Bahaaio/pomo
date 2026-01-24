@@ -53,6 +53,7 @@ func (r *SessionRepo) GetAllTimeStats() (AllTimeStats, error) {
 	return totalStats, nil
 }
 
+// GetWeeklyStats retrieves daily work duration statistics for the past 7 days.
 func (r *SessionRepo) GetWeeklyStats() ([]DailyStat, error) {
 	today := time.Now()
 	firstDay := today.AddDate(0, 0, -6)
@@ -60,13 +61,16 @@ func (r *SessionRepo) GetWeeklyStats() ([]DailyStat, error) {
 	return r.getDailyStats(firstDay, today)
 }
 
-func (r *SessionRepo) GetMonthlyStats() ([]DailyStat, error) {
+func (r *SessionRepo) GetLastMonthsStats(numberOfMonths int) ([]DailyStat, error) {
 	today := time.Now()
-	firstDay := today.AddDate(0, 0, -29)
+	firstDay := today.AddDate(0, -numberOfMonths, -today.Day()+1)
 
 	return r.getDailyStats(firstDay, today)
 }
 
+// retrieves daily work duration statistics between the specified dates.
+// from and to are inclusive.
+// The results are normalized to include all days in the range.
 func (r *SessionRepo) getDailyStats(from, to time.Time) ([]DailyStat, error) {
 	fromStr := from.Format(DateFormat)
 	toStr := to.Format(DateFormat)
@@ -92,6 +96,7 @@ func (r *SessionRepo) getDailyStats(from, to time.Time) ([]DailyStat, error) {
 	return r.normalizeStats(from, to, stats), nil
 }
 
+// ensures that there is a DailyStat entry for each day
 func (r *SessionRepo) normalizeStats(from, to time.Time, stats []DailyStat) []DailyStat {
 	m := make(map[string]DailyStat)
 

@@ -10,19 +10,31 @@ import (
 
 // Palette
 const (
-	Purple  = lipgloss.Color("#5A56E0")
-	Pink    = lipgloss.Color("#F25D94")
-	Cream   = lipgloss.Color("#FFF7DB")
-	Gray    = lipgloss.Color("#888B7E")
-	Green   = lipgloss.Color("#198754")
-	Blue    = lipgloss.Color("#4A9EFF")
-	NoColor = lipgloss.Color("default")
+	Purple      = lipgloss.Color("#8860FF")
+	PurpleDark  = lipgloss.Color("#8840FF")
+	PurpleLight = lipgloss.Color("#A070FF")
+	PurplePale  = lipgloss.Color("#C3A1FF")
+	Pink        = lipgloss.Color("#F25D94")
+	Red         = lipgloss.Color("#FF4C4C")
+	Cream       = lipgloss.Color("#FFF7DB")
+	Gray        = lipgloss.Color("#888B7E")
+	Green       = lipgloss.Color("#198754")
+	Blue        = lipgloss.Color("#4A9EFF")
+	DimGray     = lipgloss.Color("#606060")
+	NoColor     = lipgloss.Color("default")
 )
 
 const (
 	// Timer & primary UI
 	TimerFg  = Purple
 	BorderFg = Purple
+
+	// heat map
+	HeatMapFg0 = DimGray
+	HeatMapFg1 = PurpleDark
+	HeatMapFg2 = Purple
+	HeatMapFg3 = PurpleLight
+	HeatMapFg4 = PurplePale
 
 	// Session types
 	WorkSessionFg  = Purple
@@ -36,6 +48,7 @@ const (
 
 	// Messages
 	SuccessMessageFg = Green
+	ErrorMessageFg   = Red
 )
 
 var validColorRegex *regexp.Regexp = nil
@@ -48,6 +61,8 @@ func init() {
 	}
 }
 
+// GetColor returns a [lipgloss.TerminalColor] based on the provided color string.
+// If the color string is not a valid hex color code, it returns [lipgloss.NoColor].
 func GetColor(color string) lipgloss.TerminalColor {
 	if validColorRegex == nil || !validColorRegex.MatchString(color) {
 		log.Println("using no color")

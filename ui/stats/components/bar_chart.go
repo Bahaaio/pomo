@@ -23,7 +23,7 @@ const (
 
 	barThickness = 3
 	spacing      = 2
-	numberOfDays = 7
+	daysInWeek   = 7
 )
 
 var spacer = strings.Repeat(paddingChar, spacing)
@@ -59,7 +59,7 @@ func (b *BarChart) calculateLayout(maxDuration, scale time.Duration) chartLayout
 	yAxisLabelWidth := longestLabel
 	yAxisWidth := yAxisLabelWidth + 1 + 1 // length of label + space + tick char
 
-	barAreaWidth := spacing + (barThickness+spacing)*numberOfDays
+	barAreaWidth := spacing + (barThickness+spacing)*daysInWeek
 
 	return chartLayout{
 		barHeight:       b.barHeight,

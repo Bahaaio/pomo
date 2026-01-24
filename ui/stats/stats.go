@@ -2,8 +2,10 @@
 package stats
 
 import (
+	"errors"
 
 	"github.com/Bahaaio/pomo/db"
+	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/Bahaaio/pomo/ui/stats/components"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -16,10 +18,18 @@ const (
 	durationRatioWidth = 30
 )
 
+var errStyle = lipgloss.NewStyle().
+	Foreground(colors.ErrorMessageFg).
+	AlignHorizontal(lipgloss.Center)
+
 type Model struct {
 	// components
 	durationRatio components.DurationRatio
 	barChart      components.BarChart
+	heatMap       components.HeatMap
+
+	// error message
+	err error
 
 	// stats
 	allTimeStats db.AllTimeStats
@@ -36,6 +46,7 @@ func New() Model {
 	return Model{
 		durationRatio: components.NewDurationRatio(durationRatioWidth),
 		barChart:      components.NewBarChart(barChartHeight),
+		heatMap:       components.NewHeatMap(),
 		help:          help.New(),
 	}
 }
@@ -46,29 +57,33 @@ type statsMsg struct {
 	monthlyStats []db.DailyStat
 }
 
-func fetchStats() tea.Msg {
-	// TODO: remove panics and replace with error message
+type errMsg struct {
+	err error
+}
 
-	database, err := db.Init()
+// fetchStats retrieves statistics from the database and returns them as a statsMsg.
+// If an error occurs, it returns an errMsg instead.
+func fetchStats() tea.Msg {
+	database, err := db.Connect()
 	if err != nil {
-		panic(err)
+		return errMsg{err: errors.New("failed to connect to the database")}
 	}
 
 	repo := db.NewSessionRepo(database)
 
 	stats, err := repo.GetAllTimeStats()
 	if err != nil {
-		panic(err)
+		return errMsg{err: errors.New("failed to fetch all-time stats")}
 	}
 
 	weeklyStats, err := repo.GetWeeklyStats()
 	if err != nil {
-		panic(err)
+		return errMsg{err: errors.New("failed to fetch weekly stats")}
 	}
 
-	monthlyStats, err := repo.GetMonthlyStats()
+	monthlyStats, err := repo.GetLastMonthsStats(components.NumberOfMonths)
 	if err != nil {
-		panic(err)
+		return errMsg{err: errors.New("failed to fetch heatmap stats")}
 	}
 
 	return statsMsg{
@@ -87,6 +102,10 @@ func (m Model) View() string {
 		return ""
 	}
 
+	if m.err != nil {
+		return m.buildErrorMessage()
+	}
+
 	title := "Pomodoro statistics\n\n"
 
 	durationRatio := m.durationRatio.View(
@@ -95,6 +114,10 @@ func (m Model) View() string {
 	)
 
 	chart := m.barChart.View(m.weeklyStats)
+	hMap := m.heatMap.View(m.monthlyStats)
+
+	separator := lipgloss.NewStyle().Render("   ")
+	charts := lipgloss.JoinHorizontal(lipgloss.Bottom, chart, separator, hMap)
 
 	return lipgloss.Place(
 		m.width, m.height,
@@ -104,7 +127,7 @@ func (m Model) View() string {
 			title,
 			durationRatio,
 			"\n\n",
-			chart,
+			charts,
 			"",
 			m.help.View(Keys),
 		),
@@ -118,6 +141,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.weeklyStats = msg.weeklyStats
 		m.monthlyStats = msg.monthlyStats
 		return m, nil
+	case errMsg:
+		m.err = msg.err
+		return m, nil
 	case tea.KeyMsg:
 		return m, handleKeys(msg)
 	case tea.WindowSizeMsg:
@@ -127,6 +153,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		return m, nil
 	}
+}
+
+func (m *Model) buildErrorMessage() string {
+	title := "An error occurred while fetching statistics."
+	message := m.err.Error()
+
+	help := m.help.View(KeyMap{Keys.Quit})
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Center,
+		title,
+		"",
+		message,
+		"",
+		help,
+	)
+
+	return lipgloss.Place(
+		m.width, m.height,
+		lipgloss.Center, lipgloss.Center,
+		errStyle.Render(content),
+	)
 }
 
 func handleKeys(msg tea.KeyMsg) tea.Cmd {
