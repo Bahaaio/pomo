@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"log"
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
+	"github.com/Bahaaio/pomo/db"
 	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/Bahaaio/pomo/ui/confirm"
@@ -38,6 +40,9 @@ type Model struct {
 	useTimerArt     bool
 	timerFont       ascii.Font
 	asciiTimerStyle lipgloss.Style
+
+	// databse
+	repo *db.SessionRepo
 }
 
 func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue bool) Model {
@@ -53,6 +58,22 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		timerStyle = timerStyle.Foreground(timerColor)
 	}
 
+	sessionSummary := summary.SessionSummary{}
+
+	database, err := db.Connect()
+	var repo *db.SessionRepo
+
+	if err != nil {
+		// gracefully handle database connection failure
+		// fallback to in-memory summary only (nil repo)
+		log.Printf("failed to initialize database: %v", err)
+
+		// mark database as unavailable in the session summary
+		sessionSummary.SetDatabaseUnavailable()
+	} else {
+		repo = db.NewSessionRepo(database)
+	}
+
 	return Model{
 		progressBar:   progress.New(progress.WithDefaultGradient()),
 		confirmDialog: confirm.New(),
@@ -65,11 +86,13 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		sessionState:        Running,
 		currentTaskType:     taskType,
 		currentTask:         *task,
-		sessionSummary:      summary.SessionSummary{},
+		sessionSummary:      sessionSummary,
 
 		useTimerArt:     asciiArt.Enabled,
 		timerFont:       timerFont,
 		asciiTimerStyle: timerStyle,
+
+		repo: repo,
 	}
 }
 

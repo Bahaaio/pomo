@@ -6,6 +6,7 @@ import (
 
 	"github.com/Bahaaio/pomo/actions"
 	"github.com/Bahaaio/pomo/config"
+	"github.com/Bahaaio/pomo/db"
 	"github.com/Bahaaio/pomo/ui/confirm"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -179,6 +180,11 @@ func (m *Model) startSession(taskType config.TaskType, task config.Task, isShort
 
 // records the current session into the session summary
 func (m *Model) recordSession() {
+	// ignore very short or zero duration sessions
+	if m.elapsed < time.Second {
+		return
+	}
+
 	// short sessions extend the current session without incrementing the count
 	if m.isShortSession {
 		m.sessionSummary.AddDuration(m.currentTaskType, m.elapsed)
@@ -186,6 +192,19 @@ func (m *Model) recordSession() {
 	}
 
 	m.sessionSummary.AddSession(m.currentTaskType, m.elapsed)
+
+	// return if no database is configured
+	if m.repo == nil {
+		return
+	}
+
+	if err := m.repo.CreateSession(
+		time.Now(),
+		m.elapsed,
+		db.GetSessionType(m.currentTaskType),
+	); err != nil {
+		log.Printf("failed to record session: %v", err)
+	}
 }
 
 func (m *Model) Quit() tea.Cmd {

@@ -19,6 +19,18 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - 🎨 Clean, minimal terminal UI with ASCII art timer fonts
 - 🛠️ Custom commands when timers complete
 
+### Statistics
+
+Track your productivity with `pomo stats`:
+
+- **Duration ratio** — total work vs break time
+- **Weekly bar chart** — daily work hours for the past 7 days
+- **4-month heatmap** — GitHub-style activity visualization
+
+> Heatmap icons require a [Nerd Font](https://www.nerdfonts.com/)
+
+![Stats](https://raw.githubusercontent.com/Bahaaio/pomo/main/.github/assets/stats.png)
+
 ### Desktop Notifications
 
 pomo sends native desktop notifications when sessions complete
@@ -62,6 +74,12 @@ Break sessions:
 ```bash
 pomo break        # Default break (5m)
 pomo break 10m    # Custom duration
+```
+
+View statistics:
+
+```bash
+pomo stats        # View your productivity stats
 ```
 
 ## Installation

@@ -11,7 +11,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var messageStyle = lipgloss.NewStyle().Foreground(colors.SuccessMessageFg)
+var (
+	messageStyle = lipgloss.NewStyle().Foreground(colors.SuccessMessageFg)
+	errorStyle   = lipgloss.NewStyle().Foreground(colors.ErrorMessageFg)
+)
 
 type SessionSummary struct {
 	totalWorkSessions int
@@ -19,6 +22,8 @@ type SessionSummary struct {
 
 	totalBreakSessions int
 	totalBreakDuration time.Duration
+
+	isDatabaseUnavailable bool
 }
 
 // AddSession adds a session to the summary based on the task type and elapsed time.
@@ -39,6 +44,12 @@ func (t *SessionSummary) AddDuration(taskType config.TaskType, duration time.Dur
 	} else {
 		t.totalBreakDuration += duration
 	}
+}
+
+// SetDatabaseUnavailable marks the database as unavailable.
+// prints a warning in the summary.
+func (t *SessionSummary) SetDatabaseUnavailable() {
+	t.isDatabaseUnavailable = true
 }
 
 // Print prints the session summary to the console.
@@ -73,6 +84,10 @@ func (t SessionSummary) Print() {
 
 	if t.totalWorkDuration > 0 {
 		t.printProgressBar()
+	}
+
+	if t.isDatabaseUnavailable {
+		fmt.Println(errorStyle.Render("\n Not saved (database unavailable)"))
 	}
 }
 
