@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Bahaaio/pomo/ui/ascii"
-	"github.com/charmbracelet/lipgloss"
+	"github.com/Bahaaio/pomo/ui/colors"
 )
 
 const (
@@ -67,7 +67,7 @@ func (m *Model) buildTimeLeft() string {
 
 		// remove color on pause
 		if m.sessionState == Paused {
-			noColor := m.asciiTimerStyle.Foreground(lipgloss.NoColor{})
+			noColor := m.asciiTimerStyle.Foreground(colors.PauseFg)
 			return noColor.Render(time)
 		}
 

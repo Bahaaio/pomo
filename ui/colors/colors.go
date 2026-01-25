@@ -28,6 +28,7 @@ const (
 	// Timer & primary UI
 	TimerFg  = Purple
 	BorderFg = Purple
+	PauseFg  = DimGray
 
 	// heat map
 	HeatMapFg0 = DimGray
