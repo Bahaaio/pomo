@@ -193,6 +193,11 @@ func (m *Model) recordSession() {
 
 	m.sessionSummary.AddSession(m.currentTaskType, m.elapsed)
 
+	// return if no database is configured
+	if m.repo == nil {
+		return
+	}
+
 	if err := m.repo.CreateSession(
 		time.Now(),
 		m.elapsed,

@@ -58,13 +58,21 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		timerStyle = timerStyle.Foreground(timerColor)
 	}
 
-	database, err := db.Connect()
-	if err != nil {
-		// TODO: graceful handling
-		log.Fatalf("failed to initialize database: %v", err)
-	}
+	sessionSummary := summary.SessionSummary{}
 
-	repo := db.NewSessionRepo(database)
+	database, err := db.Connect()
+	var repo *db.SessionRepo
+
+	if err != nil {
+		// gracefully handle database connection failure
+		// fallback to in-memory summary only (nil repo)
+		log.Printf("failed to initialize database: %v", err)
+
+		// mark database as unavailable in the session summary
+		sessionSummary.SetDatabaseUnavailable()
+	} else {
+		repo = db.NewSessionRepo(database)
+	}
 
 	return Model{
 		progressBar:   progress.New(progress.WithDefaultGradient()),
@@ -78,7 +86,7 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		sessionState:        Running,
 		currentTaskType:     taskType,
 		currentTask:         *task,
-		sessionSummary:      summary.SessionSummary{},
+		sessionSummary:      sessionSummary,
 
 		useTimerArt:     asciiArt.Enabled,
 		timerFont:       timerFont,
