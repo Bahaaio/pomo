@@ -79,6 +79,24 @@ homebrew_casks:
             system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/pomo"]
           end
 
+winget:
+  - name: pomo
+    publisher: Bahaaio
+    homepage: https://github.com/Bahaaio
+    short_description: A simple Pomodoro timer TUI application written in Go.
+    license: MIT
+    repository:
+      owner: Bahaaio
+      name: winget-pkgs
+      branch: "pomo-{{.Version}}"
+      token: "{{ .Env.WINGET_GITHUB_TOKEN }}"
+      pull_request:
+        enabled: true
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
+
 nfpms:
   - maintainer: Bahaa Mohamed <bahaa-dev@proton.me>
     description: A simple Pomodoro timer TUI application written in Go.
