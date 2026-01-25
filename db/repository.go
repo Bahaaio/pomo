@@ -61,11 +61,32 @@ func (r *SessionRepo) GetWeeklyStats() ([]DailyStat, error) {
 	return r.getDailyStats(firstDay, today)
 }
 
+// GetLastMonthsStats retrieves daily work duration statistics for the past specified number of months.
 func (r *SessionRepo) GetLastMonthsStats(numberOfMonths int) ([]DailyStat, error) {
 	today := time.Now()
 	firstDay := today.AddDate(0, -numberOfMonths, -today.Day()+1)
 
 	return r.getDailyStats(firstDay, today)
+}
+
+// GetStreakStats calculates the current and best streaks of consecutive work days.
+// A streak is consecutive days with at least one 'work' session.
+func (r *SessionRepo) GetStreakStats() (StreakStats, error) {
+	var dates []string
+
+	if err := r.db.Select(
+		&dates,
+		`
+		SELECT DISTINCT date(started_at) AS day
+		FROM sessions
+		WHERE type = 'work'
+		ORDER BY day DESC;
+		`,
+	); err != nil {
+		return StreakStats{}, err
+	}
+
+	return calculateStreak(dates), nil
 }
 
 // retrieves daily work duration statistics between the specified dates.

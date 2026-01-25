@@ -33,6 +33,11 @@ type DailyStat struct {
 	WorkDuration time.Duration `db:"work_duration"`
 }
 
+type StreakStats struct {
+	Current int
+	Best    int
+}
+
 type SessionType string
 
 const (

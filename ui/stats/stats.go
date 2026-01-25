@@ -27,6 +27,7 @@ type Model struct {
 	durationRatio components.DurationRatio
 	barChart      components.BarChart
 	heatMap       components.HeatMap
+	streak        components.Streak
 
 	// error message
 	err error
@@ -35,6 +36,7 @@ type Model struct {
 	allTimeStats db.AllTimeStats
 	weeklyStats  []db.DailyStat
 	monthlyStats []db.DailyStat
+	streakStats  db.StreakStats
 
 	// state
 	width, height int
@@ -47,6 +49,7 @@ func New() Model {
 		durationRatio: components.NewDurationRatio(durationRatioWidth),
 		barChart:      components.NewBarChart(barChartHeight),
 		heatMap:       components.NewHeatMap(),
+		streak:        components.NewStreak(),
 		help:          help.New(),
 	}
 }
@@ -55,6 +58,7 @@ type statsMsg struct {
 	allTimeStats db.AllTimeStats
 	weeklyStats  []db.DailyStat
 	monthlyStats []db.DailyStat
+	streakStats  db.StreakStats
 }
 
 type errMsg struct {
@@ -86,10 +90,16 @@ func fetchStats() tea.Msg {
 		return errMsg{err: errors.New("failed to fetch heatmap stats")}
 	}
 
+	streakStats, err := repo.GetStreakStats()
+	if err != nil {
+		return errMsg{err: errors.New("failed to fetch streak stats")}
+	}
+
 	return statsMsg{
 		allTimeStats: stats,
 		weeklyStats:  weeklyStats,
 		monthlyStats: monthlyStats,
+		streakStats:  streakStats,
 	}
 }
 
@@ -106,18 +116,19 @@ func (m Model) View() string {
 		return m.buildErrorMessage()
 	}
 
-	title := "Pomodoro statistics\n\n"
+	title := "Pomodoro statistics"
 
 	durationRatio := m.durationRatio.View(
 		m.allTimeStats.TotalWorkDuration,
 		m.allTimeStats.TotalBreakDuration,
 	)
 
+	streak := m.streak.View(m.streakStats)
+
 	chart := m.barChart.View(m.weeklyStats)
 	hMap := m.heatMap.View(m.monthlyStats)
 
-	separator := lipgloss.NewStyle().Render("   ")
-	charts := lipgloss.JoinHorizontal(lipgloss.Bottom, chart, separator, hMap)
+	charts := lipgloss.JoinHorizontal(lipgloss.Bottom, chart, "   ", hMap)
 
 	return lipgloss.Place(
 		m.width, m.height,
@@ -125,8 +136,11 @@ func (m Model) View() string {
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			title,
-			durationRatio,
 			"\n\n",
+			durationRatio,
+			"",
+			streak,
+			"\n",
 			charts,
 			"",
 			m.help.View(Keys),
@@ -140,6 +154,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.allTimeStats = msg.allTimeStats
 		m.weeklyStats = msg.weeklyStats
 		m.monthlyStats = msg.monthlyStats
+		m.streakStats = msg.streakStats
 		return m, nil
 	case errMsg:
 		m.err = msg.err
