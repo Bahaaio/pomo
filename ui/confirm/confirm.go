@@ -2,6 +2,8 @@
 package confirm
 
 import (
+	"time"
+
 	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -42,6 +44,9 @@ var (
 				Background(colors.ActiveButtonBg).
 				Padding(buttonPadding...).
 				Margin(buttonMargin...)
+
+	idleStyle = lipgloss.NewStyle().
+			Foreground(colors.DimGray)
 )
 
 type ConfirmChoice int
@@ -70,7 +75,7 @@ func New() Model {
 	}
 }
 
-func (m Model) View(prompt string) string {
+func (m Model) View(prompt string, idleDuration time.Duration) string {
 	if m.quitting {
 		return ""
 	}
@@ -90,6 +95,12 @@ func (m Model) View(prompt string) string {
 	buttons := lipgloss.JoinHorizontal(lipgloss.Right, confirmButton, cancelButton)
 	dialog := lipgloss.JoinVertical(lipgloss.Center, prompt, "\n", buttons)
 	ui := borderStyle.Render(dialog)
+
+	idle := ""
+	if idleDuration.Seconds() > 0 {
+		idle = idleStyle.Render("idle for " + idleDuration.String())
+	}
+
 	help := m.help.View(Keys)
 
 	return lipgloss.Place(
@@ -98,6 +109,8 @@ func (m Model) View(prompt string) string {
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			ui,
+			"",
+			idle,
 			"",
 			help,
 		),

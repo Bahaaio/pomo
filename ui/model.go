@@ -31,6 +31,7 @@ type Model struct {
 	width, height       int // window dimensions
 	shouldAskToContinue bool
 	sessionState        SessionState
+	confirmStartTime    time.Time
 	currentTaskType     config.TaskType
 	currentTask         config.Task
 	sessionSummary      summary.SessionSummary

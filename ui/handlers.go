@@ -14,6 +14,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type confirmTickMsg struct{}
+
 func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	if m.sessionState == ShowingConfirm {
 		return m.confirmDialog.HandleKeys(msg)
@@ -97,6 +99,13 @@ func (m *Model) handleTimerTick(msg timer.TickMsg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
+func (m *Model) handleConfirmTick() tea.Cmd {
+	// send tick every second to update idle time
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return confirmTickMsg{}
+	})
+}
+
 func (m *Model) handleTimerStartStop(msg timer.StartStopMsg) tea.Cmd {
 	var cmd tea.Cmd
 	m.timer, cmd = m.timer.Update(msg)
@@ -139,7 +148,12 @@ func (m *Model) handleCompletion() tea.Cmd {
 	// show confirmation dialog if configured to do so
 	if m.shouldAskToContinue {
 		m.sessionState = ShowingConfirm
-		return nil
+		m.confirmStartTime = time.Now()
+
+		// send first confirm tick
+		return func() tea.Msg {
+			return confirmTickMsg{}
+		}
 	}
 
 	// else, quit
