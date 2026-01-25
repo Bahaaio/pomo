@@ -172,7 +172,9 @@ func (h *HeatMap) buildMonthLabels(grids []monthGrid) string {
 	var builder strings.Builder
 
 	// add left padding to align with day labels
-	builder.WriteString(strings.Repeat(" ", weekDayLabelWidth))
+	builder.WriteString(" ")
+	builder.WriteString("")
+	builder.WriteString(strings.Repeat(" ", weekDayLabelWidth-2)) // -2 for the icon and space
 
 	for i, grid := range grids {
 		// center the label over the grid
