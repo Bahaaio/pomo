@@ -25,7 +25,11 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, keyMap.Increase):
 		m.duration += time.Minute
 		return m.updateProgressBar()
-
+	case key.Matches(msg, keyMap.Decrease):
+		if m.duration >= 0 {
+			m.duration -= time.Minute
+		}
+		return m.updateProgressBar()
 	case key.Matches(msg, keyMap.Pause):
 		if m.sessionState == Paused {
 			m.sessionState = Running

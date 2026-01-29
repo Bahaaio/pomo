@@ -6,6 +6,7 @@ import (
 
 type KeyMap struct {
 	Increase key.Binding
+	Decrease key.Binding
 	Reset    key.Binding
 	Pause    key.Binding
 	Skip     key.Binding
@@ -15,6 +16,7 @@ type KeyMap struct {
 func (k KeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{
 		k.Increase,
+		k.Decrease,
 		k.Pause,
 		k.Reset,
 		k.Skip,
@@ -30,6 +32,10 @@ var keyMap = KeyMap{
 	Increase: key.NewBinding(
 		key.WithKeys("k", "up"),
 		key.WithHelp("↑", "+1 minute"),
+	),
+	Decrease: key.NewBinding(
+		key.WithKeys("j", "down"),
+		key.WithHelp("↓", "-1 minute"),
 	),
 	Reset: key.NewBinding(
 		key.WithKeys("h", "left"),
