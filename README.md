@@ -90,6 +90,12 @@ pomo stats        # View your productivity stats
 brew install --cask bahaaio/pomo/pomo
 ```
 
+### Winget (Windows)
+
+```powershell
+winget install Bahaaio.pomo
+```
+
 ### Go
 
 ```bash
