@@ -112,7 +112,7 @@ go build .
 
 ### Pre-built Binaries
 
-Download pre-built binaries from the [releases page](https://github.com/Bahaaio/pomo/releases).
+Download pre-built binaries from the [releases page](https://github.com/Bahaaio/pomo/releases/latest).
 
 ## Configuration
 
