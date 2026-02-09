@@ -7,8 +7,8 @@
   "properties": {
     "onSessionEnd": {
       "type": "string",
-      "description": "Action to take when session ends",
-      "enum": ["ask", "skip", "quit"],
+      "description": "Action to take when a session ends",
+      "enum": ["ask", "start", "quit"],
       "default": "ask"
     },
     "asciiArt": {

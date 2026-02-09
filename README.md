@@ -133,7 +133,7 @@ Example `pomo.yaml`:
 
 ```yaml
 # action to take after session completion
-# available options: (ask, skip, quit)
+# options: "ask" | "start" | "quit"
 onSessionEnd: "ask"
 
 asciiArt:

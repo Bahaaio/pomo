@@ -155,7 +155,7 @@ func (m *Model) handleCompletion() tea.Cmd {
 		return func() tea.Msg {
 			return confirmTickMsg{}
 		}
-	case "skip":
+	case "start":
 		return m.nextSession()
 	case "quit":
 		return m.Quit()
