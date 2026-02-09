@@ -145,8 +145,9 @@ func (m *Model) handleCompletion() tea.Cmd {
 	m.recordSession()
 	actions.RunPostActions(&m.currentTask).Wait()
 
-	// show confirmation dialog if configured to do so
-	if m.shouldAskToContinue {
+	// continue after the completion according to config
+	switch m.onSessionEnd {
+	case "ask":
 		m.sessionState = ShowingConfirm
 		m.confirmStartTime = time.Now()
 
@@ -154,10 +155,14 @@ func (m *Model) handleCompletion() tea.Cmd {
 		return func() tea.Msg {
 			return confirmTickMsg{}
 		}
+	case "skip":
+		return m.nextSession()
+	case "quit":
+		return m.Quit()
+	default:
+		log.Printf("unknown onSessionEnd value %q, defaulting to quit", m.onSessionEnd)
+		return m.Quit()
 	}
-
-	// else, quit
-	return m.Quit()
 }
 
 // starts session with the opposite task type (work <-> break)

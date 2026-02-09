@@ -28,14 +28,14 @@ type Model struct {
 	elapsed  time.Duration
 
 	// state
-	width, height       int // window dimensions
-	shouldAskToContinue bool
-	sessionState        SessionState
-	confirmStartTime    time.Time
-	currentTaskType     config.TaskType
-	currentTask         config.Task
-	sessionSummary      summary.SessionSummary
-	isShortSession      bool
+	width, height    int // window dimensions
+	onSessionEnd     string
+	sessionState     SessionState
+	confirmStartTime time.Time
+	currentTaskType  config.TaskType
+	currentTask      config.Task
+	sessionSummary   summary.SessionSummary
+	isShortSession   bool
 
 	// ASCII art
 	useTimerArt     bool
@@ -46,7 +46,7 @@ type Model struct {
 	repo *db.SessionRepo
 }
 
-func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue bool) Model {
+func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, onSessionEnd string) Model {
 	task := taskType.GetTask()
 
 	var timerFont ascii.Font
@@ -83,11 +83,11 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, askToContinue 
 		timer:    timer.New(task.Duration),
 		duration: task.Duration,
 
-		shouldAskToContinue: askToContinue,
-		sessionState:        Running,
-		currentTaskType:     taskType,
-		currentTask:         *task,
-		sessionSummary:      sessionSummary,
+		onSessionEnd:    onSessionEnd,
+		sessionState:    Running,
+		currentTaskType: taskType,
+		currentTask:     *task,
+		sessionSummary:  sessionSummary,
 
 		useTimerArt:     asciiArt.Enabled,
 		timerFont:       timerFont,

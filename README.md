@@ -132,9 +132,9 @@ pomo looks for its config file in the following order:
 Example `pomo.yaml`:
 
 ```yaml
-# prompt to continue after session completion
-# false = exit when done
-askToContinue: true
+# action to take after session completion
+# available options: (ask, skip, quit)
+onSessionEnd: "ask"
 
 asciiArt:
   # use ASCII art for timer display

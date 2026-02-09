@@ -2,7 +2,7 @@
 # pomo config file
 # https://github.com/Bahaaio/pomo
 
-askToContinue: true
+onSessionEnd: "ask"
 
 asciiArt:
   enabled: true

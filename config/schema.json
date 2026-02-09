@@ -5,10 +5,11 @@
   "description": "Configuration schema for pomo - Terminal Pomodoro Timer",
   "type": "object",
   "properties": {
-    "askToContinue": {
-      "type": "boolean",
-      "description": "Prompt to continue after completion (false = exit when done)",
-      "default": true
+    "onSessionEnd": {
+      "type": "string",
+      "description": "Action to take when session ends",
+      "enum": ["ask", "skip", "quit"],
+      "default": "ask"
     },
     "asciiArt": {
       "type": "object",

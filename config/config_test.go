@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 
 func TestLoadConfig(t *testing.T) {
 	testConfig := `
-askToContinue: true
+onSessionEnd: ask
 work:
   duration: 31m
   title: custom work
@@ -28,7 +28,7 @@ work:
 	setupViper()
 	writeAndLoadConfig(t, testConfig)
 
-	assert.True(t, C.AskToContinue, "AskToContinue should be true")
+	assert.Equal(t, "ask", C.OnSessionEnd, "OnSessionEnd should be 'ask'")
 	assert.Equal(t, 31*time.Minute, C.Work.Duration, "Work duration should be 31 minutes")
 	assert.Equal(t, "custom work", C.Work.Title, "Work title should be 'custom work'")
 }
@@ -46,7 +46,7 @@ func TestLoadConfigDefaults(t *testing.T) {
 
 func TestLoadConfigPartialUpdate(t *testing.T) {
 	partialConfig := `
-askToContinue: true
+onSessionEnd: ask
 work:
   duration: 30m
   title: custom work
@@ -58,7 +58,7 @@ asciiArt:
 	writeAndLoadConfig(t, partialConfig)
 
 	// test overridden values
-	assert.True(t, C.AskToContinue, "AskToContinue should be true")
+	assert.Equal(t, "ask", C.OnSessionEnd, "OnSessionEnd should be 'ask'")
 	assert.Equal(t, 30*time.Minute, C.Work.Duration, "Work duration should be 30 minutes")
 	assert.Equal(t, "custom work", C.Work.Title, "Work title should be 'custom work'")
 	assert.Equal(t, "#FF0000", C.ASCIIArt.Color, "ASCII art color should be '#FF0000'")
@@ -96,7 +96,7 @@ work:
 
 func TestLoadConfigAllFieldsComprehensive(t *testing.T) {
 	configYAML := `
-askToContinue: true
+onSessionEnd: ask
 asciiArt:
   enabled: true
   font: ansi
@@ -130,7 +130,7 @@ break:
 	writeAndLoadConfig(t, configYAML)
 
 	// main config
-	assert.True(t, C.AskToContinue, "AskToContinue should be true")
+	assert.Equal(t, "ask", C.OnSessionEnd, "OnSessionEnd should be 'ask'")
 
 	// ASCII art
 	assert.True(t, C.ASCIIArt.Enabled, "ASCII art should be enabled")
@@ -274,7 +274,7 @@ func getDefaultConfig() Config {
 // assertConfigMatches validates all fields between expected and actual config
 func assertConfigMatches(t *testing.T, expected Config, actual Config) {
 	// main config assertion
-	assert.Equal(t, expected.AskToContinue, actual.AskToContinue)
+	assert.Equal(t, expected.OnSessionEnd, actual.OnSessionEnd)
 
 	// ASCII Art assertions
 	assert.Equal(t, expected.ASCIIArt.Enabled, actual.ASCIIArt.Enabled)
