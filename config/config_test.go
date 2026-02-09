@@ -46,7 +46,7 @@ func TestLoadConfigDefaults(t *testing.T) {
 
 func TestLoadConfigPartialUpdate(t *testing.T) {
 	partialConfig := `
-onSessionEnd: ask
+onSessionEnd: quit
 work:
   duration: 30m
   title: custom work
@@ -58,7 +58,7 @@ asciiArt:
 	writeAndLoadConfig(t, partialConfig)
 
 	// test overridden values
-	assert.Equal(t, "ask", C.OnSessionEnd, "OnSessionEnd should be 'ask'")
+	assert.Equal(t, "quit", C.OnSessionEnd, "OnSessionEnd should be 'quit'")
 	assert.Equal(t, 30*time.Minute, C.Work.Duration, "Work duration should be 30 minutes")
 	assert.Equal(t, "custom work", C.Work.Title, "Work title should be 'custom work'")
 	assert.Equal(t, "#FF0000", C.ASCIIArt.Color, "ASCII art color should be '#FF0000'")
@@ -96,7 +96,7 @@ work:
 
 func TestLoadConfigAllFieldsComprehensive(t *testing.T) {
 	configYAML := `
-onSessionEnd: ask
+onSessionEnd: start
 asciiArt:
   enabled: true
   font: ansi
@@ -130,7 +130,7 @@ break:
 	writeAndLoadConfig(t, configYAML)
 
 	// main config
-	assert.Equal(t, "ask", C.OnSessionEnd, "OnSessionEnd should be 'ask'")
+	assert.Equal(t, "start", C.OnSessionEnd, "OnSessionEnd should be 'start'")
 
 	// ASCII art
 	assert.True(t, C.ASCIIArt.Enabled, "ASCII art should be enabled")
