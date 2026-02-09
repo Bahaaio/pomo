@@ -22,7 +22,7 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 
 	log.Printf("starting %v session: %v", taskType.GetTask().Title, taskType.GetTask().Duration)
 
-	m := ui.NewModel(taskType, config.C.ASCIIArt, config.C.AskToContinue)
+	m := ui.NewModel(taskType, config.C.ASCIIArt, config.C.OnSessionEnd)
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	finalModel, err := p.Run()
