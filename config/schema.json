@@ -43,23 +43,48 @@
     "break": {
       "$ref": "#/definitions/task",
       "description": "Break session configuration"
+    },
+    "longBreak": {
+      "type": "object",
+      "description": "Long break session configuration, inherits from break session with optional overrides",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable long break sessions after a set number of work sessions",
+          "default": true
+        },
+        "after": {
+          "type": "integer",
+          "description": "Number of work sessions before a long break",
+          "minimum": 1,
+          "default": 4
+        },
+        "duration": {
+          "$ref": "#/definitions/duration",
+          "description": "Long break duration"
+        }
+      }
     }
   },
   "additionalProperties": false,
   "definitions": {
+    "duration": {
+      "type": "string",
+      "pattern": "^([0-9]+(s|m|h))+$",
+      "description": "Duration in Go time format (e.g., 25m, 5s, 1h30m)",
+      "examples": ["25m", "1h30m"]
+    },
     "task": {
       "type": "object",
       "properties": {
         "duration": {
-          "type": "string",
-          "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)$",
-          "description": "Duration in Go time format (e.g., 25m, 5s, 1h30m)",
-          "examples": ["25m", "5m", "1h", "30s"]
+          "$ref": "#/definitions/duration",
+          "description": "Session duration"
         },
         "title": {
           "type": "string",
           "description": "Task display title",
-          "examples": ["work session", "break session", "focus time"]
+          "examples": ["focus time"]
         },
         "notification": {
           "$ref": "#/definitions/notification",
@@ -76,10 +101,7 @@
             "description": "Command and arguments"
           },
           "description": "Commands to run after session completion",
-          "examples": [
-            [["spd-say", "Break time!"]],
-            [["notify-send", "Pomo", "Session complete"]]
-          ]
+          "examples": [[["spd-say", "Break time!"]]]
         }
       },
       "additionalProperties": false
@@ -100,7 +122,7 @@
         "title": {
           "type": "string",
           "description": "Notification title text",
-          "examples": ["work finished 🎉", "break over 😴"]
+          "examples": ["back to work!"]
         },
         "message": {
           "type": "string",

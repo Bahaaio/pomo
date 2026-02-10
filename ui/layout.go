@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/Bahaaio/pomo/ui/colors"
@@ -15,6 +16,18 @@ const (
 	pausedIndicator    = "(paused)"
 	completedIndicator = "done!"
 )
+
+func (m *Model) buildConfirmDialogView() string {
+	idle := time.Since(m.confirmStartTime).Truncate(time.Second)
+	title := m.currentTaskType.Opposite().GetTask().Title
+
+	// if we're prompting to start a long break
+	if m.cyclePosition == m.longBreak.After {
+		title = "long " + title
+	}
+
+	return m.confirmDialog.View("start "+title+"?", time.Duration(idle))
+}
 
 func (m *Model) buildMainContent() string {
 	timeLeft := m.buildTimeLeft()
@@ -36,11 +49,17 @@ func (m *Model) buildStatusIndicators() string {
 		return separator + completedIndicator
 	}
 
-	if m.sessionState == Paused {
-		return " " + pausedIndicator
+	indicators := ""
+
+	if m.longBreak.Enabled {
+		indicators += fmt.Sprintf(" · %d/%d", m.cyclePosition, m.longBreak.After)
 	}
 
-	return ""
+	if m.sessionState == Paused {
+		indicators += " " + pausedIndicator
+	}
+
+	return indicators
 }
 
 func (m *Model) buildProgressBar() string {

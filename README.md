@@ -166,6 +166,12 @@ break:
   # will run after the session ends
   then:
     - [spd-say, "Back to work!"]
+
+longBreak:
+  # enable long break after a certain number of work sessions
+  enabled: true
+  after: 4 # long break after every 4 work sessions
+  duration: 15m
 ```
 
 Check out [pomo.yaml](pomo.yaml) for a full example with all options.

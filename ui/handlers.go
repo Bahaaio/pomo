@@ -166,9 +166,36 @@ func (m *Model) handleCompletion() tea.Cmd {
 }
 
 // starts session with the opposite task type (work <-> break)
+// handles long break logic if enabled
 func (m *Model) nextSession() tea.Cmd {
+	if m.longBreak.Enabled {
+		// increment step count after break sessions
+		if m.currentTaskType == config.BreakTask {
+			m.cyclePosition++
+		}
+
+		// start long break if cycle position reaches configured value after a work session
+		if m.currentTaskType == config.WorkTask && m.cyclePosition == m.longBreak.After {
+			return m.longBreakSession()
+		}
+
+		// reset step count after long break
+		if m.cyclePosition > m.longBreak.After {
+			m.cyclePosition = 1
+		}
+	}
+
 	nextTaskType := m.currentTaskType.Opposite()
 	return m.startSession(nextTaskType, *nextTaskType.GetTask(), false)
+}
+
+// starts a long break session
+func (m *Model) longBreakSession() tea.Cmd {
+	longBreak := *config.BreakTask.GetTask()
+	longBreak.Duration = m.longBreak.Duration
+	longBreak.Title = "long " + longBreak.Title
+
+	return m.startSession(config.BreakTask, longBreak, false)
 }
 
 // starts a short session of the current task type

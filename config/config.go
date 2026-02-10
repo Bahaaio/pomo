@@ -38,6 +38,12 @@ type Task struct {
 	Notification Notification
 }
 
+type LongBreak struct {
+	Enabled  bool
+	After    int
+	Duration time.Duration
+}
+
 type ASCIIArt struct {
 	Enabled bool
 	Font    string
@@ -45,10 +51,11 @@ type ASCIIArt struct {
 }
 
 type Config struct {
-	Work         Task
-	Break        Task
 	OnSessionEnd string
 	ASCIIArt     ASCIIArt
+	Work         Task
+	Break        Task
+	LongBreak    LongBreak
 }
 
 var (
@@ -82,6 +89,11 @@ var (
 				"title":   "break over 😴",
 				"message": "back to work!",
 			},
+		},
+		"longBreak": map[string]any{
+			"enabled":  true,
+			"after":    4,
+			"duration": 15 * time.Minute,
 		},
 	}
 )
@@ -120,6 +132,11 @@ func LoadConfig() error {
 
 	if C.Break.Notification.Icon, err = expandPath(C.Break.Notification.Icon); err != nil {
 		log.Println("failed to expand Break Notification icon path:", err)
+	}
+
+	if C.LongBreak.After <= 0 {
+		log.Printf("invalid long break steps %d, defaulting to 4", C.LongBreak.After)
+		C.LongBreak.After = 4
 	}
 
 	return nil

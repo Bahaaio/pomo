@@ -32,3 +32,8 @@ break:
     # icon: C:\Users\path\to\your\icon.png
   # then:
   #   - [spd-say, "Back to work!"]
+
+longBreak:
+  enabled: true
+  after: 4
+  duration: 20m

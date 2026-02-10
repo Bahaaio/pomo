@@ -36,6 +36,8 @@ type Model struct {
 	currentTask      config.Task
 	sessionSummary   summary.SessionSummary
 	isShortSession   bool
+	longBreak        config.LongBreak
+	cyclePosition    int // for long break tracking
 
 	// ASCII art
 	useTimerArt     bool
@@ -46,16 +48,16 @@ type Model struct {
 	repo *db.SessionRepo
 }
 
-func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, onSessionEnd string) Model {
+func NewModel(taskType config.TaskType, cfg config.Config) Model {
 	task := taskType.GetTask()
 
 	var timerFont ascii.Font
 	timerStyle := lipgloss.NewStyle()
 
-	if asciiArt.Enabled {
-		timerFont = ascii.GetFont(asciiArt.Font)
+	if cfg.ASCIIArt.Enabled {
+		timerFont = ascii.GetFont(cfg.ASCIIArt.Font)
 
-		timerColor := colors.GetColor(asciiArt.Color)
+		timerColor := colors.GetColor(cfg.ASCIIArt.Color)
 		timerStyle = timerStyle.Foreground(timerColor)
 	}
 
@@ -83,13 +85,15 @@ func NewModel(taskType config.TaskType, asciiArt config.ASCIIArt, onSessionEnd s
 		timer:    timer.New(task.Duration),
 		duration: task.Duration,
 
-		onSessionEnd:    onSessionEnd,
+		onSessionEnd:    cfg.OnSessionEnd,
 		sessionState:    Running,
 		currentTaskType: taskType,
 		currentTask:     *task,
 		sessionSummary:  sessionSummary,
+		longBreak:       cfg.LongBreak,
+		cyclePosition:   1,
 
-		useTimerArt:     asciiArt.Enabled,
+		useTimerArt:     cfg.ASCIIArt.Enabled,
 		timerFont:       timerFont,
 		asciiTimerStyle: timerStyle,
 
