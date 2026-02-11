@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"context"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
@@ -37,7 +39,9 @@ type Model struct {
 	sessionSummary   summary.SessionSummary
 	isShortSession   bool
 	longBreak        config.LongBreak
-	cyclePosition    int // for long break tracking
+	cyclePosition    int             // for long break tracking
+	commandsWg       *sync.WaitGroup // post commands wg
+	commandsCancel   context.CancelFunc
 
 	// ASCII art
 	useTimerArt     bool
@@ -107,6 +111,7 @@ const (
 	Running SessionState = iota
 	Paused
 	ShowingConfirm
+	WaitingForCommands // waiting for post commands before quitting
 	Quitting
 )
 

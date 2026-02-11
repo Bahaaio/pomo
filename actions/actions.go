@@ -2,9 +2,8 @@
 package actions
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"os"
 	"os/exec"
 	"sync"
 	"time"
@@ -13,10 +12,12 @@ import (
 	"github.com/gen2brain/beeep"
 )
 
+var CommandTimeout = 5 * time.Second
+
 // RunPostActions sends task notification and runs post commands using goroutines
 //
 // returns a wait group to wait for their completion
-func RunPostActions(task *config.Task) *sync.WaitGroup {
+func RunPostActions(ctx context.Context, task *config.Task) *sync.WaitGroup {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -27,7 +28,7 @@ func RunPostActions(task *config.Task) *sync.WaitGroup {
 
 	go func() {
 		defer wg.Done()
-		runPostCommands(task.Then)
+		runPostCommands(ctx, task.Then)
 	}()
 
 	return &wg
@@ -64,17 +65,15 @@ func sendNotification(notification config.Notification) {
 }
 
 // runs the post commands specified in the task
-func runPostCommands(cmds [][]string) {
+func runPostCommands(ctx context.Context, cmds [][]string) {
 	log.Println("running post commands")
 
 	for _, cmd := range cmds {
-		c := exec.Command(cmd[0], cmd[1:]...)
+		c := exec.CommandContext(ctx, cmd[0], cmd[1:]...)
 
 		if err := c.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "failed to run command '%q': %v\n", cmd, err)
+			// TODO: show error message
+			log.Printf("failed to run command '%q': %v\n", cmd, err)
 		}
-
-		// wait some time before running the next command
-		time.Sleep(50 * time.Millisecond)
 	}
 }

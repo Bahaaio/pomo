@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -14,11 +15,24 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type confirmTickMsg struct{}
+type (
+	confirmTickMsg  struct{}
+	commandsDoneMsg struct{}
+)
 
 func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	if m.sessionState == ShowingConfirm {
 		return m.confirmDialog.HandleKeys(msg)
+	}
+
+	if m.sessionState == WaitingForCommands {
+		// allow quitting immediately while waiting for commands
+		if key.Matches(msg, keyMap.Quit) {
+			return m.Quit()
+		}
+
+		// ignore other keys
+		return nil
 	}
 
 	switch {
@@ -100,6 +114,10 @@ func (m *Model) handleTimerTick(msg timer.TickMsg) tea.Cmd {
 }
 
 func (m *Model) handleConfirmTick() tea.Cmd {
+	if m.sessionState != ShowingConfirm {
+		return nil
+	}
+
 	// send tick every second to update idle time
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
 		return confirmTickMsg{}
@@ -143,7 +161,10 @@ func (m *Model) handleCompletion() tea.Cmd {
 	log.Println("timer completed")
 
 	m.recordSession()
-	actions.RunPostActions(&m.currentTask).Wait()
+
+	ctx, cancel := context.WithTimeout(context.Background(), actions.CommandTimeout)
+	m.commandsCancel = cancel
+	m.commandsWg = actions.RunPostActions(ctx, &m.currentTask)
 
 	// continue after the completion according to config
 	switch m.onSessionEnd {
@@ -209,6 +230,15 @@ func (m *Model) shortSession() tea.Cmd {
 
 // initializes and starts a new session with the given task
 func (m *Model) startSession(taskType config.TaskType, task config.Task, isShortSession bool) tea.Cmd {
+	// cancel any running post actions
+	// before starting the next session
+	if m.commandsCancel != nil {
+		m.commandsCancel()
+	}
+
+	// clean up previous commands state
+	m.commandsWg, m.commandsCancel = nil, nil
+
 	m.isShortSession = isShortSession
 	m.currentTaskType = taskType
 	m.currentTask = task
@@ -253,7 +283,54 @@ func (m *Model) recordSession() {
 	}
 }
 
+// handles the completion of post actions and quits the application
+func (m *Model) handleCommandsDone() tea.Cmd {
+	m.sessionState = Quitting
+	return tea.Quit
+}
+
+// waits for any running post actions to complete before quitting the application
+func (m *Model) waitForCommands() tea.Cmd {
+	m.sessionState = WaitingForCommands
+
+	return func() tea.Msg {
+		if m.commandsWg != nil {
+			log.Println("waiting for post actions to complete...")
+			m.commandsWg.Wait()
+			log.Println("post actions completed")
+		}
+
+		// cancel any running commands
+		// in case they are still running after the wait
+		if m.commandsCancel != nil {
+			m.commandsCancel()
+		}
+
+		return commandsDoneMsg{}
+	}
+}
+
+// Quit handles quitting the application
+// ensuring that any running post actions are completed before exiting
 func (m *Model) Quit() tea.Cmd {
+	// if we're already waiting for commands to finish, force quit
+	if m.sessionState == WaitingForCommands {
+		log.Println("force quitting...")
+
+		// cancel any running commands
+		if m.commandsCancel != nil {
+			m.commandsCancel()
+		}
+
+		m.sessionState = Quitting
+		return tea.Quit
+	}
+
+	// wait for any running post actions to complete before quitting
+	if m.commandsWg != nil {
+		return m.waitForCommands()
+	}
+
 	m.sessionState = Quitting
 	return tea.Quit
 }

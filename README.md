@@ -188,6 +188,8 @@ work:
     # - [powershell, start, work-done.mp3] # Windows
 ```
 
+> Commands run with a 5 second timeout and are automatically cancelled when starting the next session.
+
 ### Key Bindings
 
 #### Timer Controls

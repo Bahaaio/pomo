@@ -6,6 +6,7 @@ import (
 
 	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/Bahaaio/pomo/ui/colors"
+	"github.com/charmbracelet/lipgloss"
 )
 
 const (
@@ -98,4 +99,21 @@ func (m *Model) buildTimeLeft() string {
 
 func (m *Model) buildHelpView() string {
 	return m.help.View(keyMap)
+}
+
+func (m Model) buildWaitingView() string {
+	help := m.help.View(KeyMap{Quit: keyMap.Quit})
+
+	message := lipgloss.JoinVertical(
+		lipgloss.Center,
+		"Waiting for post commands to complete...",
+		"\n",
+		help,
+	)
+
+	return lipgloss.Place(
+		m.width, m.height,
+		lipgloss.Center, lipgloss.Center,
+		message,
+	)
 }
