@@ -104,6 +104,10 @@ func (m *Model) handleTimerTick(msg timer.TickMsg) tea.Cmd {
 }
 
 func (m *Model) handleConfirmTick() tea.Cmd {
+	if m.sessionState != ShowingConfirm {
+		return nil
+	}
+
 	// send tick every second to update idle time
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
 		return confirmTickMsg{}
