@@ -30,11 +30,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case timer.StartStopMsg:
 		return m, m.handleTimerStartStop(msg)
 
+	case progress.FrameMsg:
+		return m, m.handleProgressBarFrame(msg)
+
 	case confirm.ChoiceMsg:
 		return m, m.handleConfirmChoice(msg)
 
-	case progress.FrameMsg:
-		return m, m.handleProgressBarFrame(msg)
+	case commandsDoneMsg:
+		return m, m.handleCommandsDone()
 
 	default:
 		return m, nil
@@ -44,6 +47,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	if m.sessionState == Quitting {
 		return ""
+	}
+
+	if m.sessionState == WaitingForCommands {
+		return m.buildWaitingView()
 	}
 
 	// show confirmation dialog
