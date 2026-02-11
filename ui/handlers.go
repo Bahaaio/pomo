@@ -297,9 +297,11 @@ func (m *Model) waitForCommands() tea.Cmd {
 		if m.commandsWg != nil {
 			log.Println("waiting for post actions to complete...")
 			m.commandsWg.Wait()
-			log.Println("post actions completed, quitting...")
+			log.Println("post actions completed")
 		}
 
+		// cancel any running commands
+		// in case they are still running after the wait
 		if m.commandsCancel != nil {
 			m.commandsCancel()
 		}
@@ -311,9 +313,9 @@ func (m *Model) waitForCommands() tea.Cmd {
 // Quit handles quitting the application
 // ensuring that any running post actions are completed before exiting
 func (m *Model) Quit() tea.Cmd {
-	// if we're already waiting for commands to finish, quit immediately
+	// if we're already waiting for commands to finish, force quit
 	if m.sessionState == WaitingForCommands {
-		log.Println("already waiting for post actions, quitting immediately...")
+		log.Println("force quitting...")
 
 		// cancel any running commands
 		if m.commandsCancel != nil {
