@@ -10,6 +10,7 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 ## Features
 
 - 🍅 Work and break timer sessions
+- 🔄 Pomodoro cycles with long break
 - 🔗 Task chaining with user confirmation prompts
 - 📊 Real-time progress bar visualization
 - ⌨️ Keyboard shortcuts to adjust time mid-session
@@ -140,7 +141,7 @@ asciiArt:
   # use ASCII art for timer display
   enabled: true
 
-  # available fonts: (mono12, rebel, ansi, ansiShadow)
+  # available fonts: "mono12" | "rebel" | "ansi" | "ansiShadow"
   # default: mono12
   font: ansiShadow
 
@@ -170,7 +171,11 @@ break:
 longBreak:
   # enable long break after a certain number of work sessions
   enabled: true
-  after: 4 # long break after every 4 work sessions
+
+  # number of work sessions before long break
+  after: 4
+
+  # long break duration
   duration: 15m
 ```
 
