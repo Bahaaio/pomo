@@ -75,8 +75,5 @@ func runPostCommands(ctx context.Context, cmds [][]string) {
 			// TODO: show error message
 			log.Printf("failed to run command '%q': %v\n", cmd, err)
 		}
-
-		// wait some time before running the next command
-		time.Sleep(50 * time.Millisecond)
 	}
 }
