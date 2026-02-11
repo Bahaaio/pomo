@@ -273,6 +273,7 @@ func (m *Model) recordSession() {
 	}
 }
 
+// handles the completion of post actions and quits the application
 func (m *Model) handleCommandsDone() tea.Cmd {
 	m.sessionState = Quitting
 	return tea.Quit
@@ -295,6 +296,8 @@ func (m *Model) waitForCommands() tea.Cmd {
 	}
 }
 
+// Quit handles quitting the application
+// ensuring that any running post actions are completed before exiting
 func (m *Model) Quit() tea.Cmd {
 	// if we're already waiting for commands to finish, quit immediately
 	if m.sessionState == WaitingForCommands {
@@ -304,8 +307,6 @@ func (m *Model) Quit() tea.Cmd {
 		if m.commandsCancel != nil {
 			m.commandsCancel()
 		}
-
-		m.commandsWg, m.commandsCancel = nil, nil
 
 		m.sessionState = Quitting
 		return tea.Quit

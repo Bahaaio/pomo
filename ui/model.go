@@ -111,7 +111,7 @@ const (
 	Running SessionState = iota
 	Paused
 	ShowingConfirm
-	WaitingForCommands // waiting for poast commands before quitting
+	WaitingForCommands // waiting for post commands before quitting
 	Quitting
 )
 
