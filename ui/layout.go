@@ -102,9 +102,18 @@ func (m *Model) buildHelpView() string {
 }
 
 func (m Model) buildWaitingView() string {
+	help := m.help.View(KeyMap{Quit: keyMap.Quit})
+
+	message := lipgloss.JoinVertical(
+		lipgloss.Center,
+		"Waiting for post commands to complete...",
+		"\n",
+		help,
+	)
+
 	return lipgloss.Place(
 		m.width, m.height,
 		lipgloss.Center, lipgloss.Center,
-		"Waiting for post commands to complete...",
+		message,
 	)
 }
