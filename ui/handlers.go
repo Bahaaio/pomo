@@ -25,6 +25,16 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 		return m.confirmDialog.HandleKeys(msg)
 	}
 
+	if m.sessionState == WaitingForCommands {
+		// allow quitting immediately while waiting for commands
+		if key.Matches(msg, keyMap.Quit) {
+			return m.Quit()
+		}
+
+		// ignore other keys
+		return nil
+	}
+
 	switch {
 	case key.Matches(msg, keyMap.Increase):
 		m.duration += time.Minute
@@ -279,6 +289,7 @@ func (m *Model) handleCommandsDone() tea.Cmd {
 	return tea.Quit
 }
 
+// waits for any running post actions to complete before quitting the application
 func (m *Model) waitForCommands() tea.Cmd {
 	m.sessionState = WaitingForCommands
 
@@ -287,6 +298,10 @@ func (m *Model) waitForCommands() tea.Cmd {
 			log.Println("waiting for post actions to complete...")
 			m.commandsWg.Wait()
 			log.Println("post actions completed, quitting...")
+		}
+
+		if m.commandsCancel != nil {
+			m.commandsCancel()
 		}
 
 		return commandsDoneMsg{}
