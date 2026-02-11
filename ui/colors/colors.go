@@ -10,6 +10,7 @@ import (
 
 // Palette
 const (
+	Indigo      = lipgloss.Color("#5A56E0")
 	Purple      = lipgloss.Color("#8860FF")
 	PurpleDark  = lipgloss.Color("#8840FF")
 	PurpleLight = lipgloss.Color("#A070FF")
@@ -26,7 +27,7 @@ const (
 
 const (
 	// Timer & primary UI
-	TimerFg  = Purple
+	TimerFg  = Indigo
 	BorderFg = Purple
 	PauseFg  = DimGray
 
