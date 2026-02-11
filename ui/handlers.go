@@ -289,9 +289,6 @@ func (m *Model) waitForCommands() tea.Cmd {
 			log.Println("post actions completed, quitting...")
 		}
 
-		// clean up
-		m.commandsWg, m.commandsCancel = nil, nil
-
 		return commandsDoneMsg{}
 	}
 }
