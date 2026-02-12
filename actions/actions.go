@@ -19,17 +19,14 @@ var CommandTimeout = 5 * time.Second
 // returns a wait group to wait for their completion
 func RunPostActions(ctx context.Context, task *config.Task) *sync.WaitGroup {
 	var wg sync.WaitGroup
-	wg.Add(2)
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		sendNotification(task.Notification)
-	}()
+	})
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runPostCommands(ctx, task.Then)
-	}()
+	})
 
 	return &wg
 }
