@@ -50,7 +50,7 @@ func (m Model) View() string {
 	}
 
 	if m.sessionState == WaitingForCommands {
-		return m.buildWaitingView()
+		return m.buildWaitingForCommandsView()
 	}
 
 	// show confirmation dialog

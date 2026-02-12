@@ -174,7 +174,7 @@ func (m *Model) buildErrorMessage() string {
 	title := "An error occurred while fetching statistics."
 	message := m.err.Error()
 
-	help := m.help.View(KeyMap{Keys.Quit})
+	help := m.help.View(Keys)
 
 	content := lipgloss.JoinVertical(
 		lipgloss.Center,

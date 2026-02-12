@@ -101,7 +101,7 @@ func (m *Model) buildHelpView() string {
 	return m.help.View(keyMap)
 }
 
-func (m Model) buildWaitingView() string {
+func (m Model) buildWaitingForCommandsView() string {
 	help := m.help.View(KeyMap{Quit: keyMap.Quit})
 
 	message := lipgloss.JoinVertical(
