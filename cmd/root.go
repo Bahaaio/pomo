@@ -17,14 +17,14 @@ var version = "1.1.0"
 
 var rootCmd = &cobra.Command{
 	Use:     "pomo [work duration] [break duration]",
-	Short:   "start a pomodoro work session (default: 25m)",
+	Short:   "start a pomodoro work session",
 	Version: version,
 	Long: `pomo is a simple terminal-based Pomodoro timer
 
 Start a work session with the default duration from your config file,
 or specify a custom duration. The timer shows a progress bar and sends
 desktop notifications when complete.`,
-	Example: `  pomo           # Start work session (default: 25m)
+	Example: `  pomo           # Start work session
   pomo 1h15m     # Start 1 hour 15 minute session
   pomo 45m 15m   # Start 45 minute work session with 15 minute break`,
 

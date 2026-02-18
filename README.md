@@ -65,16 +65,16 @@ _Note: Actual notification appearance varies by operating system and desktop env
 Work sessions:
 
 ```bash
-pomo              # Default work session (25m)
-pomo 30m          # Custom duration
+pomo              # work session
+pomo 30m          # 30m work session
 pomo 45m 15m      # 45m work with 15m break
 ```
 
 Break sessions:
 
 ```bash
-pomo break        # Default break (5m)
-pomo break 10m    # Custom duration
+pomo break        # break session
+pomo break 10m    # 10m break session
 ```
 
 View statistics:

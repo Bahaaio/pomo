@@ -9,7 +9,7 @@ import (
 
 var breakCmd = &cobra.Command{
 	Use:   "break [duration]",
-	Short: "start a pomodoro break session (default: 5m)",
+	Short: "Start a pomodoro break session",
 	Example: `  pomo break       # Start a break session
   pomo break 15m   # Start 15 minute break session`,
 
