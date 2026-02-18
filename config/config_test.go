@@ -52,6 +52,8 @@ work:
   title: custom work
 asciiArt:
   color: "#FF0000"
+longBreak:
+  after: 3
 `
 
 	setupViper()
@@ -62,6 +64,7 @@ asciiArt:
 	assert.Equal(t, 30*time.Minute, C.Work.Duration, "Work duration should be 30 minutes")
 	assert.Equal(t, "custom work", C.Work.Title, "Work title should be 'custom work'")
 	assert.Equal(t, "#FF0000", C.ASCIIArt.Color, "ASCII art color should be '#FF0000'")
+	assert.Equal(t, 3, C.LongBreak.After, "Long break should be after 3 sessions")
 
 	defaults := getDefaultConfig()
 
@@ -124,6 +127,10 @@ break:
     icon: /abs/path/break-icon.png
   then:
     - ["echo", "break finished"]
+longBreak:
+  enabled: false
+  after: 1
+  duration: 16m
 `
 
 	setupViper()
@@ -162,6 +169,11 @@ break:
 	assert.Equal(t, "Break Over! 😴", C.Break.Notification.Title, "Break notification title should match")
 	assert.Equal(t, "Back to productive work", C.Break.Notification.Message, "Break notification message should match")
 	assert.Equal(t, "/abs/path/break-icon.png", C.Break.Notification.Icon, "Break notification icon should match")
+
+	// long break
+	assert.False(t, C.LongBreak.Enabled, "Long break should be disabled")
+	assert.Equal(t, 1, C.LongBreak.After, "Long break should be after 1 session")
+	assert.Equal(t, 16*time.Minute, C.LongBreak.Duration, "Long break duration should be 16 minutes")
 }
 
 func TestExpandPath(t *testing.T) {
