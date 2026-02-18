@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"log"
+	"math"
 	"time"
 
 	"github.com/Bahaaio/pomo/actions"
@@ -150,11 +151,14 @@ func (m *Model) updateProgressBar() tea.Cmd {
 	return m.progressBar.SetPercent(m.getPercent())
 }
 
+// returns the elapsed time as a percentage of total duration,
+// rounded down to 2 decimal places to avoid floating point precision issues.
 func (m Model) getPercent() float64 {
 	passed := float64(m.elapsed.Milliseconds())
 	duration := float64(m.duration.Milliseconds())
 
-	return passed / duration
+	// round to 2 decimal places
+	return math.Floor((passed/duration)*100) / 100
 }
 
 func (m *Model) handleCompletion() tea.Cmd {
