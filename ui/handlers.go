@@ -74,7 +74,7 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 
 func (m *Model) handleConfirmChoice(msg confirm.ChoiceMsg) tea.Cmd {
 	// record deferred session with idle time included
-	if m.countIdleTime && m.currentTaskType == config.WorkTask {
+	if m.countIdleTime {
 		m.elapsed += time.Since(m.confirmStartTime)
 		m.recordSession()
 	}
@@ -170,9 +170,9 @@ func (m Model) getPercent() float64 {
 func (m *Model) handleCompletion() tea.Cmd {
 	log.Println("timer completed")
 
-	// defer recording when countIdleTime is enabled for work sessions with ask mode,
+	// defer recording when countIdleTime is enabled with ask mode,
 	// so idle time on the confirm screen is included in the recorded duration
-	deferRecord := m.countIdleTime && m.onSessionEnd == "ask" && m.currentTaskType == config.WorkTask
+	deferRecord := m.countIdleTime && m.onSessionEnd == "ask"
 	if !deferRecord {
 		m.recordSession()
 	}
