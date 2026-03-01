@@ -52,6 +52,7 @@ type ASCIIArt struct {
 
 type Config struct {
 	OnSessionEnd string
+	CountIdleTime bool
 	ASCIIArt     ASCIIArt
 	Work         Task
 	Break        Task
@@ -64,7 +65,8 @@ var (
 	C    Config
 
 	DefaultConfig = map[string]any{
-		"onSessionEnd": "ask",
+		"onSessionEnd":  "ask",
+		"countIdleTime": false,
 		"asciiArt": map[string]any{
 			"enabled": true,
 			"font":    ascii.DefaultFont,

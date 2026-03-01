@@ -32,6 +32,7 @@ type Model struct {
 	// state
 	width, height    int // window dimensions
 	onSessionEnd     string
+	countIdleTime    bool
 	sessionState     SessionState
 	confirmStartTime time.Time
 	currentTaskType  config.TaskType
@@ -90,6 +91,7 @@ func NewModel(taskType config.TaskType, cfg config.Config) Model {
 		duration: task.Duration,
 
 		onSessionEnd:    cfg.OnSessionEnd,
+		countIdleTime:   cfg.CountIdleTime,
 		sessionState:    Running,
 		currentTaskType: taskType,
 		currentTask:     *task,
