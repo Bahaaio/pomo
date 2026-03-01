@@ -75,7 +75,7 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 func (m *Model) handleConfirmChoice(msg confirm.ChoiceMsg) tea.Cmd {
 	// record deferred session with idle time included
 	if m.countIdleTime {
-		m.elapsed += time.Since(m.confirmStartTime)
+		m.elapsed += time.Since(m.confirmStartTime).Round(time.Second)
 		m.recordSession()
 	}
 
