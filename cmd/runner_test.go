@@ -60,13 +60,13 @@ func TestParseArguments(t *testing.T) {
 		breakTask := &config.Task{}
 
 		result := parseArguments(tt.args, task, breakTask)
-		resultIsError := result != nil
-
-		assert.Equal(t, tt.expectedError, resultIsError)
 
 		if tt.expectedError {
+			assert.Error(t, result)
 			continue
 		}
+
+		assert.NoError(t, result)
 
 		if len(tt.args) >= 1 {
 			assert.Equal(t, tt.expectedWorkDuration, task.Duration)
