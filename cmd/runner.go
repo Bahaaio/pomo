@@ -60,10 +60,7 @@ func parseArguments(args []string, task *config.Task, breakTask *config.Task) er
 
 // parses the flags and sets the title
 func parseFlags(cmd *cobra.Command) error {
-	title, err := cmd.Flags().GetString("title")
-	if err != nil {
-		return fmt.Errorf("could not parse title flag: %w", err)
-	}
+	title, _ := cmd.Flags().GetString("title")
 
 	// discard empty title
 	if title != "" {

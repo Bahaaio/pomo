@@ -12,43 +12,43 @@ func TestParseArguments(t *testing.T) {
 	testCases := []struct {
 		name                  string
 		args                  []string
-		expectedResult        bool
+		expectedError         bool
 		expectedWorkDuration  time.Duration
 		expectedBreakDuration time.Duration
 	}{
 		{
 			name:                 "no arguments",
 			args:                 []string{},
-			expectedResult:       true,
+			expectedError:        false,
 			expectedWorkDuration: 0, // should remain unchanged
 		},
 		{
 			name:                 "valid work duration only",
 			args:                 []string{"25m"},
-			expectedResult:       true,
+			expectedError:        false,
 			expectedWorkDuration: 25 * time.Minute,
 		},
 		{
 			name:                  "valid work and break duration",
 			args:                  []string{"45m", "15m"},
-			expectedResult:        true,
+			expectedError:         false,
 			expectedWorkDuration:  45 * time.Minute,
 			expectedBreakDuration: 15 * time.Minute,
 		},
 		{
-			name:           "invalid work duration",
-			args:           []string{"invalid"},
-			expectedResult: false,
+			name:          "invalid work duration",
+			args:          []string{"invalid"},
+			expectedError: true,
 		},
 		{
-			name:           "valid work, invalid break",
-			args:           []string{"25m", "invalid"},
-			expectedResult: false,
+			name:          "valid work, invalid break",
+			args:          []string{"25m", "invalid"},
+			expectedError: true,
 		},
 		{
 			name:                  "complex duration formats",
 			args:                  []string{"1h30m", "10m30s"},
-			expectedResult:        true,
+			expectedError:         false,
 			expectedWorkDuration:  90 * time.Minute,
 			expectedBreakDuration: 10*time.Minute + 30*time.Second,
 		},
@@ -59,9 +59,11 @@ func TestParseArguments(t *testing.T) {
 		breakTask := &config.Task{}
 
 		result := parseArguments(tt.args, task, breakTask)
-		assert.Equal(t, tt.expectedResult, result)
+		resultIsError := result != nil
 
-		if !tt.expectedResult {
+		assert.Equal(t, tt.expectedError, resultIsError)
+
+		if tt.expectedError {
 			continue
 		}
 
