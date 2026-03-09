@@ -19,7 +19,7 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 		die(err)
 	}
 
-	if err := parseFlags(cmd); err != nil {
+	if err := parseFlags(cmd, &config.C.Work); err != nil {
 		die(err)
 	}
 
@@ -59,12 +59,12 @@ func parseArguments(args []string, task *config.Task, breakTask *config.Task) er
 }
 
 // parses the flags and sets the title
-func parseFlags(cmd *cobra.Command) error {
+func parseFlags(cmd *cobra.Command, workTask *config.Task) error {
 	title, _ := cmd.Flags().GetString("title")
 
 	// discard empty title
 	if title != "" {
-		config.C.Work.Title = title
+		workTask.Title = title
 	}
 
 	return nil

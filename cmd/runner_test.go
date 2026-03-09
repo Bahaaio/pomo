@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -74,5 +75,48 @@ func TestParseArguments(t *testing.T) {
 		if len(tt.args) == 2 {
 			assert.Equal(t, tt.expectedBreakDuration, breakTask.Duration)
 		}
+	}
+}
+
+func TestParseFlags(t *testing.T) {
+	defaultTitle := "default"
+
+	testCases := []struct {
+		name          string
+		title         string
+		expectedTitle string
+		expectedError bool
+	}{
+		{
+			name:          "empty title",
+			title:         "",
+			expectedTitle: defaultTitle, // should remain unchanged
+			expectedError: false,
+		},
+		{
+			name:          "valid title",
+			title:         "Review PR",
+			expectedTitle: "Review PR",
+			expectedError: false,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a root command and set the title flag
+			cmd := &cobra.Command{}
+			cmd.Flags().StringP("title", "t", "", "work session title")
+			_ = cmd.Flags().Set("title", tt.title)
+
+			workTask := &config.Task{Title: defaultTitle}
+			err := parseFlags(cmd, workTask)
+
+			if tt.expectedError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expectedTitle, workTask.Title)
+			}
+		})
 	}
 }
