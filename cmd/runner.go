@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/Bahaaio/pomo/config"
@@ -15,9 +14,13 @@ import (
 func runTask(taskType config.TaskType, cmd *cobra.Command) {
 	task := taskType.GetTask()
 
-	if !parseArguments(cmd.Flags().Args(), task, &config.C.Break) {
+	if err := parseArguments(cmd.Flags().Args(), task, &config.C.Break); err != nil {
 		_ = cmd.Usage()
-		die(nil)
+		die(err)
+	}
+
+	if err := parseFlags(cmd); err != nil {
+		die(err)
 	}
 
 	log.Printf("starting %v session: %v", taskType.GetTask().Title, taskType.GetTask().Duration)
@@ -35,24 +38,37 @@ func runTask(taskType config.TaskType, cmd *cobra.Command) {
 }
 
 // parses the arguments and sets the duration
-// returns false if the duration could not be parsed
-func parseArguments(args []string, task *config.Task, breakTask *config.Task) bool {
+// returns an error if the duration is invalid
+func parseArguments(args []string, task *config.Task, breakTask *config.Task) error {
 	if len(args) > 0 {
 		var err error
 		task.Duration, err = time.ParseDuration(args[0])
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "\ninvalid duration: '%v'\n\n", args[0])
-			return false
+			return fmt.Errorf("invalid duration: '%v'", args[0])
 		}
 
 		if len(args) > 1 {
 			breakTask.Duration, err = time.ParseDuration(args[1])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "\ninvalid break duration: '%v'\n\n", args[1])
-				return false
+				return fmt.Errorf("invalid break duration: '%v'", args[1])
 			}
 		}
 	}
 
-	return true
+	return nil
+}
+
+// parses the flags and sets the title
+func parseFlags(cmd *cobra.Command) error {
+	title, err := cmd.Flags().GetString("title")
+	if err != nil {
+		return fmt.Errorf("could not parse title flag: %w", err)
+	}
+
+	// discard empty title
+	if title != "" {
+		config.C.Work.Title = title
+	}
+
+	return nil
 }

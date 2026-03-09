@@ -40,6 +40,13 @@ func Execute() error {
 }
 
 func init() {
+	rootCmd.Flags().StringP(
+		"title",
+		"t",
+		"",
+		"work session title",
+	)
+
 	initLogging()
 	initConfig()
 	beeep.AppName = config.AppName

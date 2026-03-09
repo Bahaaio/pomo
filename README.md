@@ -65,22 +65,23 @@ _Note: Actual notification appearance varies by operating system and desktop env
 Work sessions:
 
 ```bash
-pomo              # work session
-pomo 30m          # 30m work session
-pomo 45m 15m      # 45m work with 15m break
+pomo                    # work session
+pomo 30m                # 30m work session
+pomo 45m 15m            # 45m work with 15m break
+pomo -t "write report"  # work session with custom title (or --title)
 ```
 
 Break sessions:
 
 ```bash
-pomo break        # break session
-pomo break 10m    # 10m break session
+pomo break              # break session
+pomo break 10m          # 10m break session
 ```
 
 View statistics:
 
 ```bash
-pomo stats        # View your productivity stats
+pomo stats              # View your productivity stats
 ```
 
 ## Installation
