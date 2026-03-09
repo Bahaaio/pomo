@@ -19,9 +19,6 @@ const (
 
 	labelWidth        = 3
 	weekDayLabelWidth = labelWidth + 1 + 1 + cellWidth // including separator, space, and cellWidth*space "Sun │  "
-	maxMonthWeeks     = 5
-	monthGridWidth    = cellWidth * maxMonthWeeks
-	gridWidth         = monthGridWidth*NumberOfMonths + (NumberOfMonths)*cellWidth
 )
 
 var (
@@ -55,13 +52,14 @@ func (h *HeatMap) View(stats []db.DailyStat) string {
 	// left align month labels
 	monthLabels := h.buildMonthLabels(grids)
 	monthLabels = leftAlignStyle.Render(monthLabels)
+	separator := h.buildSeparator(grids)
 
 	dayLabels := h.buildWeekDayLabels()
 	grid := h.buildGrids(grids)
 	legend := h.buildLegend()
 
 	center := lipgloss.JoinHorizontal(lipgloss.Left, dayLabels, grid)
-	body := lipgloss.JoinVertical(lipgloss.Left, monthLabels, center)
+	body := lipgloss.JoinVertical(lipgloss.Left, monthLabels, separator, center)
 	heatMap := lipgloss.JoinVertical(lipgloss.Center, body, "", legend)
 
 	return paddingStyle.Render(heatMap)
@@ -173,13 +171,14 @@ func (h *HeatMap) buildMonthLabels(grids []monthGrid) string {
 
 	// add left padding to align with day labels
 	builder.WriteString(" ")
-	builder.WriteString("")
-	builder.WriteString(strings.Repeat(" ", weekDayLabelWidth-2)) // -2 for the icon and space
+	builder.WriteString(" ")                                     // 2 chars
+	builder.WriteString(strings.Repeat(" ", weekDayLabelWidth-3)) // -3 for the icon and space
 
 	for i, grid := range grids {
 		// center the label over the grid
+		monthGridWidth := grid.numWeeks * cellWidth
 		leftPad := (monthGridWidth - labelWidth) / 2
-		rightPad := monthGridWidth - labelWidth - leftPad + 1
+		rightPad := monthGridWidth - labelWidth - leftPad
 
 		builder.WriteString(strings.Repeat(" ", leftPad))
 		builder.WriteString(grid.label)
@@ -191,13 +190,18 @@ func (h *HeatMap) buildMonthLabels(grids []monthGrid) string {
 		}
 	}
 
-	// add separator line
-	separator := strings.Repeat(verticalSeparator, weekDayLabelWidth+gridWidth)
-
-	builder.WriteString("\n")
-	builder.WriteString(separator)
-
 	return builder.String()
+}
+
+func (h *HeatMap) buildSeparator(grids []monthGrid) string {
+	separatorWidth := weekDayLabelWidth
+
+	for _, grid := range grids {
+		separatorWidth += grid.numWeeks * cellWidth
+	}
+	separatorWidth += (len(grids) - 1) * cellWidth // account for spacing between months
+
+	return strings.Repeat(verticalSeparator, separatorWidth)
 }
 
 func (h *HeatMap) buildWeekDayLabels() string {
