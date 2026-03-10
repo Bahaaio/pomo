@@ -17,7 +17,7 @@ var CommandTimeout = 5 * time.Second
 // RunPostActions sends task notification and runs post commands using goroutines
 //
 // returns a wait group to wait for their completion
-func RunPostActions(ctx context.Context, task *config.Task) *sync.WaitGroup {
+func RunPostActions(ctx context.Context, task config.Task) *sync.WaitGroup {
 	var wg sync.WaitGroup
 
 	wg.Go(func() {

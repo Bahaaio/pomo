@@ -168,7 +168,7 @@ func (m *Model) handleCompletion() tea.Cmd {
 
 	ctx, cancel := context.WithTimeout(context.Background(), actions.CommandTimeout)
 	m.commandsCancel = cancel
-	m.commandsWg = actions.RunPostActions(ctx, &m.currentTask)
+	m.commandsWg = actions.RunPostActions(ctx, m.currentTask)
 
 	// continue after the completion according to config
 	switch m.onSessionEnd {
