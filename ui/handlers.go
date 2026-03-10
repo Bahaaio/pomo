@@ -101,15 +101,22 @@ func (m *Model) handleTimerTick(msg timer.TickMsg) tea.Cmd {
 	}
 
 	var cmds []tea.Cmd
+	var cmd tea.Cmd
+
+	m.timer, cmd = m.timer.Update(msg)
+	cmds = append(cmds, cmd)
+
+	if cmd == nil {
+		// msg rejected, ignore
+		// i.e. old timer tick
+		log.Println("tick rejected, ignoring")
+		return nil
+	}
 
 	m.elapsed += m.timer.Interval
 
 	percent := m.getPercent()
 	cmds = append(cmds, m.progressBar.SetPercent(percent))
-
-	var cmd tea.Cmd
-	m.timer, cmd = m.timer.Update(msg)
-	cmds = append(cmds, cmd)
 
 	return tea.Batch(cmds...)
 }
