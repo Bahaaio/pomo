@@ -243,7 +243,10 @@ func (m *Model) shortSession() tea.Cmd {
 func (m *Model) startSession(taskType config.TaskType, task config.Task, isShortSession bool) tea.Cmd {
 	// cancel any running post actions
 	// before starting the next session
-	if m.commandsCancel != nil {
+	//
+	// for onSessionEnd == "start", we don't cancel immediately
+	// will run commands in the background with the context time limit
+	if m.commandsCancel != nil && m.onSessionEnd != "start" {
 		m.commandsCancel()
 	}
 
