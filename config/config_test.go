@@ -12,7 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var homeDir string
+
 func TestMain(m *testing.M) {
+	var err error
+	homeDir, err = os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("Failed to get home directory: %v", err)
+	}
+
 	log.SetOutput(io.Discard)
 	os.Exit(m.Run())
 }
@@ -92,7 +100,7 @@ work:
 	expectedThen := [][]string{
 		{"echo", "Work session completed"},
 		{"osascript", "-e", "display notification \"Break time!\""},
-		{"python", "~/scripts/work-done.py"},
+		{"python", homeDir + "/scripts/work-done.py"},
 	}
 	assert.Equal(t, expectedThen, C.Work.Then, "Work then commands should match")
 }
@@ -177,9 +185,6 @@ longBreak:
 }
 
 func TestExpandPath(t *testing.T) {
-	homeDir, err := os.UserHomeDir()
-	assert.NoError(t, err, "Failed to get home directory")
-
 	testCases := []struct {
 		name  string
 		input string
@@ -239,7 +244,7 @@ func TestExpandPath(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			result, _ := expandPath(tt.input)
+			result := expandPath(tt.input, homeDir)
 			assert.Equal(t, tt.want, result, "Path expansion result mismatch for input: %s", tt.input)
 		})
 	}
@@ -304,7 +309,7 @@ func assertConfigMatches(t *testing.T, expected Config, actual Config) {
 	assert.Equal(t, expected.Work.Notification.Message, actual.Work.Notification.Message)
 
 	// handle path expansion for icon paths
-	expectedWorkIcon, _ := expandPath(expected.Work.Notification.Icon)
+	expectedWorkIcon := expandPath(expected.Work.Notification.Icon, homeDir)
 	assert.Equal(t, expectedWorkIcon, actual.Work.Notification.Icon)
 
 	// break task assertions
@@ -318,6 +323,6 @@ func assertConfigMatches(t *testing.T, expected Config, actual Config) {
 	assert.Equal(t, expected.Break.Notification.Message, actual.Break.Notification.Message)
 
 	// handle path expansion for icon paths
-	expectedBreakIcon, _ := expandPath(expected.Break.Notification.Icon)
+	expectedBreakIcon := expandPath(expected.Break.Notification.Icon, homeDir)
 	assert.Equal(t, expectedBreakIcon, actual.Break.Notification.Icon)
 }

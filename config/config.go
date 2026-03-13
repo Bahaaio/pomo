@@ -126,18 +126,23 @@ func LoadConfig() error {
 	}
 	log.Println("Unmarshaled config:", C)
 
-	if C.Work.Notification.Icon, err = expandPath(C.Work.Notification.Icon); err != nil {
-		log.Println("failed to expand Work Notification icon path:", err)
-	}
-
-	if C.Break.Notification.Icon, err = expandPath(C.Break.Notification.Icon); err != nil {
-		log.Println("failed to expand Break Notification icon path:", err)
-	}
-
 	if C.LongBreak.After <= 0 {
 		log.Printf("invalid long break steps %d, defaulting to 4", C.LongBreak.After)
 		C.LongBreak.After = 4
 	}
+
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("could not get user home directory: %w; please ensure $HOME is set correctly", err)
+	}
+
+	// expand notification icon paths
+	C.Work.Notification.Icon = expandPath(C.Work.Notification.Icon, homedir)
+	C.Break.Notification.Icon = expandPath(C.Break.Notification.Icon, homedir)
+
+	// expand post command paths
+	C.Work.Then = expandCommands(C.Work.Then, homedir)
+	C.Break.Then = expandCommands(C.Break.Then, homedir)
 
 	return nil
 }
@@ -146,20 +151,6 @@ func setDefaults() {
 	for key, value := range DefaultConfig {
 		viper.SetDefault(key, value)
 	}
-}
-
-// expands tilde to the user's home directory
-func expandPath(path string) (string, error) {
-	if strings.HasPrefix(path, "~/") {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return "", fmt.Errorf("failed to get home directory: %w", err)
-		}
-
-		return filepath.Join(homeDir, path[2:]), nil
-	}
-
-	return path, nil
 }
 
 // returns the path to the config file if it exists
@@ -206,4 +197,32 @@ func getConfigDir() (string, error) {
 	}
 
 	return filepath.Join(dir, AppName), nil
+}
+
+// expands tilde in command arguments to the user's home directory
+func expandCommands(commands [][]string, homeDir string) [][]string {
+	if len(commands) == 0 || commands == nil {
+		return commands
+	}
+
+	expanded := make([][]string, len(commands))
+
+	for i, cmd := range commands {
+		expanded[i] = make([]string, len(cmd))
+
+		for j, arg := range cmd {
+			expanded[i][j] = expandPath(arg, homeDir)
+		}
+	}
+
+	return expanded
+}
+
+// expands tilde to the user's home directory
+func expandPath(path, homeDir string) string {
+	if strings.HasPrefix(path, "~/") {
+		return filepath.Join(homeDir, path[2:])
+	}
+
+	return path
 }
