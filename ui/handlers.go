@@ -44,7 +44,7 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, keyMap.Pause):
 		if m.sessionState == Paused {
 			m.sessionState = Running
-		} else {
+		} else if m.getPercent() != 1.0 { // prevent pausing if session is already completed
 			m.sessionState = Paused
 		}
 
