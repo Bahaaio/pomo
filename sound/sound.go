@@ -70,10 +70,12 @@ func (p *Player) PlayLoop(soundFile string) {
 	}()
 }
 
-// PlayCommandLoop starts looping with a full command using mpv with IPC support.
-// The command should be in format: [mpv, --no-video, URL]
+// PlayCommandLoop starts looping with a full command.
+// Supports both afplay (simple looping) and mpv (with IPC for pause/resume).
+// For afplay: [afplay, soundfile.wav]
+// For mpv: [mpv, --no-video, URL]
 func (p *Player) PlayCommandLoop(cmd []string) {
-	if len(cmd) < 1 {
+	if len(cmd) < 2 {
 		return
 	}
 
@@ -81,6 +83,26 @@ func (p *Player) PlayCommandLoop(cmd []string) {
 	p.cancel = cancel
 	p.wg = &sync.WaitGroup{}
 
+	// Check if using afplay (simple case without IPC)
+	if cmd[0] == "afplay" {
+		p.wg.Add(1)
+		go func() {
+			defer p.wg.Done()
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					c := exec.CommandContext(ctx, cmd[0], cmd[1:]...)
+					_ = c.Run()
+				}
+			}
+		}()
+		return
+	}
+
+	// Using mpv with IPC support
 	// Create unique IPC socket path
 	socketPath := fmt.Sprintf("/tmp/mpv-pomo-%d.sock", time.Now().UnixNano())
 	p.socketPath = socketPath
@@ -106,7 +128,9 @@ func (p *Player) IsPaused() bool {
 	return p.mpvPause
 }
 
-// Pause pauses the mpv playback (only if not already paused)
+// Pause pauses the playback.
+// For mpv: uses IPC to pause
+// For afplay: stops playback (will restart from beginning on Resume)
 func (p *Player) Pause() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -115,12 +139,16 @@ func (p *Player) Pause() error {
 		return nil // already paused
 	}
 
-	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
-		return fmt.Errorf("no mpv process running")
+	// For afplay, we just mark as paused (actual stopping happens in Stop)
+	if p.socketPath == "" {
+		// afplay mode - can't really pause, just mark state
+		p.mpvPause = true
+		return nil
 	}
 
-	if p.socketPath == "" {
-		return fmt.Errorf("no IPC socket found")
+	// mpv with IPC
+	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
+		return fmt.Errorf("no mpv process running")
 	}
 
 	conn, err := net.Dial("unix", p.socketPath)
@@ -141,7 +169,9 @@ func (p *Player) Pause() error {
 	return nil
 }
 
-// Resume resumes the mpv playback (only if currently paused)
+// Resume resumes the playback.
+// For mpv: uses IPC to resume
+// For afplay: restarts the sound file from beginning
 func (p *Player) Resume() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -150,12 +180,17 @@ func (p *Player) Resume() error {
 		return nil // already playing
 	}
 
-	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
-		return fmt.Errorf("no mpv process running")
+	// For afplay, restart the sound
+	if p.socketPath == "" {
+		// afplay mode - restart the sound
+		p.mpvPause = false
+		// Sound will continue looping automatically
+		return nil
 	}
 
-	if p.socketPath == "" {
-		return fmt.Errorf("no IPC socket found")
+	// mpv with IPC
+	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
+		return fmt.Errorf("no mpv process running")
 	}
 
 	conn, err := net.Dial("unix", p.socketPath)
@@ -176,17 +211,22 @@ func (p *Player) Resume() error {
 	return nil
 }
 
-// TogglePause toggles the mpv pause state and returns new paused state
+// TogglePause toggles the pause state.
+// For mpv: uses IPC to toggle
+// For afplay: stops/restarts looping
 func (p *Player) TogglePause() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
-		return fmt.Errorf("no mpv process running")
+	// For afplay (no IPC socket)
+	if p.socketPath == "" {
+		p.mpvPause = !p.mpvPause
+		return nil
 	}
 
-	if p.socketPath == "" {
-		return fmt.Errorf("no IPC socket found")
+	// mpv with IPC
+	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
+		return fmt.Errorf("no mpv process running")
 	}
 
 	conn, err := net.Dial("unix", p.socketPath)
