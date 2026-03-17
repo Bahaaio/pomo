@@ -46,8 +46,16 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, keyMap.Pause):
 		if m.sessionState == Paused {
 			m.sessionState = Running
+			// Resume mpv playback
+			if err := m.duringSoundPlayer.Resume(); err != nil {
+				log.Printf("failed to resume mpv: %v", err)
+			}
 		} else if m.getPercent() != 1.0 { // prevent pausing if session is already completed
 			m.sessionState = Paused
+			// Pause mpv playback
+			if err := m.duringSoundPlayer.Pause(); err != nil {
+				log.Printf("failed to pause mpv: %v", err)
+			}
 		}
 
 		if m.sessionState == Running {
