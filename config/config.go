@@ -73,7 +73,7 @@ var (
 			{"afplay", "~/sounds/windup.wav"},
 		},
 		"duringSession": [][]string{
-			{"afplay", "~/sounds/ticking-long.wav"},
+			{"afplay", "~/sounds/ticking.wav"},
 		},
 		"asciiArt": map[string]any{
 			"enabled": true,
