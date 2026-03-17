@@ -69,6 +69,12 @@ var (
 
 	DefaultConfig = map[string]any{
 		"onSessionEnd": "ask",
+		"onSessionStart": [][]string{
+			{"afplay", "~/sounds/windup.wav"},
+		},
+		"duringSession": [][]string{
+			{"afplay", "~/sounds/ticking-long.wav"},
+		},
 		"asciiArt": map[string]any{
 			"enabled": true,
 			"font":    ascii.DefaultFont,
