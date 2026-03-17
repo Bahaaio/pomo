@@ -16,13 +16,15 @@ var CommandTimeout = 5 * time.Second
 
 // RunStartActions runs commands at session start (fire and forget)
 func RunStartActions(ctx context.Context, cmds [][]string) {
-	log.Println("running session start actions")
-	for _, cmd := range cmds {
-		c := exec.CommandContext(ctx, cmd[0], cmd[1:]...)
-		if err := c.Run(); err != nil {
-			log.Printf("failed to run start command %q: %v\n", cmd, err)
+	go func() {
+		log.Println("running session start actions")
+		for _, cmd := range cmds {
+			c := exec.CommandContext(ctx, cmd[0], cmd[1:]...)
+			if err := c.Run(); err != nil {
+				log.Printf("failed to run start command %q: %v\n", cmd, err)
+			}
 		}
-	}
+	}()
 }
 
 // RunDuringActions starts ambient sounds that run during the session.

@@ -2,6 +2,8 @@
 package ui
 
 import (
+	"github.com/Bahaaio/pomo/config"
+	"github.com/Bahaaio/pomo/sound"
 	"github.com/Bahaaio/pomo/ui/confirm"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/timer"
@@ -9,12 +11,46 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// initSession runs the onSessionStart and duringSession hooks for the initial session
+func (m Model) initSession() (tea.Model, tea.Cmd) {
+	// determine which hooks to use (per-task overrides global)
+	var onStartCmds, duringCmds [][]string
+	if len(m.currentTask.OnStart) > 0 {
+		onStartCmds = m.currentTask.OnStart
+	} else {
+		onStartCmds = config.C.OnSessionStart
+	}
+	if len(m.currentTask.During) > 0 {
+		duringCmds = m.currentTask.During
+	} else {
+		duringCmds = config.C.DuringSession
+	}
+
+	// run start actions (fire and forget)
+	for _, cmd := range onStartCmds {
+		sound.PlayOnce(cmd[0])
+	}
+
+	// run during actions (ambient sounds)
+	if len(duringCmds) > 0 {
+		// Use the first sound file for looping
+		m.duringSoundPlayer.PlayLoop(duringCmds[0][0])
+	}
+
+	return m, m.timer.Init()
+}
+
 func (m Model) Init() tea.Cmd {
-	return m.timer.Init()
+	return func() tea.Msg {
+		return initSessionMsg{}
+	}
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case initSessionMsg:
+		return m.initSession()
+
 	case tea.KeyMsg:
 		return m, m.handleKeys(msg)
 

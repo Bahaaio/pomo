@@ -9,6 +9,7 @@ import (
 	"github.com/Bahaaio/pomo/actions"
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/db"
+	"github.com/Bahaaio/pomo/sound"
 	"github.com/Bahaaio/pomo/ui/confirm"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -19,6 +20,7 @@ import (
 type (
 	confirmTickMsg  struct{}
 	commandsDoneMsg struct{}
+	initSessionMsg  struct{}
 )
 
 func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
@@ -174,10 +176,7 @@ func (m *Model) handleCompletion() tea.Cmd {
 	m.recordSession()
 
 	// stop ambient sounds
-	if m.duringCancel != nil {
-		actions.CancelDuringActions(m.duringCancel, m.duringWg)
-		m.duringCancel, m.duringWg = nil, nil
-	}
+	m.duringSoundPlayer.Stop()
 
 	ctx, cancel := context.WithTimeout(context.Background(), actions.CommandTimeout)
 	m.commandsCancel = cancel
@@ -247,10 +246,8 @@ func (m *Model) shortSession() tea.Cmd {
 
 // initializes and starts a new session with the given task
 func (m *Model) startSession(taskType config.TaskType, task config.Task, isShortSession bool) tea.Cmd {
-	// cancel any running during-session actions first
-	if m.duringCancel != nil {
-		actions.CancelDuringActions(m.duringCancel, m.duringWg)
-	}
+	// stop any running during-session sound
+	m.duringSoundPlayer.Stop()
 
 	// cancel any running post actions
 	// before starting the next session
@@ -278,14 +275,13 @@ func (m *Model) startSession(taskType config.TaskType, task config.Task, isShort
 	}
 
 	// run start actions (fire and forget)
-	if len(onStartCmds) > 0 {
-		startCtx := context.Background()
-		actions.RunStartActions(startCtx, onStartCmds)
+	for _, cmd := range onStartCmds {
+		sound.PlayOnce(cmd[0])
 	}
 
 	// run during actions (ambient sounds)
 	if len(duringCmds) > 0 {
-		m.duringCancel, m.duringWg = actions.RunDuringActions(duringCmds)
+		m.duringSoundPlayer.PlayLoop(duringCmds[0][0])
 	}
 
 	m.isShortSession = isShortSession
@@ -363,10 +359,7 @@ func (m *Model) waitForCommands() tea.Cmd {
 // ensuring that any running post actions are completed before exiting
 func (m *Model) Quit() tea.Cmd {
 	// stop ambient sounds on quit
-	if m.duringCancel != nil {
-		actions.CancelDuringActions(m.duringCancel, m.duringWg)
-		m.duringCancel, m.duringWg = nil, nil
-	}
+	m.duringSoundPlayer.Stop()
 
 	// if we're already waiting for commands to finish, force quit
 	if m.sessionState == WaitingForCommands {

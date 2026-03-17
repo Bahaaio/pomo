@@ -8,6 +8,7 @@ import (
 
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/db"
+	"github.com/Bahaaio/pomo/sound"
 	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/Bahaaio/pomo/ui/confirm"
@@ -30,20 +31,19 @@ type Model struct {
 	elapsed  time.Duration
 
 	// state
-	width, height    int // window dimensions
-	onSessionEnd     string
-	sessionState     SessionState
-	confirmStartTime time.Time
-	currentTaskType  config.TaskType
-	currentTask      config.Task
-	sessionSummary   summary.SessionSummary
-	isShortSession   bool
-	longBreak        config.LongBreak
-	cyclePosition    int             // for long break tracking
-	commandsWg       *sync.WaitGroup // post commands wg
-	commandsCancel   context.CancelFunc
-	duringWg         *sync.WaitGroup // during-session sounds wg
-	duringCancel     context.CancelFunc
+	width, height      int // window dimensions
+	onSessionEnd       string
+	sessionState       SessionState
+	confirmStartTime   time.Time
+	currentTaskType    config.TaskType
+	currentTask        config.Task
+	sessionSummary     summary.SessionSummary
+	isShortSession     bool
+	longBreak          config.LongBreak
+	cyclePosition      int         // for long break tracking
+	commandsWg         *sync.WaitGroup // post commands wg
+	commandsCancel     context.CancelFunc
+	duringSoundPlayer  *sound.Player // during-session sound player
 
 	// ASCII art
 	useTimerArt     bool
@@ -103,7 +103,8 @@ func NewModel(taskType config.TaskType, cfg config.Config) Model {
 		timerFont:       timerFont,
 		asciiTimerStyle: timerStyle,
 
-		repo: repo,
+		repo:              repo,
+		duringSoundPlayer: sound.NewPlayer(),
 	}
 }
 
