@@ -73,6 +73,19 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 		m.recordSession()
 		return m.nextSession()
 
+	case key.Matches(msg, keyMap.Audio):
+		// Toggle audio only (timer keeps running)
+		if m.audioMuted {
+			if err := m.duringSoundPlayer.Resume(); err == nil {
+				m.audioMuted = false
+			}
+		} else {
+			if err := m.duringSoundPlayer.Pause(); err == nil {
+				m.audioMuted = true
+			}
+		}
+		return nil
+
 	case key.Matches(msg, keyMap.Quit):
 		m.recordSession()
 		return m.Quit()

@@ -8,6 +8,7 @@ type KeyMap struct {
 	Increase key.Binding
 	Reset    key.Binding
 	Pause    key.Binding
+	Audio    key.Binding
 	Skip     key.Binding
 	Quit     key.Binding
 }
@@ -17,6 +18,7 @@ func (k KeyMap) ShortHelp() []key.Binding {
 		k.Increase,
 		k.Pause,
 		k.Reset,
+		k.Audio,
 		k.Skip,
 		k.Quit,
 	}
@@ -38,6 +40,10 @@ var keyMap = KeyMap{
 	Pause: key.NewBinding(
 		key.WithKeys(" "),
 		key.WithHelp("space", "pause/resume"),
+	),
+	Audio: key.NewBinding(
+		key.WithKeys("a"),
+		key.WithHelp("a", "toggle audio"),
 	),
 	Skip: key.NewBinding(
 		key.WithKeys("s"),

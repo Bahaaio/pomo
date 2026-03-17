@@ -44,6 +44,7 @@ type Model struct {
 	commandsWg         *sync.WaitGroup // post commands wg
 	commandsCancel     context.CancelFunc
 	duringSoundPlayer  *sound.Player // during-session sound player
+	audioMuted         bool          // track audio mute state
 
 	// ASCII art
 	useTimerArt     bool

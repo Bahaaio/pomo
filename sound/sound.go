@@ -15,11 +15,12 @@ import (
 
 // Player handles audio playback with proper cleanup.
 type Player struct {
-	cancel   context.CancelFunc
-	wg       *sync.WaitGroup
-	mpvCmd   *exec.Cmd
-	mpvPause bool // track pause state
-	mu       sync.Mutex
+	cancel      context.CancelFunc
+	wg          *sync.WaitGroup
+	mpvCmd      *exec.Cmd
+	mpvPause    bool   // track pause state
+	socketPath  string // IPC socket path
+	mu          sync.Mutex
 }
 
 // NewPlayer creates a new sound player.
@@ -82,6 +83,7 @@ func (p *Player) PlayCommandLoop(cmd []string) {
 
 	// Create unique IPC socket path
 	socketPath := fmt.Sprintf("/tmp/mpv-pomo-%d.sock", time.Now().UnixNano())
+	p.socketPath = socketPath
 	os.Remove(socketPath)
 
 	// Build mpv command with IPC socket
@@ -106,13 +108,11 @@ func (p *Player) Pause() error {
 		return fmt.Errorf("no mpv process running")
 	}
 
-	// Find the IPC socket
-	socketPath := p.getSocketPath()
-	if socketPath == "" {
+	if p.socketPath == "" {
 		return fmt.Errorf("no IPC socket found")
 	}
 
-	conn, err := net.Dial("unix", socketPath)
+	conn, err := net.Dial("unix", p.socketPath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to mpv IPC: %w", err)
 	}
@@ -139,12 +139,11 @@ func (p *Player) Resume() error {
 		return nil // already playing
 	}
 
-	socketPath := p.getSocketPath()
-	if socketPath == "" {
+	if p.socketPath == "" {
 		return fmt.Errorf("no IPC socket found")
 	}
 
-	conn, err := net.Dial("unix", socketPath)
+	conn, err := net.Dial("unix", p.socketPath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to mpv IPC: %w", err)
 	}
@@ -162,29 +161,6 @@ func (p *Player) Resume() error {
 	return nil
 }
 
-// getSocketPath tries to find the mpv IPC socket
-func (p *Player) getSocketPath() string {
-	// Simple approach: try the most recent socket
-	entries, _ := os.ReadDir("/tmp")
-	var latest string
-	var latestTime int64
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		if len(entry.Name()) > 12 && entry.Name()[:12] == "mpv-pomo-" {
-			info, _ := entry.Info()
-			if info != nil && info.ModTime().Unix() > latestTime {
-				latest = "/tmp/" + entry.Name()
-				latestTime = info.ModTime().Unix()
-			}
-		}
-	}
-
-	return latest
-}
-
 // Stop stops any looping sound and waits for cleanup.
 func (p *Player) Stop() {
 	if p.cancel != nil {
@@ -193,6 +169,13 @@ func (p *Player) Stop() {
 	if p.wg != nil {
 		p.wg.Wait()
 	}
+	// Clean up socket
+	if p.socketPath != "" {
+		os.Remove(p.socketPath)
+	}
 	p.cancel = nil
 	p.wg = nil
+	p.mpvCmd = nil
+	p.socketPath = ""
+	p.mpvPause = false
 }
