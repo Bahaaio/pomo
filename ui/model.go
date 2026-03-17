@@ -29,6 +29,7 @@ type Model struct {
 	timer    timer.Model
 	duration time.Duration
 	elapsed  time.Duration
+	pausedElapsed time.Duration // elapsed when paused (for resume)
 
 	// state
 	width, height      int // window dimensions
@@ -89,7 +90,6 @@ func NewModel(taskType config.TaskType, cfg config.Config) Model {
 		confirmDialog: confirm.New(),
 		help:          help.New(),
 
-		timer:    timer.New(task.Duration),
 		duration: task.Duration,
 
 		onSessionEnd:    cfg.OnSessionEnd,

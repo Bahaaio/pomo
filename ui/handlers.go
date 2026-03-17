@@ -46,20 +46,25 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, keyMap.Pause):
 		if m.sessionState == Paused {
 			m.sessionState = Running
-			// Resume mpv playback
-			if err := m.duringSoundPlayer.Resume(); err != nil {
-				log.Printf("failed to resume mpv: %v", err)
+			// Only resume audio if not muted via 'a'
+			if !m.audioMuted {
+				if err := m.duringSoundPlayer.Resume(); err != nil {
+					log.Printf("failed to resume audio: %v", err)
+				}
 			}
+			log.Println("resuming session")
+			// resume timer with remaining timeout
+			m.timer.Timeout = m.duration - m.elapsed
+			return m.timer.Init()
 		} else if m.getPercent() != 1.0 { // prevent pausing if session is already completed
 			m.sessionState = Paused
-			// Pause mpv playback
+			// store elapsed before pausing
+			m.pausedElapsed = m.elapsed
+			// Pause both timer AND audio together
 			if err := m.duringSoundPlayer.Pause(); err != nil {
 				log.Printf("failed to pause mpv: %v", err)
 			}
-		}
-
-		if m.sessionState == Running {
-			return m.timer.Start()
+			log.Println("pausing session")
 		}
 
 		return nil
@@ -75,14 +80,13 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 
 	case key.Matches(msg, keyMap.Audio):
 		// Toggle audio only (timer keeps running)
-		if m.audioMuted {
-			if err := m.duringSoundPlayer.Resume(); err == nil {
-				m.audioMuted = false
-			}
-		} else {
-			if err := m.duringSoundPlayer.Pause(); err == nil {
-				m.audioMuted = true
-			}
+		// Disabled when session is paused - space handles both
+		if m.sessionState == Paused {
+			return nil
+		}
+		m.audioMuted = !m.audioMuted
+		if err := m.duringSoundPlayer.TogglePause(); err != nil {
+			log.Printf("failed to toggle audio: %v", err)
 		}
 		return nil
 
@@ -130,13 +134,19 @@ func (m *Model) handleTimerTick(msg timer.TickMsg) tea.Cmd {
 	cmds = append(cmds, cmd)
 
 	if cmd == nil {
-		// msg rejected, ignore
-		// i.e. old timer tick
-		log.Println("tick rejected, ignoring")
+		// msg rejected, ignore old timer tick
 		return nil
 	}
 
-	m.elapsed += m.timer.Interval
+	// use timer's internal elapsed time
+	// timer.Timeout = initial_duration - elapsed
+	m.elapsed = m.duration - m.timer.Timeout
+
+	// ensure elapsed doesn't exceed duration
+	if m.elapsed >= m.duration {
+		m.elapsed = m.duration
+		return m.handleCompletion()
+	}
 
 	percent := m.getPercent()
 	cmds = append(cmds, m.progressBar.SetPercent(percent))
@@ -153,13 +163,6 @@ func (m *Model) handleConfirmTick() tea.Cmd {
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
 		return confirmTickMsg{}
 	})
-}
-
-func (m *Model) handleTimerStartStop(msg timer.StartStopMsg) tea.Cmd {
-	var cmd tea.Cmd
-	m.timer, cmd = m.timer.Update(msg)
-
-	return cmd
 }
 
 func (m *Model) handleProgressBarFrame(msg progress.FrameMsg) tea.Cmd {
@@ -312,13 +315,14 @@ func (m *Model) startSession(taskType config.TaskType, task config.Task, isShort
 	m.currentTask = task
 
 	m.elapsed = 0
+	m.pausedElapsed = 0
 	m.duration = m.currentTask.Duration
 	m.timer = timer.New(m.currentTask.Duration)
 
 	m.sessionState = Running
 	return tea.Batch(
 		m.progressBar.SetPercent(0.0),
-		m.timer.Start(),
+		m.timer.Init(),
 	)
 }
 

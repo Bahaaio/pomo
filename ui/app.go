@@ -39,7 +39,13 @@ func (m Model) initSession() (tea.Model, tea.Cmd) {
 		m.duringSoundPlayer.PlayCommandLoop(duringCmds[0])
 	}
 
-	return m, m.timer.Init()
+	// init timer
+	m.timer = timer.New(m.currentTask.Duration)
+
+	return m, tea.Batch(
+		m.progressBar.SetPercent(0.0),
+		m.timer.Init(),
+	)
 }
 
 func (m Model) Init() tea.Cmd {
@@ -64,9 +70,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case confirmTickMsg:
 		return m, m.handleConfirmTick()
-
-	case timer.StartStopMsg:
-		return m, m.handleTimerStartStop(msg)
 
 	case progress.FrameMsg:
 		return m, m.handleProgressBarFrame(msg)

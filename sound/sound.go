@@ -99,8 +99,85 @@ func (p *Player) PlayCommandLoop(cmd []string) {
 	}()
 }
 
-// Pause pauses the mpv playback
+// IsPaused returns whether mpv is currently paused
+func (p *Player) IsPaused() bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.mpvPause
+}
+
+// Pause pauses the mpv playback (only if not already paused)
 func (p *Player) Pause() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if p.mpvPause {
+		return nil // already paused
+	}
+
+	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
+		return fmt.Errorf("no mpv process running")
+	}
+
+	if p.socketPath == "" {
+		return fmt.Errorf("no IPC socket found")
+	}
+
+	conn, err := net.Dial("unix", p.socketPath)
+	if err != nil {
+		return fmt.Errorf("failed to connect to mpv IPC: %w", err)
+	}
+	defer conn.Close()
+
+	// Send cycle pause command
+	cmd := map[string]interface{}{"command": []string{"cycle", "pause"}}
+	data, _ := json.Marshal(cmd)
+	_, err = conn.Write(append(data, '\n'))
+	if err != nil {
+		return fmt.Errorf("failed to send pause command: %w", err)
+	}
+
+	p.mpvPause = true
+	return nil
+}
+
+// Resume resumes the mpv playback (only if currently paused)
+func (p *Player) Resume() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if !p.mpvPause {
+		return nil // already playing
+	}
+
+	if p.mpvCmd == nil || p.mpvCmd.Process == nil {
+		return fmt.Errorf("no mpv process running")
+	}
+
+	if p.socketPath == "" {
+		return fmt.Errorf("no IPC socket found")
+	}
+
+	conn, err := net.Dial("unix", p.socketPath)
+	if err != nil {
+		return fmt.Errorf("failed to connect to mpv IPC: %w", err)
+	}
+	defer conn.Close()
+
+	// Send cycle pause command (to unpause)
+	cmd := map[string]interface{}{"command": []string{"cycle", "pause"}}
+	data, _ := json.Marshal(cmd)
+	_, err = conn.Write(append(data, '\n'))
+	if err != nil {
+		return fmt.Errorf("failed to send resume command: %w", err)
+	}
+
+	p.mpvPause = false
+	return nil
+}
+
+// TogglePause toggles the mpv pause state and returns new paused state
+func (p *Player) TogglePause() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -118,46 +195,15 @@ func (p *Player) Pause() error {
 	}
 	defer conn.Close()
 
-	// Send pause command
+	// Send cycle pause command
 	cmd := map[string]interface{}{"command": []string{"cycle", "pause"}}
 	data, _ := json.Marshal(cmd)
 	_, err = conn.Write(append(data, '\n'))
 	if err != nil {
-		return fmt.Errorf("failed to send pause command: %w", err)
+		return fmt.Errorf("failed to send toggle pause command: %w", err)
 	}
 
-	p.mpvPause = true
-	return nil
-}
-
-// Resume resumes the mpv playback
-func (p *Player) Resume() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if !p.mpvPause {
-		return nil // already playing
-	}
-
-	if p.socketPath == "" {
-		return fmt.Errorf("no IPC socket found")
-	}
-
-	conn, err := net.Dial("unix", p.socketPath)
-	if err != nil {
-		return fmt.Errorf("failed to connect to mpv IPC: %w", err)
-	}
-	defer conn.Close()
-
-	// Send pause command (cycle to unpause)
-	cmd := map[string]interface{}{"command": []string{"cycle", "pause"}}
-	data, _ := json.Marshal(cmd)
-	_, err = conn.Write(append(data, '\n'))
-	if err != nil {
-		return fmt.Errorf("failed to send resume command: %w", err)
-	}
-
-	p.mpvPause = false
+	p.mpvPause = !p.mpvPause
 	return nil
 }
 
