@@ -27,7 +27,8 @@ desktop notifications when complete.`,
 	Example: `  pomo                   # Start work session
   pomo 1h15m             # Start 1 hour 15 minute session
   pomo 45m 15m           # Start 45 minute work session with 15 minute break
-  pomo -t "write report" # work session with custom title (or --title)`,
+  pomo -t "write report" # work session with custom title (or --title)
+  pomo -u "https://..."  # work session with custom audio URL (or --url)`,
 
 	Args: cobra.MaximumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -46,6 +47,13 @@ func init() {
 		"t",
 		"",
 		"work session title",
+	)
+
+	rootCmd.Flags().StringP(
+		"url",
+		"u",
+		"",
+		"audio URL for during session (overrides config)",
 	)
 
 	initLogging()

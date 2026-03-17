@@ -34,6 +34,8 @@ type Notification struct {
 type Task struct {
 	Title        string
 	Duration     time.Duration
+	OnStart      [][]string
+	During       [][]string
 	Then         [][]string
 	Notification Notification
 }
@@ -51,11 +53,13 @@ type ASCIIArt struct {
 }
 
 type Config struct {
-	OnSessionEnd string
-	ASCIIArt     ASCIIArt
-	Work         Task
-	Break        Task
-	LongBreak    LongBreak
+	OnSessionEnd   string
+	OnSessionStart [][]string
+	DuringSession  [][]string
+	ASCIIArt       ASCIIArt
+	Work           Task
+	Break          Task
+	LongBreak      LongBreak
 }
 
 var (
@@ -65,6 +69,12 @@ var (
 
 	DefaultConfig = map[string]any{
 		"onSessionEnd": "ask",
+		"onSessionStart": [][]string{
+			{"afplay", "~/sounds/windup.wav"},
+		},
+		"duringSession": [][]string{
+			{"mpv", "--no-video", "--gapless-audio", "--loop-file=inf", "--volume=80", "~/sounds/ticking.wav"},
+		},
 		"asciiArt": map[string]any{
 			"enabled": true,
 			"font":    ascii.DefaultFont,
@@ -143,6 +153,14 @@ func LoadConfig() error {
 	// expand post command paths
 	C.Work.Then = expandCommands(C.Work.Then, homedir)
 	C.Break.Then = expandCommands(C.Break.Then, homedir)
+
+	// expand onSessionStart and duringSession commands
+	C.OnSessionStart = expandCommands(C.OnSessionStart, homedir)
+	C.DuringSession = expandCommands(C.DuringSession, homedir)
+	C.Work.OnStart = expandCommands(C.Work.OnStart, homedir)
+	C.Work.During = expandCommands(C.Work.During, homedir)
+	C.Break.OnStart = expandCommands(C.Break.OnStart, homedir)
+	C.Break.During = expandCommands(C.Break.During, homedir)
 
 	return nil
 }

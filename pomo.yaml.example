@@ -4,6 +4,14 @@
 
 onSessionEnd: ask
 
+# global hooks (apply to all sessions)
+# onSessionStart:
+#   - [afplay, ~/sounds/start.wav]  # macOS
+#   - [paplay, ~/sounds/start.wav]  # Linux
+
+# duringSession:
+#   - [afplay, ~/sounds/rain.mp3]  # ambient sound that loops
+
 asciiArt:
   enabled: true
   font: mono12
@@ -18,6 +26,11 @@ work:
     title: work finished 🎉
     message: time to take a break
     # icon: ~/path/to/icon.png
+  # per-task hooks override global hooks
+  # onStart:
+  #   - [afplay, ~/sounds/work-start.wav]
+  # during:
+  #   - [afplay, ~/sounds/ticking.mp3]
   # then:
   #   - [spd-say, "Time to take a break"]
 

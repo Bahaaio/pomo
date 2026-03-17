@@ -2,6 +2,8 @@
 package ui
 
 import (
+	"github.com/Bahaaio/pomo/config"
+	"github.com/Bahaaio/pomo/sound"
 	"github.com/Bahaaio/pomo/ui/confirm"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/timer"
@@ -9,12 +11,54 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// initSession runs the onSessionStart and duringSession hooks for the initial session
+func (m Model) initSession() (tea.Model, tea.Cmd) {
+	// determine which hooks to use (per-task overrides global)
+	var onStartCmds, duringCmds [][]string
+	if len(m.currentTask.OnStart) > 0 {
+		onStartCmds = m.currentTask.OnStart
+	} else {
+		onStartCmds = config.C.OnSessionStart
+	}
+	if len(m.currentTask.During) > 0 {
+		duringCmds = m.currentTask.During
+	} else {
+		duringCmds = config.C.DuringSession
+	}
+
+	// run start actions (fire and forget)
+	for _, cmd := range onStartCmds {
+		if len(cmd) >= 2 {
+			sound.PlayCommandOnce(cmd)
+		}
+	}
+
+	// run during actions (ambient sounds)
+	if len(duringCmds) > 0 && len(duringCmds[0]) >= 2 {
+		// Use the first sound command for looping
+		m.duringSoundPlayer.PlayCommandLoop(duringCmds[0])
+	}
+
+	// init timer
+	m.timer = timer.New(m.currentTask.Duration)
+
+	return m, tea.Batch(
+		m.progressBar.SetPercent(0.0),
+		m.timer.Init(),
+	)
+}
+
 func (m Model) Init() tea.Cmd {
-	return m.timer.Init()
+	return func() tea.Msg {
+		return initSessionMsg{}
+	}
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case initSessionMsg:
+		return m.initSession()
+
 	case tea.KeyMsg:
 		return m, m.handleKeys(msg)
 
@@ -26,9 +70,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case confirmTickMsg:
 		return m, m.handleConfirmTick()
-
-	case timer.StartStopMsg:
-		return m, m.handleTimerStartStop(msg)
 
 	case progress.FrameMsg:
 		return m, m.handleProgressBarFrame(msg)

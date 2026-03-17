@@ -9,6 +9,7 @@ import (
 	"github.com/Bahaaio/pomo/actions"
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/db"
+	"github.com/Bahaaio/pomo/sound"
 	"github.com/Bahaaio/pomo/ui/confirm"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/progress"
@@ -19,6 +20,7 @@ import (
 type (
 	confirmTickMsg  struct{}
 	commandsDoneMsg struct{}
+	initSessionMsg  struct{}
 )
 
 func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
@@ -44,12 +46,25 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, keyMap.Pause):
 		if m.sessionState == Paused {
 			m.sessionState = Running
+			// Only resume audio if not muted via 'a'
+			if !m.audioMuted {
+				if err := m.duringSoundPlayer.Resume(); err != nil {
+					log.Printf("failed to resume audio: %v", err)
+				}
+			}
+			log.Println("resuming session")
+			// resume timer with remaining timeout
+			m.timer.Timeout = m.duration - m.elapsed
+			return m.timer.Init()
 		} else if m.getPercent() != 1.0 { // prevent pausing if session is already completed
 			m.sessionState = Paused
-		}
-
-		if m.sessionState == Running {
-			return m.timer.Start()
+			// store elapsed before pausing
+			m.pausedElapsed = m.elapsed
+			// Pause both timer AND audio together
+			if err := m.duringSoundPlayer.Pause(); err != nil {
+				log.Printf("failed to pause mpv: %v", err)
+			}
+			log.Println("pausing session")
 		}
 
 		return nil
@@ -62,6 +77,18 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 	case key.Matches(msg, keyMap.Skip):
 		m.recordSession()
 		return m.nextSession()
+
+	case key.Matches(msg, keyMap.Audio):
+		// Toggle audio only (timer keeps running)
+		// Disabled when session is paused - space handles both
+		if m.sessionState == Paused {
+			return nil
+		}
+		m.audioMuted = !m.audioMuted
+		if err := m.duringSoundPlayer.TogglePause(); err != nil {
+			log.Printf("failed to toggle audio: %v", err)
+		}
+		return nil
 
 	case key.Matches(msg, keyMap.Quit):
 		m.recordSession()
@@ -107,13 +134,19 @@ func (m *Model) handleTimerTick(msg timer.TickMsg) tea.Cmd {
 	cmds = append(cmds, cmd)
 
 	if cmd == nil {
-		// msg rejected, ignore
-		// i.e. old timer tick
-		log.Println("tick rejected, ignoring")
+		// msg rejected, ignore old timer tick
 		return nil
 	}
 
-	m.elapsed += m.timer.Interval
+	// use timer's internal elapsed time
+	// timer.Timeout = initial_duration - elapsed
+	m.elapsed = m.duration - m.timer.Timeout
+
+	// ensure elapsed doesn't exceed duration
+	if m.elapsed >= m.duration {
+		m.elapsed = m.duration
+		return m.handleCompletion()
+	}
 
 	percent := m.getPercent()
 	cmds = append(cmds, m.progressBar.SetPercent(percent))
@@ -130,13 +163,6 @@ func (m *Model) handleConfirmTick() tea.Cmd {
 	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
 		return confirmTickMsg{}
 	})
-}
-
-func (m *Model) handleTimerStartStop(msg timer.StartStopMsg) tea.Cmd {
-	var cmd tea.Cmd
-	m.timer, cmd = m.timer.Update(msg)
-
-	return cmd
 }
 
 func (m *Model) handleProgressBarFrame(msg progress.FrameMsg) tea.Cmd {
@@ -172,6 +198,9 @@ func (m *Model) handleCompletion() tea.Cmd {
 	log.Println("timer completed")
 
 	m.recordSession()
+
+	// stop ambient sounds
+	m.duringSoundPlayer.Stop()
 
 	ctx, cancel := context.WithTimeout(context.Background(), actions.CommandTimeout)
 	m.commandsCancel = cancel
@@ -241,6 +270,9 @@ func (m *Model) shortSession() tea.Cmd {
 
 // initializes and starts a new session with the given task
 func (m *Model) startSession(taskType config.TaskType, task config.Task, isShortSession bool) tea.Cmd {
+	// stop any running during-session sound
+	m.duringSoundPlayer.Stop()
+
 	// cancel any running post actions
 	// before starting the next session
 	//
@@ -253,18 +285,44 @@ func (m *Model) startSession(taskType config.TaskType, task config.Task, isShort
 	// clean up previous commands state
 	m.commandsWg, m.commandsCancel = nil, nil
 
+	// determine which hooks to use (per-task overrides global)
+	var onStartCmds, duringCmds [][]string
+	if len(task.OnStart) > 0 {
+		onStartCmds = task.OnStart
+	} else {
+		onStartCmds = config.C.OnSessionStart
+	}
+	if len(task.During) > 0 {
+		duringCmds = task.During
+	} else {
+		duringCmds = config.C.DuringSession
+	}
+
+	// run start actions (fire and forget)
+	for _, cmd := range onStartCmds {
+		if len(cmd) >= 2 {
+			sound.PlayCommandOnce(cmd)
+		}
+	}
+
+	// run during actions (ambient sounds)
+	if len(duringCmds) > 0 && len(duringCmds[0]) >= 2 {
+		m.duringSoundPlayer.PlayCommandLoop(duringCmds[0])
+	}
+
 	m.isShortSession = isShortSession
 	m.currentTaskType = taskType
 	m.currentTask = task
 
 	m.elapsed = 0
+	m.pausedElapsed = 0
 	m.duration = m.currentTask.Duration
 	m.timer = timer.New(m.currentTask.Duration)
 
 	m.sessionState = Running
 	return tea.Batch(
 		m.progressBar.SetPercent(0.0),
-		m.timer.Start(),
+		m.timer.Init(),
 	)
 }
 
@@ -327,6 +385,9 @@ func (m *Model) waitForCommands() tea.Cmd {
 // Quit handles quitting the application
 // ensuring that any running post actions are completed before exiting
 func (m *Model) Quit() tea.Cmd {
+	// stop ambient sounds on quit
+	m.duringSoundPlayer.Stop()
+
 	// if we're already waiting for commands to finish, force quit
 	if m.sessionState == WaitingForCommands {
 		log.Println("force quitting...")

@@ -58,13 +58,22 @@ func parseArguments(args []string, task *config.Task, breakTask *config.Task) er
 	return nil
 }
 
-// parses the flags and sets the title
+// parses the flags and sets the title and audio URL
 func parseFlags(cmd *cobra.Command, workTask *config.Task) error {
 	title, _ := cmd.Flags().GetString("title")
+	url, _ := cmd.Flags().GetString("url")
 
 	// discard empty title
 	if title != "" {
 		workTask.Title = title
+	}
+
+	// override audio URL if provided
+	if url != "" {
+		// set URL for duringSession (global config)
+		config.C.DuringSession = [][]string{
+			{"mpv", "--no-video", "--loop", url},
+		}
 	}
 
 	return nil

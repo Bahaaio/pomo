@@ -8,6 +8,7 @@ import (
 
 	"github.com/Bahaaio/pomo/config"
 	"github.com/Bahaaio/pomo/db"
+	"github.com/Bahaaio/pomo/sound"
 	"github.com/Bahaaio/pomo/ui/ascii"
 	"github.com/Bahaaio/pomo/ui/colors"
 	"github.com/Bahaaio/pomo/ui/confirm"
@@ -28,20 +29,23 @@ type Model struct {
 	timer    timer.Model
 	duration time.Duration
 	elapsed  time.Duration
+	pausedElapsed time.Duration // elapsed when paused (for resume)
 
 	// state
-	width, height    int // window dimensions
-	onSessionEnd     string
-	sessionState     SessionState
-	confirmStartTime time.Time
-	currentTaskType  config.TaskType
-	currentTask      config.Task
-	sessionSummary   summary.SessionSummary
-	isShortSession   bool
-	longBreak        config.LongBreak
-	cyclePosition    int             // for long break tracking
-	commandsWg       *sync.WaitGroup // post commands wg
-	commandsCancel   context.CancelFunc
+	width, height      int // window dimensions
+	onSessionEnd       string
+	sessionState       SessionState
+	confirmStartTime   time.Time
+	currentTaskType    config.TaskType
+	currentTask        config.Task
+	sessionSummary     summary.SessionSummary
+	isShortSession     bool
+	longBreak          config.LongBreak
+	cyclePosition      int         // for long break tracking
+	commandsWg         *sync.WaitGroup // post commands wg
+	commandsCancel     context.CancelFunc
+	duringSoundPlayer  *sound.Player // during-session sound player
+	audioMuted         bool          // track audio mute state
 
 	// ASCII art
 	useTimerArt     bool
@@ -86,7 +90,6 @@ func NewModel(taskType config.TaskType, cfg config.Config) Model {
 		confirmDialog: confirm.New(),
 		help:          help.New(),
 
-		timer:    timer.New(task.Duration),
 		duration: task.Duration,
 
 		onSessionEnd:    cfg.OnSessionEnd,
@@ -101,7 +104,8 @@ func NewModel(taskType config.TaskType, cfg config.Config) Model {
 		timerFont:       timerFont,
 		asciiTimerStyle: timerStyle,
 
-		repo: repo,
+		repo:              repo,
+		duringSoundPlayer: sound.NewPlayer(),
 	}
 }
 
