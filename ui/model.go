@@ -42,6 +42,8 @@ type Model struct {
 	cyclePosition    int             // for long break tracking
 	commandsWg       *sync.WaitGroup // post commands wg
 	commandsCancel   context.CancelFunc
+	duringWg         *sync.WaitGroup // during-session sounds wg
+	duringCancel     context.CancelFunc
 
 	// ASCII art
 	useTimerArt     bool

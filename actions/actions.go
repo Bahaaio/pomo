@@ -14,6 +14,49 @@ import (
 
 var CommandTimeout = 5 * time.Second
 
+// RunStartActions runs commands at session start (fire and forget)
+func RunStartActions(ctx context.Context, cmds [][]string) {
+	log.Println("running session start actions")
+	for _, cmd := range cmds {
+		c := exec.CommandContext(ctx, cmd[0], cmd[1:]...)
+		if err := c.Run(); err != nil {
+			log.Printf("failed to run start command %q: %v\n", cmd, err)
+		}
+	}
+}
+
+// RunDuringActions starts ambient sounds that run during the session.
+// Returns a cancel function and wait group to stop/cleanup the sounds.
+func RunDuringActions(cmds [][]string) (context.CancelFunc, *sync.WaitGroup) {
+	log.Println("running during-session actions")
+	ctx, cancel := context.WithCancel(context.Background())
+	var wg sync.WaitGroup
+
+	for _, cmd := range cmds {
+		wg.Add(1)
+		go func(c []string) {
+			defer wg.Done()
+			cmd := exec.CommandContext(ctx, c[0], c[1:]...)
+			if err := cmd.Run(); err != nil && ctx.Err() == nil {
+				log.Printf("failed to run during command %q: %v\n", c, err)
+			}
+		}(cmd)
+	}
+
+	return cancel, &wg
+}
+
+// CancelDuringActions stops ambient sounds and waits for them to finish
+func CancelDuringActions(cancel context.CancelFunc, wg *sync.WaitGroup) {
+	if cancel != nil {
+		log.Println("canceling during-session actions")
+		cancel()
+	}
+	if wg != nil {
+		wg.Wait()
+	}
+}
+
 // RunPostActions sends task notification and runs post commands using goroutines
 //
 // returns a wait group to wait for their completion

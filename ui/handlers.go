@@ -173,6 +173,12 @@ func (m *Model) handleCompletion() tea.Cmd {
 
 	m.recordSession()
 
+	// stop ambient sounds
+	if m.duringCancel != nil {
+		actions.CancelDuringActions(m.duringCancel, m.duringWg)
+		m.duringCancel, m.duringWg = nil, nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), actions.CommandTimeout)
 	m.commandsCancel = cancel
 	m.commandsWg = actions.RunPostActions(ctx, m.currentTask)
@@ -241,6 +247,11 @@ func (m *Model) shortSession() tea.Cmd {
 
 // initializes and starts a new session with the given task
 func (m *Model) startSession(taskType config.TaskType, task config.Task, isShortSession bool) tea.Cmd {
+	// cancel any running during-session actions first
+	if m.duringCancel != nil {
+		actions.CancelDuringActions(m.duringCancel, m.duringWg)
+	}
+
 	// cancel any running post actions
 	// before starting the next session
 	//
@@ -252,6 +263,30 @@ func (m *Model) startSession(taskType config.TaskType, task config.Task, isShort
 
 	// clean up previous commands state
 	m.commandsWg, m.commandsCancel = nil, nil
+
+	// determine which hooks to use (per-task overrides global)
+	var onStartCmds, duringCmds [][]string
+	if len(task.OnStart) > 0 {
+		onStartCmds = task.OnStart
+	} else {
+		onStartCmds = config.C.OnSessionStart
+	}
+	if len(task.During) > 0 {
+		duringCmds = task.During
+	} else {
+		duringCmds = config.C.DuringSession
+	}
+
+	// run start actions (fire and forget)
+	if len(onStartCmds) > 0 {
+		startCtx := context.Background()
+		actions.RunStartActions(startCtx, onStartCmds)
+	}
+
+	// run during actions (ambient sounds)
+	if len(duringCmds) > 0 {
+		m.duringCancel, m.duringWg = actions.RunDuringActions(duringCmds)
+	}
 
 	m.isShortSession = isShortSession
 	m.currentTaskType = taskType
@@ -327,6 +362,12 @@ func (m *Model) waitForCommands() tea.Cmd {
 // Quit handles quitting the application
 // ensuring that any running post actions are completed before exiting
 func (m *Model) Quit() tea.Cmd {
+	// stop ambient sounds on quit
+	if m.duringCancel != nil {
+		actions.CancelDuringActions(m.duringCancel, m.duringWg)
+		m.duringCancel, m.duringWg = nil, nil
+	}
+
 	// if we're already waiting for commands to finish, force quit
 	if m.sessionState == WaitingForCommands {
 		log.Println("force quitting...")
