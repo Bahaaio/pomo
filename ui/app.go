@@ -29,14 +29,14 @@ func (m Model) initSession() (tea.Model, tea.Cmd) {
 	// run start actions (fire and forget)
 	for _, cmd := range onStartCmds {
 		if len(cmd) >= 2 {
-			sound.PlayOnce(cmd[1])
+			sound.PlayCommandOnce(cmd)
 		}
 	}
 
 	// run during actions (ambient sounds)
 	if len(duringCmds) > 0 && len(duringCmds[0]) >= 2 {
-		// Use the first sound file for looping
-		m.duringSoundPlayer.PlayLoop(duringCmds[0][1])
+		// Use the first sound command for looping
+		m.duringSoundPlayer.PlayCommandLoop(duringCmds[0])
 	}
 
 	return m, m.timer.Init()

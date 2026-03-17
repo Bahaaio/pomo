@@ -277,13 +277,13 @@ func (m *Model) startSession(taskType config.TaskType, task config.Task, isShort
 	// run start actions (fire and forget)
 	for _, cmd := range onStartCmds {
 		if len(cmd) >= 2 {
-			sound.PlayOnce(cmd[1])
+			sound.PlayCommandOnce(cmd)
 		}
 	}
 
 	// run during actions (ambient sounds)
 	if len(duringCmds) > 0 && len(duringCmds[0]) >= 2 {
-		m.duringSoundPlayer.PlayLoop(duringCmds[0][1])
+		m.duringSoundPlayer.PlayCommandLoop(duringCmds[0])
 	}
 
 	m.isShortSession = isShortSession
