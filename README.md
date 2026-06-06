@@ -104,6 +104,42 @@ winget install Bahaaio.pomo
 go install github.com/Bahaaio/pomo@latest
 ```
 
+### Pre-built Binaries
+
+Download pre-built binaries from the [releases page](https://github.com/Bahaaio/pomo/releases/latest).
+
+### Nix
+
+<details>
+<summary>❄️ Nix flake installation</summary>
+
+**Option 1: Add to flake inputs and system packages**
+
+In your `flake.nix`:
+
+```nix
+pomo = {
+  url = "github:Bahaaio/pomo";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+```
+
+Then add to your system packages:
+
+```nix
+environment.systemPackages = with pkgs; [
+  inputs.pomo.packages.${pkgs.stdenv.hostPlatform.system}.default
+];
+```
+
+**Option 2: Run directly**
+
+```bash
+nix run github:Bahaaio/pomo
+```
+
+</details>
+
 ### Build from Source
 
 ```bash
@@ -111,10 +147,6 @@ git clone https://github.com/Bahaaio/pomo
 cd pomo
 go build .
 ```
-
-### Pre-built Binaries
-
-Download pre-built binaries from the [releases page](https://github.com/Bahaaio/pomo/releases/latest).
 
 ## Configuration
 
