@@ -13,7 +13,7 @@ A simple, customizable Pomodoro timer for your terminal, built with [Bubble Tea]
 - 🔄 Pomodoro cycles with long break
 - 🔗 Task chaining with user confirmation prompts
 - 📊 Real-time progress bar visualization
-- ⌨️ Keyboard shortcuts to adjust time mid-session
+- ⌨️ VIM compatible keyboard shortcuts to adjust time mid-session
 - ⏸️ Pause and resume sessions
 - ⏭️ Skip to next session
 - 🔔 Cross-platform desktop notifications
@@ -234,10 +234,11 @@ work:
 
 | Key            | Action                    |
 | -------------- | ------------------------- |
+| `↓` / `j`      | Decrease time by 1 minute |
 | `↑` / `k`      | Increase time by 1 minute |
 | `Space`        | Pause/Resume timer        |
 | `←` / `h`      | Reset to initial duration |
-| `s`            | Skip to next session      |
+| `→` / `l`      | Skip to next session      |
 | `q` / `Ctrl+C` | Quit                      |
 
 > Skip button skips directly to the next session, bypassing any prompts

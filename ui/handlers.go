@@ -38,7 +38,19 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 
 	switch {
 	case key.Matches(msg, keyMap.Increase):
-		m.duration += time.Minute
+		if m.elapsed >= time.Minute {
+			m.elapsed -= time.Minute
+		} else {
+			m.elapsed = 0
+		}
+		return m.updateProgressBar()
+
+	case key.Matches(msg, keyMap.Decrease):
+		if m.elapsed+time.Minute < m.duration {
+			m.elapsed += time.Minute
+		} else {
+			m.elapsed = m.duration - time.Second
+		}
 		return m.updateProgressBar()
 
 	case key.Matches(msg, keyMap.Pause):
