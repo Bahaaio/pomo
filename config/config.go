@@ -51,11 +51,12 @@ type ASCIIArt struct {
 }
 
 type Config struct {
-	OnSessionEnd string
-	ASCIIArt     ASCIIArt
-	Work         Task
-	Break        Task
-	LongBreak    LongBreak
+	OnSessionEnd   string
+	WriteStateFile bool
+	ASCIIArt       ASCIIArt
+	Work           Task
+	Break          Task
+	LongBreak      LongBreak
 }
 
 var (
@@ -64,7 +65,8 @@ var (
 	C    Config
 
 	DefaultConfig = map[string]any{
-		"onSessionEnd": "ask",
+		"onSessionEnd":   "ask",
+		"writeStateFile": false,
 		"asciiArt": map[string]any{
 			"enabled": true,
 			"font":    ascii.DefaultFont,

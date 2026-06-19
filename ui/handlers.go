@@ -48,6 +48,8 @@ func (m *Model) handleKeys(msg tea.KeyMsg) tea.Cmd {
 			m.sessionState = Paused
 		}
 
+		m.writeState()
+
 		if m.sessionState == Running {
 			return m.timer.Start()
 		}
@@ -118,6 +120,8 @@ func (m *Model) handleTimerTick(msg timer.TickMsg) tea.Cmd {
 	percent := m.getPercent()
 	cmds = append(cmds, m.progressBar.SetPercent(percent))
 
+	m.writeState()
+
 	return tea.Batch(cmds...)
 }
 
@@ -182,6 +186,7 @@ func (m *Model) handleCompletion() tea.Cmd {
 	case "ask":
 		m.sessionState = ShowingConfirm
 		m.confirmStartTime = time.Now()
+		m.writeState()
 
 		// send first confirm tick
 		return func() tea.Msg {
@@ -262,6 +267,7 @@ func (m *Model) startSession(taskType config.TaskType, task config.Task, isShort
 	m.timer = timer.New(m.currentTask.Duration)
 
 	m.sessionState = Running
+	m.writeState()
 	return tea.Batch(
 		m.progressBar.SetPercent(0.0),
 		m.timer.Start(),
@@ -299,6 +305,7 @@ func (m *Model) recordSession() {
 
 // handles the completion of post actions and quits the application
 func (m *Model) handleCommandsDone() tea.Cmd {
+	m.removeStateFile()
 	m.sessionState = Quitting
 	return tea.Quit
 }
@@ -345,6 +352,7 @@ func (m *Model) Quit() tea.Cmd {
 		return m.waitForCommands()
 	}
 
+	m.removeStateFile()
 	m.sessionState = Quitting
 	return tea.Quit
 }

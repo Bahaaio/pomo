@@ -84,6 +84,13 @@ longBreak:
 	assert.Equal(t, defaults.ASCIIArt.Font, C.ASCIIArt.Font)
 }
 
+func TestLoadConfigWriteStateFile(t *testing.T) {
+	setupViper()
+	writeAndLoadConfig(t, "writeStateFile: true")
+
+	assert.True(t, C.WriteStateFile)
+}
+
 func TestLoadConfigThenCommands(t *testing.T) {
 	configYAML := `
 work:
@@ -292,6 +299,7 @@ func getDefaultConfig() Config {
 func assertConfigMatches(t *testing.T, expected Config, actual Config) {
 	// main config assertion
 	assert.Equal(t, expected.OnSessionEnd, actual.OnSessionEnd)
+	assert.Equal(t, expected.WriteStateFile, actual.WriteStateFile)
 
 	// ASCII Art assertions
 	assert.Equal(t, expected.ASCIIArt.Enabled, actual.ASCIIArt.Enabled)

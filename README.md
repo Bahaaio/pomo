@@ -170,6 +170,18 @@ Example `pomo.yaml`:
 # options: "ask" | "start" | "quit"
 onSessionEnd: "ask"
 
+# if enabled pomo will write current state to /tmp/pomo.json every second with format:
+# {
+#   "state": "running",
+#   "type": "work",
+#   "elapsed_seconds": 312,
+#   "duration_seconds": 1500,
+#   "remaining_seconds": 1188,
+#   "sessions_done": 1,
+#   "cycle_position": 2
+# }
+writeStateFile: false
+
 asciiArt:
   # use ASCII art for timer display
   enabled: true

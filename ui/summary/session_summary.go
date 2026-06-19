@@ -46,6 +46,10 @@ func (t *SessionSummary) AddDuration(taskType config.TaskType, duration time.Dur
 	}
 }
 
+func (t SessionSummary) WorkSessions() int {
+	return t.totalWorkSessions
+}
+
 // SetDatabaseUnavailable marks the database as unavailable.
 // prints a warning in the summary.
 func (t *SessionSummary) SetDatabaseUnavailable() {

@@ -48,6 +48,9 @@ type Model struct {
 	timerFont       ascii.Font
 	asciiTimerStyle lipgloss.Style
 
+	// state file
+	writeStateFile bool
+
 	// databse
 	repo *db.SessionRepo
 }
@@ -97,6 +100,7 @@ func NewModel(taskType config.TaskType, cfg config.Config) Model {
 		longBreak:       cfg.LongBreak,
 		cyclePosition:   1,
 
+		writeStateFile:  cfg.WriteStateFile,
 		useTimerArt:     cfg.ASCIIArt.Enabled,
 		timerFont:       timerFont,
 		asciiTimerStyle: timerStyle,

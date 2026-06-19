@@ -3,6 +3,7 @@
 # https://github.com/Bahaaio/pomo
 
 onSessionEnd: ask
+writeStateFile: false
 
 asciiArt:
   enabled: true
